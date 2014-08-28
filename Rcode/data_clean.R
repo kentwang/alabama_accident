@@ -37,3 +37,6 @@ total = tapply(a$AADT,IntID,sum)
 totalAADT = as.numeric(total[ind]) # total traffic at intersection
 
 a = data.frame(IntID,numSegs,a,totalAADT)  # add new variables
+
+#-- Merge accident data with coordinate data
+a <- merge(a, coordinate, by = "IntID")
