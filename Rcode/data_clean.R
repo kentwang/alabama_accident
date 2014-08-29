@@ -32,11 +32,11 @@ b = do.call(rbind,b)
 IntID = factor(b[,1])    # intersection ID variable
 segTab = as.data.frame(table(IntID))
 ind = match(IntID,segTab$IntID)
-numSegs = as.numeric(segTab$Freq[ind])
+NumSegs = as.numeric(segTab$Freq[ind])
 total = tapply(a$AADT,IntID,sum)  
-totalAADT = as.numeric(total[ind]) # total traffic at intersection
+TotalAADT = as.numeric(total[ind]) # total traffic at intersection
 
-a = data.frame(IntID,numSegs,a,totalAADT)  # add new variables
+a = data.frame(IntID,NumSegs,a,TotalAADT)  # add new variables
 
 #-- One more variable leg 5 year total traffic per million
 a$TotalTrafficInM <- a$AADT * 5 * 365 / 1000000
