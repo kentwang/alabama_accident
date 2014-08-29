@@ -1,10 +1,13 @@
 #####################################################################
 #  This script is to build predictive models on count of accidents.
-#  Models to be used are Poisson Regression, Negative Binomial, regression
-#  tree in 'rpart' and Random Forest
+#  Models to be used are Poisson Regression, Negative Binomial, Quasi-Poisson
+#  regression tree in 'rpart' and Random Forest
 #
 #  Author: Ketong Wang
 #####################################################################
+
+library(MASS)
+library(rpart)
 
 #-- load data
 rm(list = ls())
@@ -25,7 +28,7 @@ fmla.OffsetNo <- as.formula("X5YrCrashCount ~ AADT + AreaType + IntAADT +
                             Rumble + SightLt + SightRt + SkewAngle + Terrain + 
                             TotalAADT + TotalT5YearInM + TurnProhib")
 
-fmla.Offset <- as.formula("X5YrCrashCount ~ AADT + AreaType + IntAADT +
+fmla.OffsetYes <- as.formula("X5YrCrashCount ~ AADT + AreaType + IntAADT +
                             IntCat + IntTCType + LegRtType + LegSpeed + LegTCType + LegType + 
                             LegWidth + Lighting + LTLanes + LTLnLength + LTOffset + LTWidth + MedType + 
                             MedWidth + MergeLanes + NextPIDist + NumberLegs + 
@@ -37,12 +40,19 @@ fmla.Offset <- as.formula("X5YrCrashCount ~ AADT + AreaType + IntAADT +
 
 
 #-- Poisson Regression
-poisson.OffSetNo <- glm("X5YrCrashCount ~ AADT + AreaType + IntAADT +
-                            IntCat + IntTCType + LegRtType + LegSpeed + LegTCType + LegType + 
-                            LegWidth + Lighting + LTLanes + LTLnLength + LTOffset + LTWidth + MedType + 
-                            MedWidth + MergeLanes + NextPIDist + NumberLegs + 
-                            NumLanes + NumSegs + Offset + OffsetDist + 
-                            OneWay + PaveType + PedCross + RTChannel + 
-                            RTLanes + RTLnLength + RTMoveCtrl + RTWidth + 
-                            Rumble + SightLt + SightRt + SkewAngle + Terrain + 
-                            TotalAADT + TotalT5YearInM + TurnProhib", data = a, family = poisson)
+poisson.OffSetNo <- glm(fmla.OffsetNo, data = a, family = "poisson")
+poisson.OffsetYes <- glm(fmla.OffsetYes, data = a, family = "poisson")
+
+#-- Quisi Poisson
+qp.OffSetNo <- glm(fmla.OffsetNo, data = a, family = "quasipoisson") # no complaints using quasi-poisson
+qp.OffSet <- glm(fmla.OffsetYes, data = a, family = "quasipoisson")
+
+#-- overdispersed, negative binomial
+bn.OffSetNo <- glm.nb(fmla.OffsetNo, data = a)
+bn.OffSetYes <- glm.nb(fmla.OffsetYes, data = a)
+
+#-- Hurdle Model
+
+#-- Zero-inated models
+
+#-- Regression Tree
