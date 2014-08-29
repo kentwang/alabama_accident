@@ -14,7 +14,7 @@ load("data/accidents.RData") # dataframe is a
 # paste(sort(names(a)), collapse = " + ")
 # "AADT + AreaType + City + County + IntAADT + IntCat + IntID + IntTCType + Lat + LegID + LegRtType + LegSpeed + LegTCType + LegType + LegWidth + Lighting + Long + LTLanes + LTLnLength + LTOffset + LTWidth + MedType + MedWidth + MergeLanes + NextPIDist + NumberLegs + NumLanes + NumSegs + Offset + OffsetDist + OneWay + PaveType + PedCross + RTChannel + RTLanes + RTLnLength + RTMoveCtrl + RTWidth + Rumble + SightLt + SightRt + SkewAngle + Terrain + TotalAADT + TotalT5YearInM + TurnProhib + X1YrCrashCount + X5YrCrashCount"
 
-#-- define two formula, removed variables X5YrCrashCount, IntID, LegID, Lat, Long, X1YrCrashCount
+#-- define two formula, removed variables X5YrCrashCount, IntID, LegID, Lat, Long, X1YrCrashCount, City, County
 fmla.OffsetNo <- as.formula("X5YrCrashCount ~ AADT + AreaType + City + County + IntAADT +
                             IntCat + IntTCType + LegRtType + LegSpeed + LegTCType + LegType + 
                             LegWidth + Lighting + LTLanes + LTLnLength + LTOffset + LTWidth + MedType + 
@@ -37,3 +37,4 @@ fmla.Offset <- as.formula("X5YrCrashCount ~ AADT + AreaType + City + County + In
 
 
 #-- Poisson Regression
+poisson.OffSetNo <- glm("X5YrCrashCount ~ AADT + AreaType + City", data = a, family = poisson)
