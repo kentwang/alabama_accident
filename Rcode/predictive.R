@@ -17,8 +17,9 @@ load("data/accidents.RData") # dataframe is a
 # paste(sort(names(a)), collapse = " + ")
 # "AADT + AreaType + City + County + IntAADT + IntCat + IntID + IntTCType + Lat + LegID + LegRtType + LegSpeed + LegTCType + LegType + LegWidth + Lighting + Long + LTLanes + LTLnLength + LTOffset + LTWidth + MedType + MedWidth + MergeLanes + NextPIDist + NumberLegs + NumLanes + NumSegs + Offset + OffsetDist + OneWay + PaveType + PedCross + RTChannel + RTLanes + RTLnLength + RTMoveCtrl + RTWidth + Rumble + SightLt + SightRt + SkewAngle + Terrain + TotalAADT + TotalT5YearInM + TurnProhib + X1YrCrashCount + X5YrCrashCount"
 
-#-- define two formula, removed variables X5YrCrashCount, IntID, LegID, Lat, Long, X1YrCrashCount, City, County
-fmla.OffsetNo <- as.formula("X5YrCrashCount ~ AADT + AreaType + IntAADT +
+#-- define two formula, removed variables X5YrCrashCount, IntID, LegID, Lat, Long, X1YrCrashCount, City, County, TotalAADT
+#-- Remove all ADDT variables? either in offset or appear once as predictor?
+fmla.OffsetNo <- as.formula("X5YrCrashCount ~ AreaType + IntAADT +
                             IntCat + IntTCType + LegRtType + LegSpeed + LegTCType + LegType + 
                             LegWidth + Lighting + LTLanes + LTLnLength + LTOffset + LTWidth + MedType + 
                             MedWidth + MergeLanes + NextPIDist + NumberLegs + 
@@ -28,7 +29,7 @@ fmla.OffsetNo <- as.formula("X5YrCrashCount ~ AADT + AreaType + IntAADT +
                             Rumble + SightLt + SightRt + SkewAngle + Terrain + 
                             TotalAADT + TotalT5YearInM + TurnProhib")
 
-fmla.OffsetYes <- as.formula("X5YrCrashCount ~ AADT + AreaType + IntAADT +
+fmla.OffsetYes <- as.formula("X5YrCrashCount ~ AreaType + IntAADT +
                             IntCat + IntTCType + LegRtType + LegSpeed + LegTCType + LegType + 
                             LegWidth + Lighting + LTLanes + LTLnLength + LTOffset + LTWidth + MedType + 
                             MedWidth + MergeLanes + NextPIDist + NumberLegs + 
@@ -36,12 +37,12 @@ fmla.OffsetYes <- as.formula("X5YrCrashCount ~ AADT + AreaType + IntAADT +
                             OneWay + PaveType + PedCross + RTChannel + 
                             RTLanes + RTLnLength + RTMoveCtrl + RTWidth + 
                             Rumble + SightLt + SightRt + SkewAngle + Terrain + 
-                            TotalT5YearInM + TurnProhib + offset(log(TotalAADT))") # offset(log())
+                            TotalAADT + TurnProhib + offset(log(TotalT5YearInM))") # offset(log(TotalT5YearInM))
 
 
 #-- Poisson Regression
-poisson.OffSetNo <- glm(fmla.OffsetNo, data = a, family = "poisson")
-poisson.OffsetYes <- glm(fmla.OffsetYes, data = a, family = "poisson")
+ps.OffSetNo <- glm(fmla.OffsetNo, data = a, family = "poisson")
+ps.OffsetYes <- glm(fmla.OffsetYes, data = a, family = "poisson")
 
 #-- Quisi Poisson
 qp.OffSetNo <- glm(fmla.OffsetNo, data = a, family = "quasipoisson") # no complaints using quasi-poisson
@@ -55,4 +56,15 @@ bn.OffSetYes <- glm.nb(fmla.OffsetYes, data = a)
 
 #-- Zero-inated models
 
-#-- Regression Tree
+#-- Regression Tree. Do this work as offset?
+rt.OffSetNo <- rpart(fmla.OffsetNo, data = a, method = "poisson")
+rt.OffSetYes <- rpart(fmla.OffsetYes, data = a, method = "poisson")
+
+
+
+
+
+
+
+
+
