@@ -43,10 +43,14 @@ fmla.OffsetYes <- as.formula("X5YrCrashCount ~ AreaType + IntAADT +
 
 #-- Poisson Regression
 ps.OffSetNo <- glm(fmla.OffsetNo, data = a, family = "poisson")
-ps.OffsetYes <- glm(fmla.OffsetYes, data = a, family = "poisson")
+plot(predict(ps.OffSetNo), residuals(ps.OffSetNo), xlab = "Fitted", ylab = "Residuals")
+
+
+ps.OffSetYes <- glm(fmla.OffsetYes, data = a, family = "poisson")
 
 #-- Quisi Poisson
 qp.OffSetNo <- glm(fmla.OffsetNo, data = a, family = "quasipoisson") # no complaints using quasi-poisson
+# sum(residuals(ps.OffSetNo, type = "pearson")^2) # pearson residuals for goodness of fit
 qp.OffSet <- glm(fmla.OffsetYes, data = a, family = "quasipoisson")
 
 #-- overdispersed, negative binomial
@@ -74,8 +78,8 @@ rt.OffSetYes <- rpart(fmla.OffsetYes, data = a, method = 'poisson')
 rf.OffSetNo <- randomForest(fmla.OffsetNo, data = a)
 varImpPlot(rf.OffSetNo) # variable importance plot
 
-rf.OffSetYes <- randomForest(fmla.OffsetYes, data = a)
-varImpPlot(rf.OffSetNo) # variable importance plot
+rf.OffSetYes <- randomForest(fmla.OffsetYes, data = a) # somehow it works mystery
+varImpPlot(rf.OffSetYes) # variable importance plot
 
 
 
