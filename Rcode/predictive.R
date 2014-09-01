@@ -42,15 +42,16 @@ fmla.OffsetYes <- as.formula("X5YrCrashCount ~ AreaType + IntAADT +
 
 
 #-- Poisson Regression
+# diagnostics of possion no offset
 ps.OffSetNo <- glm(fmla.OffsetNo, data = a, family = "poisson")
-plot(predict(ps.OffSetNo), residuals(ps.OffSetNo), xlab = "Fitted", ylab = "Residuals")
+sum(residuals(ps.OffSetNo, type = "pearson")^2) # pearson residuals for goodness of fit
+(1 - exp((ps.OffSetNo$dev - ps.OffSetNo$null) / dim(a)[1])) / (1 - exp(-ps.OffSetNo$null / dim(a)[1])) # Naglekerke R-square
 
 
 ps.OffSetYes <- glm(fmla.OffsetYes, data = a, family = "poisson")
 
 #-- Quisi Poisson
 qp.OffSetNo <- glm(fmla.OffsetNo, data = a, family = "quasipoisson") # no complaints using quasi-poisson
-# sum(residuals(ps.OffSetNo, type = "pearson")^2) # pearson residuals for goodness of fit
 qp.OffSet <- glm(fmla.OffsetYes, data = a, family = "quasipoisson")
 
 #-- overdispersed, negative binomial
