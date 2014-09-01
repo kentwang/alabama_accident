@@ -8,6 +8,7 @@
 
 library(MASS)
 library(rpart)
+library(randomForest)
 
 #-- load data
 rm(list = ls())
@@ -69,7 +70,12 @@ rt.OffSetYes <- rpart(fmla.OffsetYes, data = a, method = 'poisson')
 #                             Rumble + SightLt + SightRt + SkewAngle + Terrain + 
 #                             TotalAADT + TurnProhib", data = a, method = "poisson")
 
+#-- Random Forests
+rf.OffSetNo <- randomForest(fmla.OffsetNo, data = a)
+varImpPlot(rf.OffSetNo) # variable importance plot
 
+rf.OffSetYes <- randomForest(fmla.OffsetYes, data = a)
+varImpPlot(rf.OffSetNo) # variable importance plot
 
 
 
