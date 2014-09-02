@@ -1,0 +1,29 @@
+Accident Data: Things to do
+
+Make exploratory plots
+ - number of accidents at intersections
+ - accident rate at intersections (5Y accidents / avg traffic (in millions) )
+
+Build predictive models
+	Note: two models for each. One with offset (avg traffic (in millions)) and one without (but use these variables as predictor variables)
+ - poisson regression
+ - overdispersed poisson (negbin or quasipois)
+ - rpart
+ - random forest (Q: does random forest allow an offset?)
+ 
+Examine Residuals
+ - make various residual plots
+ - how to define residual for count data: raw (obs-exp), standardized, deviance, etc
+ 
+Explanatory Analysis
+ - what are most important predictors from each model?
+ - should we use lasso penalty on regression models?
+ 
+Cross-Validation
+ - Perhaps we should use cross-validation instead of regular residual analysis
+ - special cross-validation based on intersections and legs
+	
+	
+	
+	
+	
