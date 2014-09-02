@@ -1,11 +1,3 @@
-#####################################################################
-#  This script is to build predictive models on count of accidents.
-#  Models to be used are Poisson Regression, Negative Binomial, Quasi-Poisson
-#  regression tree in 'rpart' and Random Forest
-#
-#  Author: Ketong Wang
-#####################################################################
-
 library(MASS)
 library(rpart)
 library(randomForest)
@@ -69,9 +61,7 @@ nb.OffSetNo <- glm.nb(fmla.OffsetNo, data = a)
 nb.OffSetYes <- glm.nb(fmla.OffsetYes, data = a)
 
 #-- Hurdle Model
-
 #-- Zero-inated models
-
 #-- Regression Tree. Do this work as offset? Same result
 rt.OffSetNo <- rpart(fmla.OffsetNo, data = a, method = "poisson")
 rt.OffSetYes <- rpart(fmla.OffsetYes, data = a, method = 'poisson')
