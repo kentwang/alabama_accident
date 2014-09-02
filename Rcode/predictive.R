@@ -51,6 +51,7 @@ glmulti(fmla.OffsetNo, data = a, family = "poisson", level = 1) # use glmulti pa
 #   Best model: X5YrCrashCount~1+IntAADT+LegSpeed+LegWidth+LTOffset+LTWidth+MedWidth+NextPIDist+NumLanes+RTLnLength+RTWidth+SkewAngle+TotalT5YearInM
 # Crit= 3212.36022107788
 # Mean crit= 3214.36871835161
+step(ps.OffSetNo) # step-wise model selection
 
 ps.OffSetYes <- glm(fmla.OffsetYes, data = a, family = "poisson")
 sum(residuals(ps.OffSetYes, type = "pearson")^2) # pearson residuals for goodness of fit
@@ -61,14 +62,16 @@ glmulti(fmla.OffsetYes, data = a, family = "poisson", level = 1, maxit = 20) # u
 #   Best model: X5YrCrashCount~1+IntAADT+LegWidth+LTLnLength+LTOffset+LTWidth+MedWidth+MergeLanes+NextPIDist
 # Crit= 3235.60517318516
 # Mean crit= 3238.47254940627
+step(ps.OffSetNo) # step-wise model selection
+
 
 #-- Quisi Poisson
 qp.OffSetNo <- glm(fmla.OffsetNo, data = a, family = "quasipoisson") # no complaints using quasi-poisson
 qp.OffSet <- glm(fmla.OffsetYes, data = a, family = "quasipoisson")
 
 #-- overdispersed, negative binomial
-bn.OffSetNo <- glm.nb(fmla.OffsetNo, data = a)
-bn.OffSetYes <- glm.nb(fmla.OffsetYes, data = a)
+nb.OffSetNo <- glm.nb(fmla.OffsetNo, data = a)
+nb.OffSetYes <- glm.nb(fmla.OffsetYes, data = a)
 
 #-- Hurdle Model
 
