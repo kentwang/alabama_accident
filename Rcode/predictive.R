@@ -11,7 +11,6 @@ library(rpart)
 library(randomForest)
 
 #-- load data
-rm(list = ls())
 load("data/accidents.RData") # dataframe is a
 
 #-- All variable names

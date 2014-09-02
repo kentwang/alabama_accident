@@ -3,7 +3,6 @@ library(rpart)
 library(randomForest)
 
 #-- load data
-rm(list = ls())
 load("data/accidents.RData") # dataframe is a
 
 #-- define two formula, removed variables X5YrCrashCount, IntID, LegID, Lat, Long, X1YrCrashCount, City, County, TotalAADT
