@@ -72,9 +72,3 @@ varImpPlot(rf.OffSetNo) # variable importance plot
 
 rf.OffSetYes <- randomForest(fmla.OffsetYes, data = a) # somehow it works mystery
 varImpPlot(rf.OffSetYes) # variable importance plot
-
-
-
-
-
-
