@@ -46,7 +46,7 @@ fmla.OffsetYes <- as.formula("X5YrCrashCount ~ AreaType + IntAADT +
 ps.OffSetNo <- glm(fmla.OffsetNo, data = a, family = "poisson")
 sum(residuals(ps.OffSetNo, type = "pearson")^2) # pearson residuals for goodness of fit
 (1 - exp((ps.OffSetNo$dev - ps.OffSetNo$null) / dim(a)[1])) / (1 - exp(-ps.OffSetNo$null / dim(a)[1])) # Naglekerke R-square
-glmulti(fmla.OffsetNo, data = a, family = "poisson", level = 1) # use glmulti package for glm model selection
+obj <- glmulti(fmla.OffsetNo, data = a, family = "poisson", level = 1, crit = bic) # use glmulti package for glm model selection
 # After 1056200 models:
 #   Best model: X5YrCrashCount~1+IntAADT+LegSpeed+LegWidth+LTOffset+LTWidth+MedWidth+NextPIDist+NumLanes+RTLnLength+RTWidth+SkewAngle+TotalT5YearInM
 # Crit= 3212.36022107788
@@ -62,7 +62,7 @@ glmulti(fmla.OffsetYes, data = a, family = "poisson", level = 1, maxit = 20) # u
 #   Best model: X5YrCrashCount~1+IntAADT+LegWidth+LTLnLength+LTOffset+LTWidth+MedWidth+MergeLanes+NextPIDist
 # Crit= 3235.60517318516
 # Mean crit= 3238.47254940627
-step(ps.OffSetNo) # step-wise model selection
+step(ps.OffSetYes) # step-wise model selection
 
 
 #-- Quisi Poisson
