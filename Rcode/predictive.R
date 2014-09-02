@@ -46,9 +46,16 @@ fmla.OffsetYes <- as.formula("X5YrCrashCount ~ AreaType + IntAADT +
 ps.OffSetNo <- glm(fmla.OffsetNo, data = a, family = "poisson")
 sum(residuals(ps.OffSetNo, type = "pearson")^2) # pearson residuals for goodness of fit
 (1 - exp((ps.OffSetNo$dev - ps.OffSetNo$null) / dim(a)[1])) / (1 - exp(-ps.OffSetNo$null / dim(a)[1])) # Naglekerke R-square
-
+glmulti(fmla.OffsetNo, data = a, family = "poisson", level = 1) # use glmulti package for glm model selection
+# After 1056200 models:
+#   Best model: X5YrCrashCount~1+IntAADT+LegSpeed+LegWidth+LTOffset+LTWidth+MedWidth+NextPIDist+NumLanes+RTLnLength+RTWidth+SkewAngle+TotalT5YearInM
+# Crit= 3212.36022107788
+# Mean crit= 3214.36871835161
 
 ps.OffSetYes <- glm(fmla.OffsetYes, data = a, family = "poisson")
+sum(residuals(ps.OffSetYes, type = "pearson")^2) # pearson residuals for goodness of fit
+(1 - exp((ps.OffSetYes$dev - ps.OffSetYes$null) / dim(a)[1])) / (1 - exp(-ps.OffSetYes$null / dim(a)[1])) # Naglekerke R-square
+# R-square is higher but AIC is higher
 
 #-- Quisi Poisson
 qp.OffSetNo <- glm(fmla.OffsetNo, data = a, family = "quasipoisson") # no complaints using quasi-poisson
