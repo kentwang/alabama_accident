@@ -72,18 +72,9 @@ nb.OffSetYes <- glm.nb(fmla.OffsetYes, data = a)
 
 #-- Zero-inated models
 
-#-- Regression Tree. Do this work as offset?
+#-- Regression Tree. Do this work as offset? Same result
 rt.OffSetNo <- rpart(fmla.OffsetNo, data = a, method = "poisson")
 rt.OffSetYes <- rpart(fmla.OffsetYes, data = a, method = 'poisson')
-# rt.OffSetYes <- rpart("cbind(TotalT5YearInM, X5YrCrashCount) ~ AreaType + IntAADT +
-#                             IntCat + IntTCType + LegRtType + LegSpeed + LegTCType + LegType + 
-#                             LegWidth + Lighting + LTLanes + LTLnLength + LTOffset + LTWidth + MedType + 
-#                             MedWidth + MergeLanes + NextPIDist + NumberLegs + 
-#                             NumLanes + NumSegs + Offset + OffsetDist + 
-#                             OneWay + PaveType + PedCross + RTChannel + 
-#                             RTLanes + RTLnLength + RTMoveCtrl + RTWidth + 
-#                             Rumble + SightLt + SightRt + SkewAngle + Terrain + 
-#                             TotalAADT + TurnProhib", data = a, method = "poisson")
 
 #-- Random Forests
 rf.OffSetNo <- randomForest(fmla.OffsetNo, data = a)
