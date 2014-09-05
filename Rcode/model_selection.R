@@ -71,12 +71,10 @@ treePois.offset <- rpart(fmla.offset, data = a, method = "poisson")
 
 par(oma=c(2,3,2,2))
 barplot(treePois$variable.importance, horiz = T, las = 1)
-title("Variable Importance 
-      Poisson Regression Trees without Offset")
+title("Variable Importance Poisson Regression Trees without Offset")
 
 barplot(treePois.offset$variable.importance, horiz = T, las = 1)
-title("Variable Importance 
-      Poisson Regression Trees with Offset")
+title("Variable Importance Poisson Regression Trees with Offset")
 
 #--------------------#
 #-- glmnet poisson --#
@@ -140,6 +138,9 @@ barplot(sort(summary(negBino.offset)$coefficients[summary(negBino.offset)$coeffi
 #-------------------------------------------------------------------------------
 # In this section, we scale p-values and variable importance for comparison
 #-------------------------------------------------------------------------------
+# 1) sort variable names
+# 2) keep only one for categorical variables
+# 3) Fill in zeros when using importances
 varImpStandard <- function(v) {
   v <- v * 100 / max(v)
   return(v)
