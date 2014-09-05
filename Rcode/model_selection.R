@@ -11,6 +11,7 @@ library(rpart)
 library(randomForest)
 library(glmnet)
 library(gbm)
+library(texreg)
 
 #-- Load data
 load("data/accidents.RData")
@@ -24,7 +25,7 @@ fmla <- as.formula("X5YrCrashCount ~ AreaType + IntAADT +
                             OneWay + PaveType + PedCross + RTChannel + 
                             RTLanes + RTLnLength + RTMoveCtrl + RTWidth + 
                             Rumble + SightLt + SightRt + SkewAngle + Terrain + 
-                            TotalAADT + TotalT5YearInM + TurnProhib + Lat + Long")
+                            TotalAADT + log(TotalT5YearInM) + TurnProhib + Lat + Long")
 
 fmla.offset <- as.formula("X5YrCrashCount ~ AreaType + IntAADT +
                              IntCat + IntTCType + LegRtType + LegSpeed + LegTCType + LegType + 
