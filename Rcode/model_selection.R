@@ -113,6 +113,9 @@ gbmPois.offset <- gbm(fmla.offset, data = a, distribution = "poisson")
 summary(gbmPois.offset)
 
 
+#-------------------------------------------------------------------------------
+# In this section, we tend to evaluate the models we obtained
+#-------------------------------------------------------------------------------
 
 
 
