@@ -94,7 +94,7 @@ plot(glmnetPois.lasso)
 title("glmnet Poisson LASSO without Offset", line = 3)
 vnat <- coef(glmnetPois.lasso)
 vnat <- vnat[-1,ncol(vnat)] # remove the intercept term
-axis(4, at = vnat, line = -0.5, label = fmla.string, las = 1, tick = FALSE, cex.axis = 0.9)
+axis(4, at = vnat, line = -0.5, label = fmla.string, las = 1, tick = FALSE, cex.axis = 0.7)
 
 #- glmnet poisson offset with LASSO
 glmnetPois.offset.lasso <- glmnet(as.matrix(a[, fmla.string]),as.matrix(a[, "X5YrCrashCount"]), 
@@ -104,13 +104,38 @@ plot(glmnetPois.offset.lasso)
 title("glmnet Poisson LASSO with Offset", line = 3)
 vnat <- coef(glmnetPois.offset.lasso)
 vnat <- vnat[-1,ncol(vnat)] # remove the intercept term
-axis(4, at = vnat, line = -0.5, label = fmla.string, las = 1, tick = FALSE, cex.axis = 0.9)
+axis(4, at = vnat, line = -0.5, label = fmla.string, las = 1, tick = FALSE, cex.axis = 0.7)
 
 #-- gbm Poisson --#
 gbmPois <- gbm(fmla, data = a, distribution = "poisson")
-summary(gbmPois)
+summary(gbmPois, main = "ssd")
 gbmPois.offset <- gbm(fmla.offset, data = a, distribution = "poisson")
 summary(gbmPois.offset)
+
+
+#-------------------------------------------------------------------------------
+# In this section, we summarized useful variables in each model (pois, nb)
+#-------------------------------------------------------------------------------
+alpha <- 0.05
+summary(poisReg)$coefficients[summary(poisReg)$coefficients[, 4] < alpha, ]
+summary(poisReg.offset)$coefficients[summary(poisReg.offset)$coefficients[, 4] < alpha, ]
+summary(negBino)$coefficients[summary(negBino)$coefficients[, 4] < alpha, ]
+summary(negBino.offset)$coefficients[summary(negBino.offset)$coefficients[, 4] < alpha, ]
+
+barplot(sort(summary(poisReg)$coefficients[summary(poisReg)$coefficients[, 4] < alpha, 4], 
+             decreasing = T), horiz = T, las = 1, main = "Poisson Regression no Offset",
+        xlab = "p-value")
+barplot(sort(summary(poisReg.offset)$coefficients[summary(poisReg.offset)$coefficients[, 4] < alpha, 4], 
+             decreasing = T), horiz = T, las = 1, main = "Poisson Regression with Offset",
+        xlab = "p-value")
+barplot(sort(summary(negBino)$coefficients[summary(negBino)$coefficients[, 4] < alpha, 4], 
+             decreasing = T), horiz = T, las = 1, main = "Negative Binomial no Offset",
+        xlab = "p-value")
+barplot(sort(summary(negBino.offset)$coefficients[summary(negBino.offset)$coefficients[, 4] < alpha, 4], 
+             decreasing = T), horiz = T, las = 1, main = "Negative Binomial with Offset",
+        xlab = "p-value")
+
+
 
 
 #-------------------------------------------------------------------------------
