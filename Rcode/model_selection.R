@@ -17,7 +17,7 @@ library(texreg)
 load("data/accidents.RData")
 
 #-- Define formulam. Put back Lat and Long
-fmla <- as.formula("X5YrCrashCount ~ AreaType + IntAADT +
+fmla <- as.formula("X5YrCrashCount ~ AreaType +
                             IntCat + IntTCType + LegRtType + LegSpeed + LegTCType + LegType + 
                             LegWidth + Lighting + LTLanes + LTLnLength + LTOffset + LTWidth + MedType + 
                             MedWidth + MergeLanes + NextPIDist + NumberLegs + 
@@ -27,7 +27,7 @@ fmla <- as.formula("X5YrCrashCount ~ AreaType + IntAADT +
                             Rumble + SightLt + SightRt + SkewAngle + Terrain + 
                             TotalAADT + log(TotalT5YearInM) + TurnProhib + Lat + Long")
 
-fmla.offset <- as.formula("X5YrCrashCount ~ AreaType + IntAADT +
+fmla.offset <- as.formula("X5YrCrashCount ~ AreaType +
                              IntCat + IntTCType + LegRtType + LegSpeed + LegTCType + LegType + 
                              LegWidth + Lighting + LTLanes + LTLnLength + LTOffset + LTWidth + MedType + 
                              MedWidth + MergeLanes + NextPIDist + NumberLegs + 
@@ -137,6 +137,19 @@ barplot(sort(summary(negBino.offset)$coefficients[summary(negBino.offset)$coeffi
         xlab = "p-value")
 
 
+#-------------------------------------------------------------------------------
+# In this section, we scale p-values and variable importance for comparison
+#-------------------------------------------------------------------------------
+varImpStandard <- function(v) {
+  v <- v * 100 / max(v)
+  return(v)
+}
+
+importances <- cbind(varImpStandard(summary(poisReg)$coefficients[, 4]), 
+                     varImpStandard(summary(negBino)$coefficients[, 4]))
+
+barplot(varImpStandard(s), horiz = T, las = 1, main = "Poisson Regression no Offset",
+        xlab = "p-value")
 
 
 #-------------------------------------------------------------------------------
