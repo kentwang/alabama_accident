@@ -82,7 +82,7 @@ title("Variable Importance
 #-- glmnet poisson --#
 #--------------------#
 #- process the x, y for glmnet. y = X5YrCrashCount, x is from the flma.string
-fmla.string <- "AreaType + IntAADT + IntCat + IntTCType + LegRtType + LegSpeed + LegTCType + LegType + LegWidth + Lighting + LTLanes + LTLnLength + LTOffset + LTWidth + MedType + MedWidth + MergeLanes + NextPIDist + NumberLegs + NumLanes + NumSegs + Offset + OffsetDist + OneWay + PaveType + PedCross + RTChannel + RTLanes + RTLnLength + RTMoveCtrl + RTWidth + Rumble + SightLt + SightRt + SkewAngle + Terrain + TotalAADT + TotalT5YearInM + TurnProhib + Lat + Long"
+fmla.string <- "AreaType + IntAADT + IntCat + IntTCType + LegRtType + LegSpeed + LegTCType + LegType + LegWidth + Lighting + LTLanes + LTLnLength + LTOffset + LTWidth + MedType + MedWidth + MergeLanes + NextPIDist + NumberLegs + NumLanes + NumSegs + Offset + OffsetDist + OneWay + PaveType + PedCross + RTChannel + RTLanes + RTLnLength + RTMoveCtrl + RTWidth + Rumble + SightLt + SightRt + SkewAngle + Terrain + TotalAADT + log(TotalT5YearInM) + TurnProhib + Lat + Long"
 fmla.string.offset <- "AreaType + IntAADT + IntCat + IntTCType + LegRtType + LegSpeed + LegTCType + LegType + LegWidth + Lighting + LTLanes + LTLnLength + LTOffset + LTWidth + MedType + MedWidth + MergeLanes + NextPIDist + NumberLegs + NumLanes + NumSegs + Offset + OffsetDist + OneWay + PaveType + PedCross + RTChannel + RTLanes + RTLnLength + RTMoveCtrl + RTWidth + Rumble + SightLt + SightRt + SkewAngle + Terrain + TotalAADT + TurnProhib + Lat + Long"
 fmla.string <- strsplit(fmla.string, " \\+ ")[[1]]
 fmla.string.offset <- strsplit(fmla.string.offset, " \\+ ")[[1]]
