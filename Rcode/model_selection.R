@@ -86,6 +86,7 @@ fmla.string <- strsplit(fmla.string, " \\+ ")[[1]]
 fmla.string.offset <- strsplit(fmla.string.offset, " \\+ ")[[1]]
 
 #- glmnet poisson no offset with LASSO
+#- categorical variables need to be treated http://statweb.stanford.edu/~tibs/lasso/fulltext.pdf
 glmnetPois.lasso <- glmnet(as.matrix(a[, fmla.string]), as.matrix(a[, "X5YrCrashCount"]), family = "poisson")
 
 par(oma=c(2,3,2,4))
