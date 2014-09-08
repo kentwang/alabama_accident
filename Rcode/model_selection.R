@@ -178,7 +178,7 @@ varImpStandard <- function(v) { # scale variable "importance" from 0 to 100
   }    
 }
 
-#dump common 0 rows
+#dump common 0 rows, but there are none
 varImp_1 <- varImpStandard(summary(poisReg)$coefficients[-1, 4])
 varImp_2 <- varImpStandard(summary(poisReg.offset)$coefficients[-1, 4])
 varImp_3 <- varImpStandard(summary(negBino)$coefficients[-1, 4])
@@ -205,6 +205,15 @@ ggplot(importances, aes(factor(var), importance, fill = model)) +
   geom_bar(stat = "identity", position = "dodge") +
   coord_flip()
 
+# offset
+ggplot(importances[grep("Offset", importances$model), ], aes(factor(var), importance, fill = model)) + 
+  geom_bar(stat = "identity", position = "dodge") +
+  coord_flip()
+
+# no offset
+ggplot(importances[-grep("Offset", importances$model), ], aes(factor(var), importance, fill = model)) + 
+  geom_bar(stat = "identity", position = "dodge") +
+  coord_flip()
 
 #-------------------------------------------------------------------------------
 # In this section, we tend to evaluate the models we obtained
