@@ -12,6 +12,7 @@ library(randomForest)
 library(glmnet)
 library(gbm)
 library(texreg)
+library(ggplot2)
 
 #-- Load data
 load("data/accidents.RData")
@@ -172,8 +173,22 @@ varImpStandard <- function(v) { # scale variable "importance" from 0 to 100
   }    
 }
 
-importances <- cbind(varImpStandard(summary(poisReg)$coefficients[, 4]), 
-                     varImpStandard(summary(negBino)$coefficients[, 4]))
+#dump common 0 rows
+glm_coef1 <- glmnetPois.lasso$beta[, glmnetPois.lasso$dim[2]]
+
+importances <- cbind(varImpStandard(summary(poisReg)$coefficients[, 4]),
+                     varImpStandard(summary(poisReg.offset)$coefficients[, 4]),
+                     varImpStandard(summary(negBino)$coefficients[, 4]),
+                     varImpStandard(summary(negBino.offset)$coefficients[, 4]),
+                     varImpStandard(treePois$variable.importance),
+                     varImpStandard(treePois.offset$variable.importance),
+                     varImpStandard(glmnetPois.lasso$beta[, glmnetPois.lasso$dim[2]]),
+                     varImpStandard(glmnetPois.offset.lasso$beta[, glmnetPois.offset.lasso$dim[2]])
+                     )
+names(importances) <- c("Poisson Regression", "Offset Poisson Regression", 
+                        "Negative Binomial", "Offset Negative Binomial",
+                        "Regression Tree", "Offset Regression Tree",
+                        "glmnet Poisson", "Offset glmnet Poisson")
 
 barplot(varImpStandard(s), horiz = T, las = 1, main = "Poisson Regression no Offset",
         xlab = "p-value")
