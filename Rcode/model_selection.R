@@ -47,8 +47,8 @@ fmla.offset <- as.formula("X5YrCrashCount ~ AreaType +
 poisReg <- glm(fmla, data = a, family = "poisson")
 poisReg.offset <- glm(fmla.offset, data = a, family = "poisson")
 
-step.poisReg <- step(poisReg)
-step.poisReg.offset <- step(poisReg.offset)
+# step.poisReg <- step(poisReg)
+# step.poisReg.offset <- step(poisReg.offset)
 
 #-- Quisi Poisson (No stepwise since AIC is not defined) --#
 quasiPois <- glm(fmla, data = a, family = "quasipoisson")
@@ -60,8 +60,8 @@ quasiPois.offset <- glm(fmla.offset, data = a, family = "quasipoisson")
 negBino <- glm.nb(fmla, data = a)
 negBino.offset <- glm.nb(fmla.offset, data = a)
 
-step.negBino <- step(negBino)
-step.negBino.offset <- step(negBino.offset)
+# step.negBino <- step(negBino)
+# step.negBino.offset <- step(negBino.offset)
 
 #-------------------#
 #-- rpart Poisson --#
@@ -100,14 +100,14 @@ vnat <- vnat[-1,ncol(vnat)] # remove the intercept term
 axis(4, at = vnat, line = -0.5, label = c(fmla.string, "log(TotalT5YearInM)"), las = 1, tick = FALSE, cex.axis = 0.7) # problem with categorial dummies
 
 #- glmnet poisson offset with LASSO
-glmnetPois.offset.lasso <- glmnet(as.matrix(a[, fmla.string.offset]),as.matrix(a[, "X5YrCrashCount"]), 
+glmnetPois.offset.lasso <- glmnet(as.matrix(a[, fmla.string]),as.matrix(a[, "X5YrCrashCount"]), 
                                   family = "poisson", offset = as.matrix(log(a[, "TotalT5YearInM"])))
 
 plot(glmnetPois.offset.lasso)
 title("glmnet Poisson LASSO with Offset", line = 3)
 vnat <- coef(glmnetPois.offset.lasso)
 vnat <- vnat[-1,ncol(vnat)] # remove the intercept term
-axis(4, at = vnat, line = -0.5, label = fmla.string.offset, las = 1, tick = FALSE, cex.axis = 0.7)
+axis(4, at = vnat, line = -0.5, label = fmla.string, las = 1, tick = FALSE, cex.axis = 0.7)
 
 #--------------------#
 #-- gbm poisson --#
