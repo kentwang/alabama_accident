@@ -22,7 +22,7 @@ fmla <- as.formula("X5YrCrashCount ~ AreaType +
                    IntCat + IntTCType + LegRtType + LegSpeed + LegTCType + LegType + 
                    LegWidth + Lighting + LTLanes + LTLnLength + LTOffset + LTWidth + MedType + 
                    MedWidth + MergeLanes + NextPIDist + NumberLegs + 
-                   NumLanes + NumSegs + Offset + OffsetDist + 
+                   NumLanes + Offset + OffsetDist + 
                    OneWay + PaveType + PedCross + RTChannel + 
                    RTLanes + RTLnLength + RTMoveCtrl + RTWidth + 
                    Rumble + SightLt + SightRt + SkewAngle + Terrain + 
@@ -32,7 +32,7 @@ fmla.offset <- as.formula("X5YrCrashCount ~ AreaType +
                           IntCat + IntTCType + LegRtType + LegSpeed + LegTCType + LegType + 
                           LegWidth + Lighting + LTLanes + LTLnLength + LTOffset + LTWidth + MedType + 
                           MedWidth + MergeLanes + NextPIDist + NumberLegs + 
-                          NumLanes + NumSegs + Offset + OffsetDist + 
+                          NumLanes + Offset + OffsetDist + 
                           OneWay + PaveType + PedCross + RTChannel + 
                           RTLanes + RTLnLength + RTMoveCtrl + RTWidth + 
                           Rumble + SightLt + SightRt + SkewAngle + Terrain + 
