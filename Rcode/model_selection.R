@@ -80,8 +80,8 @@ title("Variable Importance Poisson Regression Trees with Offset")
 #-- glmnet poisson --#
 #--------------------#
 #- process the x, y for glmnet. y = X5YrCrashCount, x is from the flma.string
-fmla.string <- "AreaType + IntAADT + IntCat + IntTCType + LegRtType + LegSpeed + LegTCType + LegType + LegWidth + Lighting + LTLanes + LTLnLength + LTOffset + LTWidth + MedType + MedWidth + MergeLanes + NextPIDist + NumberLegs + NumLanes + NumSegs + Offset + OffsetDist + OneWay + PaveType + PedCross + RTChannel + RTLanes + RTLnLength + RTMoveCtrl + RTWidth + Rumble + SightLt + SightRt + SkewAngle + Terrain + TotalAADT + log(TotalT5YearInM) + TurnProhib + Lat + Long"
-fmla.string.offset <- "AreaType + IntAADT + IntCat + IntTCType + LegRtType + LegSpeed + LegTCType + LegType + LegWidth + Lighting + LTLanes + LTLnLength + LTOffset + LTWidth + MedType + MedWidth + MergeLanes + NextPIDist + NumberLegs + NumLanes + NumSegs + Offset + OffsetDist + OneWay + PaveType + PedCross + RTChannel + RTLanes + RTLnLength + RTMoveCtrl + RTWidth + Rumble + SightLt + SightRt + SkewAngle + Terrain + TotalAADT + TurnProhib + Lat + Long"
+fmla.string <- "AreaType + IntCat + IntTCType + LegRtType + LegSpeed + LegTCType + LegType + LegWidth + Lighting + LTLanes + LTLnLength + LTOffset + LTWidth + MedType + MedWidth + MergeLanes + NextPIDist + NumberLegs + NumLanes + NumSegs + Offset + OffsetDist + OneWay + PaveType + PedCross + RTChannel + RTLanes + RTLnLength + RTMoveCtrl + RTWidth + Rumble + SightLt + SightRt + SkewAngle + Terrain + TotalAADT + log(TotalT5YearInM) + TurnProhib + Lat + Long"
+fmla.string.offset <- "AreaType + IntCat + IntTCType + LegRtType + LegSpeed + LegTCType + LegType + LegWidth + Lighting + LTLanes + LTLnLength + LTOffset + LTWidth + MedType + MedWidth + MergeLanes + NextPIDist + NumberLegs + NumLanes + NumSegs + Offset + OffsetDist + OneWay + PaveType + PedCross + RTChannel + RTLanes + RTLnLength + RTMoveCtrl + RTWidth + Rumble + SightLt + SightRt + SkewAngle + Terrain + TotalAADT + TurnProhib + Lat + Long"
 fmla.string <- strsplit(fmla.string, " \\+ ")[[1]]
 fmla.string.offset <- strsplit(fmla.string.offset, " \\+ ")[[1]]
 
@@ -153,12 +153,21 @@ allVariables <- fmla.string # complete set of variables names
 varImpStandard <- function(v) { # scale variable "importance" from 0 to 100
   v <- v * 100 / max(v)
   if (length(v) == length(allVariables)) return(v)
-  s <- rep(0, length(allVariables))
-  names(s) <- allVariables
-  matchedVariables <- allVariables[which(allVariables %in% names(v))]
-  s[matchedVariables] <- v[matchedVariables]
-  return(s)
-  
+  else if (length(v) < length(allVariables)) { # deal with tree importance
+    s <- rep(0, length(allVariables))
+    names(s) <- allVariables
+    matchedVariables <- allVariables[which(allVariables %in% names(v))]
+    s[matchedVariables] <- v[matchedVariables]
+    return(s)  
+  }
+  else { # deal with dummy variables, exclude intercept
+    f.temp <- function(x) { # strip the last digit for categorical variables
+      if (substr(x, nchar(x), nchar(x)) %in% c(2:9)) return(substr(x, 1, nchar(x) - 1))
+      else return(x)
+    }
+    
+  }
+    
 }
 
 importances <- cbind(varImpStandard(summary(poisReg)$coefficients[, 4]), 
