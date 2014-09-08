@@ -91,7 +91,7 @@ fmla.string.offset <- strsplit(fmla.string.offset, " \\+ ")[[1]]
 # glmnetPois.lasso2 <- glmnet(as.matrix(model.frame(fmla, data = a)), as.matrix(a[, "X5YrCrashCount"]), family = "poisson")
 
 # Let's stick to using original data first. Treat them as continuous variables
-glmnetPois.offset.lasso <- glmnet(as.matrix(a[, fmla.string]),as.matrix(a[, "X5YrCrashCount"]), 
+glmnetPois.lasso <- glmnet(as.matrix(a[, fmla.string]),as.matrix(a[, "X5YrCrashCount"]), 
                                   family = "poisson", offset = as.matrix(log(a[, "TotalT5YearInM"])))
 
 par(oma=c(2,3,2,4))
@@ -149,9 +149,16 @@ barplot(sort(summary(negBino.offset)$coefficients[summary(negBino.offset)$coeffi
 # 1) sort variable names
 # 2) keep only one for categorical variables
 # 3) Fill in zeros when using importances
-varImpStandard <- function(v) {
+allVariables <- fmla.string # complete set of variables names
+varImpStandard <- function(v) { # scale variable "importance" from 0 to 100
   v <- v * 100 / max(v)
-  return(v)
+  if (length(v) == length(allVariables)) return(v)
+  s <- rep(0, length(allVariables))
+  names(s) <- allVariables
+  matchedVariables <- allVariables[which(allVariables %in% names(v))]
+  s[matchedVariables] <- v[matchedVariables]
+  return(s)
+  
 }
 
 importances <- cbind(varImpStandard(summary(poisReg)$coefficients[, 4]), 
