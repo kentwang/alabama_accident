@@ -1,9 +1,9 @@
 ################################################################################
 # Exploratory Analysis
-# - 
+# To Fix:
+# - j=19 NumberLegs has error (44 instead of 4?) identical to NumSegs, so drop one.
+# - MergeLanes should be factor?
 ################################################################################
-#setwd("alabama_accident")
-
 
 #------------------------------------------------
 # Load Data and Packages
@@ -17,9 +17,6 @@ library(scales)
 
 #-- Load Accident Data 
 load("data/accidents.RData") # loads a
-
-#  a$TotalT5YearInM <- a$AADT * 5 * 365 / 1000000
-
 
 #------------------------------------------------
 # Make Intersection Data
@@ -99,7 +96,7 @@ pp = ppp(x$Long,x$Lat,window=AL,marks=select(x,accidents,traffic,rate))
 pp.accidents = ppp(x$Long,x$Lat,window=AL,marks=x$accidents)
 pp.traffic = ppp(x$Long,x$Lat,window=AL,marks=x$traffic)
 
-bw = .15
+bw = .25
 sm.accidents = Smooth(pp.accidents,sigma=bw,edge=FALSE)
 sm.traffic = Smooth(pp.traffic,sigma=bw,edge=FALSE)
 sm.rate = eval.im(sm.accidents/sm.traffic)
@@ -137,8 +134,22 @@ AlabamaMap + geom_polygon(aes(x = long, y = lat), data = data,
 
 
 
+#------------------------------------------------
+# Component Plots - Find important variables 
+# - todo: 
+#   - try fam = negbin(c(1,10))
+#   - test with offsets
+#   - Need to get fmla from model_selection.R
+#------------------------------------------------
+library(mgcv)
+source("Rcode/functions.R")  # has component.plots() function
 
+#- Variable Importance and Component Plots
+score = component.plots(fmla,data)
 
+varImportance = data.frame(vars,score=round(score))
 
+barplot(aic1,names.arg=vars,las=2,cex.names=.85,ylab="Variable Importance",
+        main="Componentwise Variable Importance (based on AIC)")
 
 
