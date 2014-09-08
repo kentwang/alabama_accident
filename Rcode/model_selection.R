@@ -149,7 +149,7 @@ barplot(sort(summary(negBino.offset)$coefficients[summary(negBino.offset)$coeffi
 # 3) Fill in zeros when using importances
 allVariables <- c(fmla.string, "log(TotalT5YearInM)") # complete set of variables names
 varImpStandard <- function(v) { # scale variable "importance" from 0 to 100
-  v <- v * 100 / max(v)
+  v <- abs(v) * 100 / max(v) # use absolute values when only coeffcients are provided
   if (length(v) == length(allVariables)) return(v)
   else if (length(v) < length(allVariables)) { # deal with tree importance
     s <- rep(0, length(allVariables))
