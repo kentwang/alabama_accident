@@ -194,8 +194,8 @@ varImp_3 <- varImpStandard(summary(negBino)$coefficients[-1, 3])
 varImp_4 <- varImpStandard(summary(negBino.offset)$coefficients[-1, 3])
 varImp_5 <- varImpStandard(treePois$variable.importance)
 varImp_6 <- varImpStandard(treePois.offset$variable.importance)
-varImp_7 <- varImpStandard(glmnetPois.lasso$beta[, glmnetPois.lasso$dim[2]])
-varImp_8 <- varImpStandard(glmnetPois.offset.lasso$beta[, glmnetPois.offset.lasso$dim[2]])
+varImp_7 <- varImpStandard(beta[-1])
+varImp_8 <- varImpStandard(beta.offset[-1])
 varImp <- as.vector(rbind(varImp_1, varImp_2, varImp_3, varImp_4, 
                           varImp_5, varImp_6, varImp_7, varImp_8))
 
