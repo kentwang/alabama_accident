@@ -87,8 +87,12 @@ fmla.string.offset <- strsplit(fmla.string.offset, " \\+ ")[[1]]
 
 #- glmnet poisson no offset with LASSO
 #- categorical variables need to be treated http://statweb.stanford.edu/~tibs/lasso/fulltext.pdf
-glmnetPois.lasso <- glmnet(model.matrix(fmla, data = a), as.matrix(a[, "X5YrCrashCount"]), family = "poisson") # X5YrCrashCount is in the model matrix?
-glmnetPois.lasso2 <- glmnet(as.matrix(model.frame(fmla, data = a)), as.matrix(a[, "X5YrCrashCount"]), family = "poisson")
+# glmnetPois.lasso <- glmnet(model.matrix(fmla, data = a), as.matrix(a[, "X5YrCrashCount"]), family = "poisson") # X5YrCrashCount is in the model matrix?
+# glmnetPois.lasso2 <- glmnet(as.matrix(model.frame(fmla, data = a)), as.matrix(a[, "X5YrCrashCount"]), family = "poisson")
+
+# Let's stick to using original data first. Treat them as continuous variables
+glmnetPois.offset.lasso <- glmnet(as.matrix(a[, fmla.string]),as.matrix(a[, "X5YrCrashCount"]), 
+                                  family = "poisson", offset = as.matrix(log(a[, "TotalT5YearInM"])))
 
 par(oma=c(2,3,2,4))
 plot(glmnetPois.lasso)
@@ -98,14 +102,14 @@ vnat <- vnat[-1,ncol(vnat)] # remove the intercept term
 axis(4, at = vnat, line = -0.5, label = fmla.string, las = 1, tick = FALSE, cex.axis = 0.7) # problem with categorial dummies
 
 #- glmnet poisson offset with LASSO
-glmnetPois.offset.lasso <- glmnet(as.matrix(a[, fmla.string]),as.matrix(a[, "X5YrCrashCount"]), 
+glmnetPois.offset.lasso <- glmnet(as.matrix(a[, fmla.string.offset]),as.matrix(a[, "X5YrCrashCount"]), 
                                   family = "poisson", offset = as.matrix(log(a[, "TotalT5YearInM"])))
 
 plot(glmnetPois.offset.lasso)
 title("glmnet Poisson LASSO with Offset", line = 3)
 vnat <- coef(glmnetPois.offset.lasso)
 vnat <- vnat[-1,ncol(vnat)] # remove the intercept term
-axis(4, at = vnat, line = -0.5, label = fmla.string, las = 1, tick = FALSE, cex.axis = 0.7)
+axis(4, at = vnat, line = -0.5, label = fmla.string.offset, las = 1, tick = FALSE, cex.axis = 0.7)
 
 #--------------------#
 #-- gbm poisson --#
