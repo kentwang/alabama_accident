@@ -81,7 +81,7 @@ title("Variable Importance Poisson Regression Trees with Offset")
 #-- glmnet poisson --#
 #--------------------#
 #- process the x, y for glmnet. y = X5YrCrashCount, x is from the flma.string
-fmla.string <- "AreaType + IntCat + IntTCType + LegRtType + LegSpeed + LegTCType + LegType + LegWidth + Lighting + LTLanes + LTLnLength + LTOffset + LTWidth + MedType + MedWidth + MergeLanes + NextPIDist + NumberLegs + NumLanes + NumSegs + Offset + OffsetDist + OneWay + PaveType + PedCross + RTChannel + RTLanes + RTLnLength + RTMoveCtrl + RTWidth + Rumble + SightLt + SightRt + SkewAngle + Terrain + TotalAADT + TurnProhib + Lat + Long" # put log(TotalT5YearInM) in the model matrix
+fmla.string <- "AreaType + IntCat + IntTCType + LegRtType + LegSpeed + LegTCType + LegType + LegWidth + Lighting + LTLanes + LTLnLength + LTOffset + LTWidth + MedType + MedWidth + MergeLanes + NextPIDist + NumberLegs + NumLanes + NumSegs + Offset + OffsetDist + OneWay + PaveType + PedCross + RTChannel + RTLanes + RTLnLength + RTMoveCtrl + RTWidth + Rumble + SightLt + SightRt + SkewAngle + Terrain + log(TotalAADT) + TurnProhib + Lat + Long" # put log(TotalT5YearInM) in the model matrix
 fmla.string <- strsplit(fmla.string, " \\+ ")[[1]]
 
 #- glmnet poisson no offset with LASSO
