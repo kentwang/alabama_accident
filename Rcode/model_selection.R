@@ -45,8 +45,8 @@ fmla.offset <- as.formula("X5YrCrashCount ~ AreaType +
 #-------------#
 #-- Poisson --#
 #-------------#
-poisReg <- glm(fmla, data = a, family = "poisson")
-poisReg.offset <- glm(fmla.offset, data = a, family = "poisson")
+poisReg <- step(glm(fmla, data = a, family = "poisson"))
+poisReg.offset <- step(glm(fmla.offset, data = a, family = "poisson"))
 
 # step.poisReg <- step(poisReg)
 # step.poisReg.offset <- step(poisReg.offset)
@@ -58,8 +58,8 @@ quasiPois.offset <- glm(fmla.offset, data = a, family = "quasipoisson")
 #-----------------------#
 #-- Negative Binomial --#
 #-----------------------#
-negBino <- glm.nb(fmla, data = a)
-negBino.offset <- glm.nb(fmla.offset, data = a)
+negBino <- step(glm.nb(fmla, data = a))
+negBino.offset <- step(glm.nb(fmla.offset, data = a))
 
 # step.negBino <- step(negBino)
 # step.negBino.offset <- step(negBino.offset)
