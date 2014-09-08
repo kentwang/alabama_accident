@@ -184,10 +184,10 @@ varImpStandard <- function(v) { # scale variable "importance" from 0 to 100
 }
 
 #dump common 0 rows, but there are none
-varImp_1 <- varImpStandard(summary(poisReg)$coefficients[-1, 4])
-varImp_2 <- varImpStandard(summary(poisReg.offset)$coefficients[-1, 4])
-varImp_3 <- varImpStandard(summary(negBino)$coefficients[-1, 4])
-varImp_4 <- varImpStandard(summary(negBino.offset)$coefficients[-1, 4])
+varImp_1 <- varImpStandard(summary(poisReg)$coefficients[-1, 3])
+varImp_2 <- varImpStandard(summary(poisReg.offset)$coefficients[-1, 3])
+varImp_3 <- varImpStandard(summary(negBino)$coefficients[-1, 3])
+varImp_4 <- varImpStandard(summary(negBino.offset)$coefficients[-1, 3])
 varImp_5 <- varImpStandard(treePois$variable.importance)
 varImp_6 <- varImpStandard(treePois.offset$variable.importance)
 varImp_7 <- varImpStandard(glmnetPois.lasso$beta[, glmnetPois.lasso$dim[2]])
