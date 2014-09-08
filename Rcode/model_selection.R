@@ -89,7 +89,7 @@ fmla.string <- strsplit(fmla.string, " \\+ ")[[1]]
 # glmnetPois.lasso2 <- glmnet(as.matrix(model.frame(fmla, data = a)), as.matrix(a[, "X5YrCrashCount"]), family = "poisson")
 
 # Let's stick to using original data first. Treat them as continuous variables
-glmnetPois.lasso <- glmnet(as.matrix(a[, fmla.string]), as.matrix(a[, "X5YrCrashCount"]), 
+glmnetPois.lasso <- glmnet(as.matrix(cbind(a[, fmla.string], log(a[, "TotalT5YearInM"]))), as.matrix(a[, "X5YrCrashCount"]), 
                                   family = "poisson", offset = as.matrix(log(a[, "TotalT5YearInM"])))
 
 par(oma=c(2,3,2,4))
@@ -97,7 +97,7 @@ plot(glmnetPois.lasso)
 title("glmnet Poisson LASSO without Offset", line = 3)
 vnat <- coef(glmnetPois.lasso)
 vnat <- vnat[-1,ncol(vnat)] # remove the intercept term
-axis(4, at = vnat, line = -0.5, label = fmla.string, las = 1, tick = FALSE, cex.axis = 0.7) # problem with categorial dummies
+axis(4, at = vnat, line = -0.5, label = c(fmla.string, "log(TotalT5YearInM)"), las = 1, tick = FALSE, cex.axis = 0.7) # problem with categorial dummies
 
 #- glmnet poisson offset with LASSO
 glmnetPois.offset.lasso <- glmnet(as.matrix(a[, fmla.string.offset]),as.matrix(a[, "X5YrCrashCount"]), 
@@ -147,7 +147,7 @@ barplot(sort(summary(negBino.offset)$coefficients[summary(negBino.offset)$coeffi
 # 1) sort variable names
 # 2) keep only one for categorical variables
 # 3) Fill in zeros when using importances
-allVariables <- fmla.string # complete set of variables names
+allVariables <- c(fmla.string, "log(TotalT5YearInM)") # complete set of variables names
 varImpStandard <- function(v) { # scale variable "importance" from 0 to 100
   v <- v * 100 / max(v)
   if (length(v) == length(allVariables)) return(v)
