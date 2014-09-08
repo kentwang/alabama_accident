@@ -187,16 +187,17 @@ varImp_5 <- varImpStandard(treePois$variable.importance)
 varImp_6 <- varImpStandard(treePois.offset$variable.importance)
 varImp_7 <- varImpStandard(glmnetPois.lasso$beta[, glmnetPois.lasso$dim[2]])
 varImp_8 <- varImpStandard(glmnetPois.offset.lasso$beta[, glmnetPois.offset.lasso$dim[2]])
+varImp <- as.vector(rbind(varImp_1, varImp_2, varImp_3, varImp_4, 
+                          varImp_5, varImp_6, varImp_7, varImp_8))
 
-importances <- rbind(cbind(allVariables, varImp_1, "Poisson Regression"),
-                     cbind(allVariables, varImp_2, "Offset Poisson Regression"),
-                     cbind(allVariables, varImp_3, "Negative Binomia"),
-                     cbind(allVariables, varImp_4, "Offset Negative Binomial"),
-                     cbind(allVariables, varImp_5, "Regression Tree"),
-                     cbind(allVariables, varImp_6, "Offset Regression Tree"),
-                     cbind(allVariables, varImp_7, "glmnet Poisson"),
-                     cbind(allVariables, varImp_8, "Offset glmnet Poisson"))
-names(importances) <- c("var", "importance", "model")
+model.names <- c("Poisson Regression", "Offset Poisson Regression",
+                 "Negative Binomia","Offset Negative Binomial"，
+                 "Regression Tree", "Offset Regression Tree",
+                 "glmnet Poisson", "Offset glmnet Poisson")
+
+importances <- as.data.frame(cbind(rep(allVariables, length(model.names)),
+                                   varImp, 
+                                   rep(model.names, each = length(allVariables))))
 
 
 barplot(varImpStandard(s), horiz = T, las = 1, main = "Poisson Regression no Offset",
