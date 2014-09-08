@@ -199,9 +199,11 @@ importances <- as.data.frame(cbind(rep(allVariables, length(model.names)),
                                    varImp, 
                                    rep(model.names, each = length(allVariables))))
 
+names(importances) <- c("var", "importance", "model")
 
-barplot(varImpStandard(s), horiz = T, las = 1, main = "Poisson Regression no Offset",
-        xlab = "p-value")
+ggplot(importances, aes(factor(var), importance, fill = model)) + 
+  geom_bar(stat = "identity", position = "dodge") +
+  coord_flip()
 
 
 #-------------------------------------------------------------------------------
