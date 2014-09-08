@@ -19,24 +19,24 @@ load("data/accidents.RData")
 
 #-- Define formulam. Put back Lat and Long
 fmla <- as.formula("X5YrCrashCount ~ AreaType +
-                            IntCat + IntTCType + LegRtType + LegSpeed + LegTCType + LegType + 
-                            LegWidth + Lighting + LTLanes + LTLnLength + LTOffset + LTWidth + MedType + 
-                            MedWidth + MergeLanes + NextPIDist + NumberLegs + 
-                            NumLanes + NumSegs + Offset + OffsetDist + 
-                            OneWay + PaveType + PedCross + RTChannel + 
-                            RTLanes + RTLnLength + RTMoveCtrl + RTWidth + 
-                            Rumble + SightLt + SightRt + SkewAngle + Terrain + 
-                            TotalAADT + log(TotalT5YearInM) + TurnProhib + Lat + Long") # keep log(TotalT5YearInM) here as a predictor for regression model
+                   IntCat + IntTCType + LegRtType + LegSpeed + LegTCType + LegType + 
+                   LegWidth + Lighting + LTLanes + LTLnLength + LTOffset + LTWidth + MedType + 
+                   MedWidth + MergeLanes + NextPIDist + NumberLegs + 
+                   NumLanes + NumSegs + Offset + OffsetDist + 
+                   OneWay + PaveType + PedCross + RTChannel + 
+                   RTLanes + RTLnLength + RTMoveCtrl + RTWidth + 
+                   Rumble + SightLt + SightRt + SkewAngle + Terrain + 
+                   log(TotalAADT) + log(TotalT5YearInM) + TurnProhib + Lat + Long") # keep log(TotalT5YearInM) here as a predictor for regression model
 
 fmla.offset <- as.formula("X5YrCrashCount ~ AreaType +
-                             IntCat + IntTCType + LegRtType + LegSpeed + LegTCType + LegType + 
-                             LegWidth + Lighting + LTLanes + LTLnLength + LTOffset + LTWidth + MedType + 
-                             MedWidth + MergeLanes + NextPIDist + NumberLegs + 
-                             NumLanes + NumSegs + Offset + OffsetDist + 
-                             OneWay + PaveType + PedCross + RTChannel + 
-                             RTLanes + RTLnLength + RTMoveCtrl + RTWidth + 
-                             Rumble + SightLt + SightRt + SkewAngle + Terrain + 
-                             TotalAADT + TurnProhib + offset(log(TotalT5YearInM)) + Lat + Long")
+                          IntCat + IntTCType + LegRtType + LegSpeed + LegTCType + LegType + 
+                          LegWidth + Lighting + LTLanes + LTLnLength + LTOffset + LTWidth + MedType + 
+                          MedWidth + MergeLanes + NextPIDist + NumberLegs + 
+                          NumLanes + NumSegs + Offset + OffsetDist + 
+                          OneWay + PaveType + PedCross + RTChannel + 
+                          RTLanes + RTLnLength + RTMoveCtrl + RTWidth + 
+                          Rumble + SightLt + SightRt + SkewAngle + Terrain + 
+                          log(TotalAADT) + TurnProhib + offset(log(TotalT5YearInM)) + Lat + Long")
 
 #-------------------------------------------------------------------------------
 # Candidate models are built in this section
@@ -86,12 +86,17 @@ fmla.string <- strsplit(fmla.string, " \\+ ")[[1]]
 
 #- glmnet poisson no offset with LASSO
 #- categorical variables need to be treated http://statweb.stanford.edu/~tibs/lasso/fulltext.pdf
-# glmnetPois.lasso <- glmnet(model.matrix(fmla, data = a), as.matrix(a[, "X5YrCrashCount"]), family = "poisson") # X5YrCrashCount is in the model matrix?
-# glmnetPois.lasso2 <- glmnet(as.matrix(model.frame(fmla, data = a)), as.matrix(a[, "X5YrCrashCount"]), family = "poisson")
+# glmnetPois.lasso2 <- glmnet(as.matrix(model.frame(fmla, data = a)[,-1]), as.matrix(a[, "X5YrCrashCount"]), family = "poisson")
+
+glmnetPois.lasso <- cv.glmnet(model.matrix(fmla, data = a)[,-1], as.matrix(a[, "X5YrCrashCount"]), family = "poisson") # X5YrCrashCount is in the model matrix?
+std = apply(model.matrix(fmla, data = a)[,-1],2,sd)
+beta = as.matrix(coef(glmnetPois.lasso,s="lambda.1se"))
+## importance by abs(beta); pick from factor
+
 
 # Let's stick to using original data first. Treat them as continuous variables
 glmnetPois.lasso <- glmnet(as.matrix(cbind(a[, fmla.string], log(a[, "TotalT5YearInM"]))), as.matrix(a[, "X5YrCrashCount"]), 
-                                  family = "poisson", offset = as.matrix(log(a[, "TotalT5YearInM"])))
+                           family = "poisson", offset = as.matrix(log(a[, "TotalT5YearInM"])))
 
 par(oma=c(2,3,2,4))
 plot(glmnetPois.lasso)
@@ -218,6 +223,5 @@ ggplot(importances[-grep("Offset", importances$model), ], aes(factor(var), impor
 #-------------------------------------------------------------------------------
 # In this section, we tend to evaluate the models we obtained
 #-------------------------------------------------------------------------------
-
 
 
