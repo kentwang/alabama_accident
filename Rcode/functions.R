@@ -8,12 +8,12 @@ library(mgcv)
 
 
 component.plots <- function(fmla,data,plot=TRUE,fam = poisson(),yrng=c(0,25)){
-  # data = model.frame(fmla,data)
-  vars = all.vars(fmla)
-  y = data[,vars[1]]
-  vars = vars[-1]
+  data = model.frame(fmla,data)  # make correct transformations from fmla
+  offset = as.vector(model.offset(data))
+  y = model.response(data)    # response vector
+  vars = attr(terms(data),"term.labels") # predictor variables
   p = length(vars)
-  AIC.null = gam(y~1,family=fam)$aic   # AIC for baseline only model
+  AIC.null = gam(y~1,family=fam,offset=offset)$aic   # AIC for baseline only model
   
   op <- par(no.readonly=TRUE)
   on.exit(par(op))
@@ -26,35 +26,39 @@ component.plots <- function(fmla,data,plot=TRUE,fam = poisson(),yrng=c(0,25)){
   
   AIC = numeric(p)
   for(j in 1:p){
+    
     x = data[,vars[j]]
+    if(length(unique(x)) <= 2 & class(x) %in% c("numeric","integer")){
+      x = factor(x)
+    }
     class.x = class(x)
     
-    if(length(unique(x)) <= 2 & class.x %in% c("numeric","integer")){
-      x = factor(x)
-      class.x = class(x)
-    }
-  
     if(class.x %in% c("factor","character","logical")){
       x = factor(x)
-      #gg = gam(y~x,family=fam)
-      gg = gam(y~s(x,bs="re"),family=fam) 
-      bp = boxplot(y~x,col='grey80',ylim=yrng,las=1)
-      pp = predict(gg,data.frame(x=levels(x)),type='response') #,se.fit=TRUE)
-      lines(1:nlevels(x),pp,col=2,lwd=2)  
+      #gg = gam(y~x,family=fam,offset=offset)
+      gg = gam(y~s(x,bs="re"),family=fam,offset=offset)
+      if(plot){
+        bp = boxplot(y~x,col='grey80',ylim=yrng,las=1)
+        pp = predict(gg,data.frame(x=levels(x)),type='response') #,se.fit=TRUE)
+        lines(1:nlevels(x),pp,col=2,lwd=2)  
+        title(paste0(vars[j]," (",round(AIC.null-gg$aic),")"))
+      }
     }
     
     if(class.x %in% c("numeric","integer")){
       uniq.x = length(unique(x))
       kmax = ifelse(uniq.x < 10, uniq.x-1, -1 ) # -1 lets gam choose kmax
-      gg = gam(y~s(x,k=kmax),family=fam,xlab="")
-      plot(gg,scheme=1,shift=coef(gg)[1],jit=TRUE,ylim=c(-3,3),las=1)
-      abline(h=0,lty=3)
-      # plot(gg,scheme=1,shift=coef(gg)[1],trans=fam$linkinv,ylim=log(range(y))) 
-      # points(jitter(x),jitter(y))
+      gg = gam(y~s(x,k=kmax),family=fam,offset=offset)
+      if(plot){
+        plot(gg,scheme=1,shift=coef(gg)[1],jit=TRUE,xlab="",ylim=c(-3,3),las=1)
+        abline(h=0,lty=3)
+        # plot(gg,scheme=1,shift=coef(gg)[1],trans=fam$linkinv,ylim=log(range(y))) 
+        # points(jitter(x),jitter(y))
+        title(paste0(vars[j]," (",round(AIC.null-gg$aic),")"))
+      }
     }
-    title(paste(vars[j],"(",round(AIC.null-gg$aic),")"))
     AIC[j] = gg$aic
   }
   score = AIC.null - AIC  # variable importance (componentwise)
-return(score)
+  return(data.frame(variable=vars,score=round(score)))
 }
