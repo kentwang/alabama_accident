@@ -80,10 +80,8 @@ title("Variable Importance Poisson Regression Trees with Offset")
 #-- glmnet poisson --#
 #--------------------#
 #- process the x, y for glmnet. y = X5YrCrashCount, x is from the flma.string
-fmla.string <- "AreaType + IntCat + IntTCType + LegRtType + LegSpeed + LegTCType + LegType + LegWidth + Lighting + LTLanes + LTLnLength + LTOffset + LTWidth + MedType + MedWidth + MergeLanes + NextPIDist + NumberLegs + NumLanes + NumSegs + Offset + OffsetDist + OneWay + PaveType + PedCross + RTChannel + RTLanes + RTLnLength + RTMoveCtrl + RTWidth + Rumble + SightLt + SightRt + SkewAngle + Terrain + TotalAADT + log(TotalT5YearInM) + TurnProhib + Lat + Long"
-fmla.string.offset <- "AreaType + IntCat + IntTCType + LegRtType + LegSpeed + LegTCType + LegType + LegWidth + Lighting + LTLanes + LTLnLength + LTOffset + LTWidth + MedType + MedWidth + MergeLanes + NextPIDist + NumberLegs + NumLanes + NumSegs + Offset + OffsetDist + OneWay + PaveType + PedCross + RTChannel + RTLanes + RTLnLength + RTMoveCtrl + RTWidth + Rumble + SightLt + SightRt + SkewAngle + Terrain + TotalAADT + TurnProhib + Lat + Long"
+fmla.string <- "AreaType + IntCat + IntTCType + LegRtType + LegSpeed + LegTCType + LegType + LegWidth + Lighting + LTLanes + LTLnLength + LTOffset + LTWidth + MedType + MedWidth + MergeLanes + NextPIDist + NumberLegs + NumLanes + NumSegs + Offset + OffsetDist + OneWay + PaveType + PedCross + RTChannel + RTLanes + RTLnLength + RTMoveCtrl + RTWidth + Rumble + SightLt + SightRt + SkewAngle + Terrain + TotalAADT + TurnProhib + Lat + Long" # put log(TotalT5YearInM) in the model matrix
 fmla.string <- strsplit(fmla.string, " \\+ ")[[1]]
-fmla.string.offset <- strsplit(fmla.string.offset, " \\+ ")[[1]]
 
 #- glmnet poisson no offset with LASSO
 #- categorical variables need to be treated http://statweb.stanford.edu/~tibs/lasso/fulltext.pdf
@@ -91,7 +89,7 @@ fmla.string.offset <- strsplit(fmla.string.offset, " \\+ ")[[1]]
 # glmnetPois.lasso2 <- glmnet(as.matrix(model.frame(fmla, data = a)), as.matrix(a[, "X5YrCrashCount"]), family = "poisson")
 
 # Let's stick to using original data first. Treat them as continuous variables
-glmnetPois.lasso <- glmnet(as.matrix(a[, fmla.string]),as.matrix(a[, "X5YrCrashCount"]), 
+glmnetPois.lasso <- glmnet(as.matrix(a[, fmla.string]), as.matrix(a[, "X5YrCrashCount"]), 
                                   family = "poisson", offset = as.matrix(log(a[, "TotalT5YearInM"])))
 
 par(oma=c(2,3,2,4))
