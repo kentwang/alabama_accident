@@ -88,9 +88,13 @@ fmla.string <- strsplit(fmla.string, " \\+ ")[[1]]
 #- categorical variables need to be treated http://statweb.stanford.edu/~tibs/lasso/fulltext.pdf
 # glmnetPois.lasso2 <- glmnet(as.matrix(model.frame(fmla, data = a)[,-1]), as.matrix(a[, "X5YrCrashCount"]), family = "poisson")
 
-glmnetPois.lasso <- cv.glmnet(model.matrix(fmla, data = a)[,-1], as.matrix(a[, "X5YrCrashCount"]), family = "poisson") # X5YrCrashCount is in the model matrix?
+glmnetPois.cv <- cv.glmnet(model.matrix(fmla, data = a)[,-1], as.matrix(a[, "X5YrCrashCount"]), family = "poisson") # X5YrCrashCount is in the model matrix?
+glmnetPois.cv.offset <- cv.glmnet(model.matrix(fmla, data = a)[,-1], as.matrix(a[, "X5YrCrashCount"]), 
+                                  family = "poisson", offset = as.matrix(log(a[, "TotalT5YearInM"]))) # X5YrCrashCount is in the model matrix?
+
 std = apply(model.matrix(fmla, data = a)[,-1],2,sd)
-beta = as.matrix(coef(glmnetPois.lasso,s="lambda.1se"))
+beta <- as.matrix(coef(glmnetPois.cv, s="lambda.1se"))
+beta.offset <- as.matrix(coef(glmnetPois.cv.offset, s="lambda.1se"))
 ## importance by abs(beta); pick from factor
 
 
