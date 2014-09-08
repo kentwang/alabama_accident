@@ -149,10 +149,11 @@ barplot(sort(summary(negBino.offset)$coefficients[summary(negBino.offset)$coeffi
 # 2) keep only one for categorical variables
 # 3) Fill in zeros when using importances
 allVariables <- c(fmla.string, "log(TotalT5YearInM)") # complete set of variables names
+allVariables <- allVariables[order(allVariables)]
 varImpStandard <- function(v) { # scale variable "importance" from 0 to 100
-  v <- abs(v) * 100 / max(v) # use absolute values when only coeffcients are provided
+  v <- abs(v) * 100 / max(abs(v)) # use absolute values when only coeffcients are provided
   if (length(v) == length(allVariables)) return(v)
-  else if (length(v) < length(allVariables)) { # deal with tree importance
+  else if (length(v) < length(allVariables)) { # deal with tree importance and non-offset
     s <- rep(0, length(allVariables))
     names(s) <- allVariables
     matchedVariables <- allVariables[which(allVariables %in% names(v))]
@@ -174,7 +175,23 @@ varImpStandard <- function(v) { # scale variable "importance" from 0 to 100
 }
 
 #dump common 0 rows
-glm_coef1 <- glmnetPois.lasso$beta[, glmnetPois.lasso$dim[2]]
+varImp_1 <- varImpStandard(summary(poisReg)$coefficients[-1, 4])
+varImp_2 <- varImpStandard(summary(poisReg.offset)$coefficients[-1, 4])
+varImp_3 <- varImpStandard(summary(negBino)$coefficients[-1, 4])
+varImp_4 <- varImpStandard(summary(negBino.offset)$coefficients[-1, 4])
+varImp_5 <- varImpStandard(treePois$variable.importance)
+varImp_6 <- varImpStandard(treePois.offset$variable.importance)
+varImp_7 <- varImpStandard(glmnetPois.lasso$beta[, glmnetPois.lasso$dim[2]])
+varImp_8 <- varImpStandard(glmnetPois.offset.lasso$beta[, glmnetPois.offset.lasso$dim[2]])
+
+importances <- rbind(cbind(allVariables, varImp_1, "Poisson Regression"),
+                     cbind(allVariables, varImp_2, "Offset Poisson Regression"),
+                     cbind(allVariables, varImp_3, "Negative Binomia"),
+                     cbind(allVariables, varImp_4, "Offset Negative Binomial"),
+                     cbind(allVariables, varImp_5, "Regression Tree"),
+                     cbind(allVariables, varImp_6, "Offset Regression Tree"),
+                     cbind(allVariables, varImp_7, "glmnet Poisson"),
+                     cbind(allVariables, varImp_8, "Offset glmnet Poisson"))                                              )
 
 importances <- cbind(varImpStandard(summary(poisReg)$coefficients[, 4]),
                      varImpStandard(summary(poisReg.offset)$coefficients[, 4]),
