@@ -25,7 +25,7 @@ fmla <- as.formula("X5YrCrashCount ~ AreaType +
                             OneWay + PaveType + PedCross + RTChannel + 
                             RTLanes + RTLnLength + RTMoveCtrl + RTWidth + 
                             Rumble + SightLt + SightRt + SkewAngle + Terrain + 
-                            TotalAADT + log(TotalT5YearInM) + TurnProhib + Lat + Long")
+                            TotalAADT + log(TotalT5YearInM) + TurnProhib + Lat + Long") # keep log(TotalT5YearInM) here as a predictor for regression model
 
 fmla.offset <- as.formula("X5YrCrashCount ~ AreaType +
                              IntCat + IntTCType + LegRtType + LegSpeed + LegTCType + LegType + 
@@ -159,13 +159,17 @@ varImpStandard <- function(v) { # scale variable "importance" from 0 to 100
     return(s)  
   }
   else { # deal with dummy variables, exclude intercept
+    v <- v[-1] # drop intercept term
     f.temp <- function(x) { # strip the last digit for categorical variables
       if (substr(x, nchar(x), nchar(x)) %in% c(2:9)) return(substr(x, 1, nchar(x) - 1))
       else return(x)
     }
-    
-  }
-    
+    v.names.stripped <- unlist(lapply(names(v), FUN = f.temp))
+    v.agg <- aggregate(v, by = list(v.names.stripped), FUN = min)
+    v <- v.agg$x
+    names(v) <- v.agg$Group.1
+    return(v)
+  }    
 }
 
 importances <- cbind(varImpStandard(summary(poisReg)$coefficients[, 4]), 
