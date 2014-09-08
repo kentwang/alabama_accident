@@ -161,7 +161,6 @@ varImpStandard <- function(v) { # scale variable "importance" from 0 to 100
     return(s)  
   }
   else { # deal with dummy variables, exclude intercept
-    v <- v[-1] # drop intercept term
     f.temp <- function(x) { # strip the last digit for categorical variables
       if (substr(x, nchar(x), nchar(x)) %in% c(2:9)) return(substr(x, 1, nchar(x) - 1))
       else return(x)
