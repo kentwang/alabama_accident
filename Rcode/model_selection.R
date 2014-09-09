@@ -106,26 +106,27 @@ names(beta.offset) <- beta.offset.names
 
 
 # Let's stick to using original data first. Treat them as continuous variables
-glmnetPois.lasso <- glmnet(as.matrix(cbind(a[, fmla.string], log(a[, "TotalT5YearInM"]))), as.matrix(a[, "X5YrCrashCount"]), 
-                           family = "poisson", offset = as.matrix(log(a[, "TotalT5YearInM"])))
+glmnetPois.lasso <- glmnet(model.matrix(fmla, data = a)[,-1], as.matrix(a[, "X5YrCrashCount"]), family = "poisson")
 
 par(oma=c(2,3,2,4))
 plot(glmnetPois.lasso)
 title("glmnet Poisson LASSO without Offset", line = 3)
 vnat <- coef(glmnetPois.lasso)
 vnat <- vnat[-1,ncol(vnat)] # remove the intercept term
-axis(4, at = vnat, line = -0.5, label = c(fmla.string, "log(TotalT5YearInM)"), las = 1, tick = FALSE, cex.axis = 0.7) # problem with categorial dummies
+axis(4, at = vnat, line = -0.5, label = rownames(glmnetPois.lasso$beta), las = 1, tick = FALSE, cex.axis = 0.7) # problem with categorial dummies
 
 #- glmnet poisson offset with LASSO
-glmnetPois.offset.lasso <- glmnet(as.matrix(a[, fmla.string]),as.matrix(a[, "X5YrCrashCount"]), 
+glmnetPois.offset.lasso <- glmnet(model.matrix(fmla.offset, data = a)[,-1], as.matrix(a[, "X5YrCrashCount"]), 
                                   family = "poisson", offset = as.matrix(log(a[, "TotalT5YearInM"])))
 
 plot(glmnetPois.offset.lasso)
 title("glmnet Poisson LASSO with Offset", line = 3)
 vnat <- coef(glmnetPois.offset.lasso)
 vnat <- vnat[-1,ncol(vnat)] # remove the intercept term
-axis(4, at = vnat, line = -0.5, label = fmla.string, las = 1, tick = FALSE, cex.axis = 0.7)
+axis(4, at = vnat, line = -0.5, label = rownames(glmnetPois.offset.lasso$beta), las = 1, tick = FALSE, cex.axis = 0.7)
 
+abline(v = sum(abs(beta.offset)), col = "blue", lwd = 2, lty = "dotted")
+text(x = 12, y = -6, "CV Optimal Coef")
 #--------------------#
 #-- gbm poisson --#
 #--------------------#
@@ -208,10 +209,10 @@ varImp_8 <- varImpStandard(beta.offset[-1])
 varImp <- as.vector(c(varImp_1, varImp_2, varImp_3, varImp_4, 
                           varImp_5, varImp_6, varImp_7, varImp_8))
 
-model.names <- c("Poisson Regression", "Offset Poisson Regression",
-                 "Negative Binomia","Offset Negative Binomial"，
-                 "Regression Tree", "Offset Regression Tree",
-                 "glmnet Poisson", "Offset glmnet Poisson")
+model.names <- c("Poisson Regression", "Poisson Regression Offset",
+                 "Negative Binomia","Negative Binomial Offset",
+                 "Regression Tree", "Regression Tree Offset",
+                 "glmnet Poisson", "glmnet Poisson Offset")
 
 importances <- as.data.frame(cbind(rep(allVariables, length(model.names)),
                                    rep(model.names, each = length(allVariables))))
