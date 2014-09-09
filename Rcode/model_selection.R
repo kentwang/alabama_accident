@@ -118,6 +118,7 @@ axis(4, at = vnat, line = -0.5, label = rownames(glmnetPois.lasso$beta), las = 1
 glmnetPois.offset.lasso <- glmnet(model.matrix(fmla.offset, data = a)[,-1], as.matrix(a[, "X5YrCrashCount"]), 
                                   family = "poisson", offset = as.matrix(log(a[, "TotalT5YearInM"])))
 
+par(oma=c(1,1,1,4))
 plot(glmnetPois.offset.lasso)
 title("glmnet Poisson LASSO with Offset", line = 3)
 vnat <- coef(glmnetPois.offset.lasso)
@@ -209,7 +210,7 @@ varImp <- as.vector(c(varImp_1, varImp_2, varImp_3, varImp_4,
                           varImp_5, varImp_6, varImp_7, varImp_8))
 
 model.names <- c("Poisson Regression", "Poisson Regression Offset",
-                 "Negative Binomia","Negative Binomial Offset",
+                 "Negative Binomial","Negative Binomial Offset",
                  "Regression Tree", "Regression Tree Offset",
                  "glmnet Poisson", "glmnet Poisson Offset")
 
@@ -226,11 +227,13 @@ ggplot(importances, aes(factor(var), importance, fill = model)) +
 # offset
 ggplot(importances[grep("Offset", importances$model), ], aes(factor(var), importance, fill = model)) + 
   geom_bar(stat = "identity", position = "dodge") +
+  theme(text = element_text(size = 16)) + 
   coord_flip()
 
 # no offset
 ggplot(importances[-grep("Offset", importances$model), ], aes(factor(var), importance, fill = model)) + 
   geom_bar(stat = "identity", position = "dodge") +
+  theme(text = element_text(size = 16)) + 
   coord_flip()
 
 #-------------------------------------------------------------------------------
