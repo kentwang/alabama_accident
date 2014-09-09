@@ -174,7 +174,7 @@ varImpStandard <- function(v) { # scale variable "importance" from 0 to 100
     else return(x)
   }
   v.names.stripped <- unlist(lapply(names(v), FUN = f.temp))
-  v.agg <- aggregate(v, by = list(v.names.stripped), FUN = min)
+  v.agg <- aggregate(v, by = list(v.names.stripped), FUN = max)
   v <- v.agg$x
   names(v) <- v.agg$Group.1 # collapse categorical dummy variables
   
@@ -193,6 +193,7 @@ varImpStandard <- function(v) { # scale variable "importance" from 0 to 100
   }
   
   return(v)
+}
   
 #   
 #   if (length(v) == length(allVariables)) return(v)
@@ -219,7 +220,6 @@ varImpStandard <- function(v) { # scale variable "importance" from 0 to 100
 #     v <- v[order(names(v))]
 #     return(v)
 #   }    
-}
 
 #dump common 0 rows, but there are none
 varImp_1 <- varImpStandard(summary(poisReg)$coefficients[-1, 3])
