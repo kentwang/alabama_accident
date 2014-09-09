@@ -1,8 +1,7 @@
 ################################################################################
 # Exploratory Analysis
 # To Fix:
-# - j=19 NumberLegs has error (44 instead of 4?) identical to NumSegs, so drop one.
-# - MergeLanes should be factor?
+
 ################################################################################
 
 #------------------------------------------------
@@ -14,6 +13,7 @@ library(spatstat)
 library(ggmap)
 library(maptools)
 library(scales)
+library(mgcv)
 
 #-- Load Accident Data 
 load("data/accidents.RData") # loads a
@@ -33,11 +33,11 @@ library(dplyr)
 avg.rate = sum(a$X5YrCrashCount)/sum(a$TotalT5YearInM)
 
 x = a %>% group_by(IntID) %>% summarize(
-          accidents=sum(X5YrCrashCount),
-          traffic=sum(TotalT5YearInM),
-          rate=accidents/traffic,
-          baseline=avg.rate*traffic,
-          Long=unique(Long),Lat=unique(Lat))
+  accidents=sum(X5YrCrashCount),
+  traffic=sum(TotalT5YearInM),
+  rate=accidents/traffic,
+  baseline=avg.rate*traffic,
+  Long=unique(Long),Lat=unique(Lat))
 
 
 #------------------------------------------------
@@ -48,9 +48,30 @@ plot(x$traffic,x$accidents); abline(h=mean(a$X5YrCrashCount))
 plot(x$traffic,log(x$rate+.01)); abline(h=log(avg.rate))
 plot(x$traffic,x$rate); abline(h=avg.rate)
 plot(log(x$rate/avg.rate)); abline(h=0)
-plot(x$baseline,log(x$rate/avg.rate)); abline(h=0)
+plot(x$baseline,log(.1+x$rate/avg.rate)); abline(h=0)
 plot(x$baseline,x$accidents-x$baseline); abline(h=0)
 plot(x$baseline,(x$accidents-x$baseline)/x$baseline); abline(h=0)
+
+plot(x$traffic,log(.1+x$rate/avg.rate)); abline(h=0)
+plot(x$traffic,x$accidents-x$baseline); abline(h=0)
+
+"Total Traffic (in M)"
+"Actual - Expected Accidents"
+"Intersection / Overall Rate"
+
+
+
+p1 = qplot(traffic,accidents,data=x) + 
+    xlab("Total Traffic (in M)") + ylab("Number of Accidents") + geom_hline(yintercept=avg.rate)
+
+p2 = qplot(traffic,log(.1+x$rate/avg.rate),data=x) + xlab("Total Traffic (in M)") +
+    scale_size_area() +ylab("(Intersection / Overall) Rate") + geom_hline(yintercept=0)
+
+p3 = qplot(traffic,accidents-baseline,data=x) + xlab("Total Traffic (in M)") +
+    ylab("(Actual - Expected) Accidents") + geom_hline(yintercept=0)
+
+
+
 
 #-- ggmap
 library(ggmap)
@@ -82,17 +103,18 @@ AlabamaMap +
 library(spatstat)
 library(maptools)
 library(scales)
+library(dplyr)
 
 #-- Get Alabama Polygon
 AL.map = map('state',"Alabama",fill=TRUE,plot=FALSE)
 AL.poly = map2SpatialPolygons(AL.map, IDs=AL.map$names)
-  #library(rgdal)
-  #proj4string(AL.poly) = CRS("+proj=longlat")
-  #AL.poly = spTransform(AL.poly, CRS("+proj=utm +zone=16 +ellps=WGS84 +datum=WGS84 +units=m +no_defs"))
+#library(rgdal)
+#proj4string(AL.poly) = CRS("+proj=longlat")
+#AL.poly = spTransform(AL.poly, CRS("+proj=utm +zone=16 +ellps=WGS84 +datum=WGS84 +units=m +no_defs"))
 AL = as.owin.SpatialPolygons(AL.poly)
 
 #-- Make point pattern objects and Smoothing
-pp = ppp(x$Long,x$Lat,window=AL,marks=select(x,accidents,traffic,rate))
+pp = ppp(x$Long,x$Lat,window=AL,marks=dplyr::select(x,accidents,traffic,rate))
 pp.accidents = ppp(x$Long,x$Lat,window=AL,marks=x$accidents)
 pp.traffic = ppp(x$Long,x$Lat,window=AL,marks=x$traffic)
 
@@ -130,7 +152,7 @@ points(pp.traffic,pch=19,col=get.colors(marks(pp.traffic)))
 #   Notice that borders not exact! Google uses some sort of projection?
 data = fortify(AL.poly)
 AlabamaMap + geom_polygon(aes(x = long, y = lat), data = data,
-            color = "red", fill = "black", alpha = .4,size=1)  + theme_nothing()
+                          color = "red", fill = "black", alpha = .4,size=1)  + theme_nothing()
 
 
 
@@ -144,12 +166,69 @@ AlabamaMap + geom_polygon(aes(x = long, y = lat), data = data,
 library(mgcv)
 source("Rcode/functions.R")  # has component.plots() function
 
+
+fmla <- as.formula("X5YrCrashCount ~ AreaType +
+                   IntCat + IntTCType + LegRtType + LegSpeed + LegTCType + LegType + 
+                   LegWidth + Lighting + LTLanes + LTLnLength + LTOffset + LTWidth + MedType + 
+                   MedWidth + MergeLanes + NextPIDist + NumberLegs + 
+                   NumLanes + Offset + OffsetDist + 
+                   OneWay + PaveType + PedCross + RTChannel + 
+                   RTLanes + RTLnLength + RTMoveCtrl + RTWidth + 
+                   Rumble + SightLt + SightRt + SkewAngle + Terrain + 
+                   log(TotalAADT) + log(TotalT5YearInM) + TurnProhib + Lat + Long") # keep log(TotalT5YearInM) here as a predictor for regression model
+
+fmla.offset <- as.formula("X5YrCrashCount ~ AreaType +
+                          IntCat + IntTCType + LegRtType + LegSpeed + LegTCType + LegType + 
+                          LegWidth + Lighting + LTLanes + LTLnLength + LTOffset + LTWidth + MedType + 
+                          MedWidth + MergeLanes + NextPIDist + NumberLegs + 
+                          NumLanes + Offset + OffsetDist + 
+                          OneWay + PaveType + PedCross + RTChannel + 
+                          RTLanes + RTLnLength + RTMoveCtrl + RTWidth + 
+                          Rumble + SightLt + SightRt + SkewAngle + Terrain + 
+                          log(TotalAADT) + TurnProhib + offset(log(TotalT5YearInM)) + Lat + Long")
+
+
+
 #- Variable Importance and Component Plots
-score = component.plots(fmla,data)
+# powerpoint = 1024 x 768
+png("graph/componentplot-fmla.png",width=1024,height=700,units="px")
+  score = component.plots(fmla,data=a)
+dev.off()
 
-varImportance = data.frame(vars,score=round(score))
+png("graph/componentplot-offset.png",width=1024,height=700,units="px")
+  score.offset = component.plots(fmla.offset,data=a)
+dev.off()
 
-barplot(aic1,names.arg=vars,las=2,cex.names=.85,ylab="Variable Importance",
-        main="Componentwise Variable Importance (based on AIC)")
+
+varImportance = arrange(score,desc(score))
+varI.offset = arrange(score.offset,desc(score))
 
 
+png("graph/varImportance-barplot.png",width=1024,height=380,units="px")
+#  par(mfrow=c(1,1),mar=c(4.8,7,3.5,.5))
+#   barplot(score$score,names.arg=score$variable,
+#           horiz=TRUE,las=1,cex.names=.75,
+#           ylab="",xlab="Variable Importance",
+#           main="No Offset: Componentwise Variable Importance (based on AIC)")
+  par(mfrow=c(1,1),mar=c(7,4,2.5,.5))
+  barplot(score$score,names.arg=score$variable,
+          las=2,cex.names=.85,
+          xlab="",ylab="Variable Importance",
+          main="No Offset: Componentwise Variable Importance (based on AIC)")
+dev.off()
+
+png("graph/varImportance-barplot-offset.png",width=1024,height=380,units="px")
+#   par(mfrow=c(1,1),mar=c(4.8,7,3.5,.5))
+#   barplot(score.offset$score,names.arg=score.offset$variable,
+#           horiz=TRUE,las=1,cex.names=.85,
+#           ylab="",xlab="Variable Importance",
+#           main="Offset: Componentwise Variable Importance (based on AIC)")
+  par(mfrow=c(1,1),mar=c(7,4,2.5,.5))
+  barplot(score.offset$score,names.arg=score.offset$variable,
+          las=2,cex.names=.85,
+          xlab="",ylab="Variable Importance",
+          main="Offset: Componentwise Variable Importance (based on AIC)")
+dev.off()
+
+
+#----------------------------------------------------------
