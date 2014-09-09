@@ -94,6 +94,10 @@ glmnetPois.cv.offset <- cv.glmnet(model.matrix(fmla, data = a)[,-1], as.matrix(a
 
 std = apply(model.matrix(fmla, data = a)[,-1],2,sd)
 beta <- as.matrix(coef(glmnetPois.cv, s="lambda.1se"))
+beta.names <- rownames(beta)
+beta <- as.numeric(beta)
+names(beta) <- beta.names
+
 beta.offset <- as.matrix(coef(glmnetPois.cv.offset, s="lambda.1se"))
 ## importance by abs(beta); pick from factor
 
