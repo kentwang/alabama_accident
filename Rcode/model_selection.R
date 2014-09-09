@@ -99,6 +99,9 @@ beta <- as.numeric(beta)
 names(beta) <- beta.names
 
 beta.offset <- as.matrix(coef(glmnetPois.cv.offset, s="lambda.1se"))
+beta.offset.names <- rownames(beta.offset)
+beta.offset <- as.numeric(beta.offset)
+names(beta.offset) <- beta.offset.names
 ## importance by abs(beta); pick from factor
 
 
