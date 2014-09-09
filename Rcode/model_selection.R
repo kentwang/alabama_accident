@@ -194,32 +194,7 @@ varImpStandard <- function(v) { # scale variable "importance" from 0 to 100
   
   return(v)
 }
-  
-#   
-#   if (length(v) == length(allVariables)) return(v)
-#   else if (length(v) < length(allVariables)) { # deal with tree importance and offset since log() is not in model matrix
-#     s <- rep(0, length(allVariables))
-#     names(s) <- allVariables
-#     matchedVariables <- allVariables[which(allVariables %in% names(v))]
-#     s[matchedVariables] <- v[matchedVariables]
-#     return(s)  
-#   }
-#   else { # deal with dummy variables and offset, exclude intercept
-#     f.temp <- function(x) { # strip the last digit for categorical variables
-#       if (substr(x, nchar(x), nchar(x)) %in% c(2:9)) return(substr(x, 1, nchar(x) - 1))
-#       else return(x)
-#     }
-#     v.names.stripped <- unlist(lapply(names(v), FUN = f.temp))
-#     v.agg <- aggregate(v, by = list(v.names.stripped), FUN = min)
-#     v <- v.agg$x
-#     names(v) <- v.agg$Group.1
-#     if(!("log(TotalT5YearInM)" %in% names(v))) {
-#       v <- c(v, 0)
-#       names(v) <- c(v.agg$Group.1, "log(TotalT5YearInM)1")
-#     }
-#     v <- v[order(names(v))]
-#     return(v)
-#   }    
+
 
 #dump common 0 rows, but there are none
 varImp_1 <- varImpStandard(summary(poisReg)$coefficients[-1, 3])
@@ -230,7 +205,7 @@ varImp_5 <- varImpStandard(treePois$variable.importance)
 varImp_6 <- varImpStandard(treePois.offset$variable.importance)
 varImp_7 <- varImpStandard(beta[-1])
 varImp_8 <- varImpStandard(beta.offset[-1])
-varImp <- as.vector(rbind(varImp_1, varImp_2, varImp_3, varImp_4, 
+varImp <- as.vector(c(varImp_1, varImp_2, varImp_3, varImp_4, 
                           varImp_5, varImp_6, varImp_7, varImp_8))
 
 model.names <- c("Poisson Regression", "Offset Poisson Regression",
@@ -239,11 +214,11 @@ model.names <- c("Poisson Regression", "Offset Poisson Regression",
                  "glmnet Poisson", "Offset glmnet Poisson")
 
 importances <- as.data.frame(cbind(rep(allVariables, length(model.names)),
-                                   varImp, 
                                    rep(model.names, each = length(allVariables))))
+importances$importance <- varImp
+names(importances) <- c("var", "model", "importance")
 
-names(importances) <- c("var", "importance", "model")
-
+# All together is kinda fine
 ggplot(importances, aes(factor(var), importance, fill = model)) + 
   geom_bar(stat = "identity", position = "dodge") +
   coord_flip()
