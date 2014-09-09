@@ -70,6 +70,10 @@ negBino.offset <- step(glm.nb(fmla.offset, data = a))
 treePois <- rpart(fmla, data = a, method = "poisson")
 treePois.offset <- rpart(fmla.offset, data = a, method = "poisson")
 
+op <- par(mar = c(1, 0, 1, 0))
+plot(treePois, main = "Poisson Regression Tree no Offset")
+text(treePois, use.n=TRUE, cex = .8)
+par(op)
 
 
 #--------------------#
