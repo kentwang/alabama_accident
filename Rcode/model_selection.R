@@ -168,30 +168,57 @@ allVariables <- c(fmla.string, "log(TotalT5YearInM)") # complete set of variable
 allVariables <- allVariables[order(allVariables)]
 varImpStandard <- function(v) { # scale variable "importance" from 0 to 100
   v <- abs(v) * 100 / max(abs(v)) # use absolute values when only coeffcients are provided
-  if (length(v) == length(allVariables)) return(v)
-  else if (length(v) < length(allVariables)) { # deal with tree importance and offset since log() is not in model matrix
+  
+  f.temp <- function(x) { # strip the last digit for categorical variables
+    if (substr(x, nchar(x), nchar(x)) %in% c(2:9)) return(substr(x, 1, nchar(x) - 1))
+    else return(x)
+  }
+  v.names.stripped <- unlist(lapply(names(v), FUN = f.temp))
+  v.agg <- aggregate(v, by = list(v.names.stripped), FUN = min)
+  v <- v.agg$x
+  names(v) <- v.agg$Group.1 # collapse categorical dummy variables
+  
+  if(!("log(TotalT5YearInM)" %in% names(v))) { # check whether offset is in it
+    v <- c(v, 0)
+    names(v) <- c(v.agg$Group.1, "log(TotalT5YearInM)1")
+  }
+  v <- v[order(names(v))]
+  
+  if(length(v) < length(allVariables)) {
     s <- rep(0, length(allVariables))
     names(s) <- allVariables
     matchedVariables <- allVariables[which(allVariables %in% names(v))]
     s[matchedVariables] <- v[matchedVariables]
-    return(s)  
+    return(s)
   }
-  else { # deal with dummy variables and offset, exclude intercept
-    f.temp <- function(x) { # strip the last digit for categorical variables
-      if (substr(x, nchar(x), nchar(x)) %in% c(2:9)) return(substr(x, 1, nchar(x) - 1))
-      else return(x)
-    }
-    v.names.stripped <- unlist(lapply(names(v), FUN = f.temp))
-    v.agg <- aggregate(v, by = list(v.names.stripped), FUN = min)
-    v <- v.agg$x
-    names(v) <- v.agg$Group.1
-    if(!("log(TotalT5YearInM)" %in% names(v))) {
-      v <- c(v, 0)
-      names(v) <- c(v.agg$Group.1, "log(TotalT5YearInM)1")
-    }
-    v <- v[order(names(v))]
-    return(v)
-  }    
+  
+  return(v)
+  
+#   
+#   if (length(v) == length(allVariables)) return(v)
+#   else if (length(v) < length(allVariables)) { # deal with tree importance and offset since log() is not in model matrix
+#     s <- rep(0, length(allVariables))
+#     names(s) <- allVariables
+#     matchedVariables <- allVariables[which(allVariables %in% names(v))]
+#     s[matchedVariables] <- v[matchedVariables]
+#     return(s)  
+#   }
+#   else { # deal with dummy variables and offset, exclude intercept
+#     f.temp <- function(x) { # strip the last digit for categorical variables
+#       if (substr(x, nchar(x), nchar(x)) %in% c(2:9)) return(substr(x, 1, nchar(x) - 1))
+#       else return(x)
+#     }
+#     v.names.stripped <- unlist(lapply(names(v), FUN = f.temp))
+#     v.agg <- aggregate(v, by = list(v.names.stripped), FUN = min)
+#     v <- v.agg$x
+#     names(v) <- v.agg$Group.1
+#     if(!("log(TotalT5YearInM)" %in% names(v))) {
+#       v <- c(v, 0)
+#       names(v) <- c(v.agg$Group.1, "log(TotalT5YearInM)1")
+#     }
+#     v <- v[order(names(v))]
+#     return(v)
+#   }    
 }
 
 #dump common 0 rows, but there are none
