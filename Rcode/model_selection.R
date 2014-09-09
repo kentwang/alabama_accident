@@ -70,12 +70,7 @@ negBino.offset <- step(glm.nb(fmla.offset, data = a))
 treePois <- rpart(fmla, data = a, method = "poisson")
 treePois.offset <- rpart(fmla.offset, data = a, method = "poisson")
 
-par(oma=c(2,3,2,2))
-barplot(treePois$variable.importance, horiz = T, las = 1)
-title("Variable Importance Poisson Regression Trees without Offset")
 
-barplot(treePois.offset$variable.importance, horiz = T, las = 1)
-title("Variable Importance Poisson Regression Trees with Offset")
 
 #--------------------#
 #-- glmnet poisson --#
