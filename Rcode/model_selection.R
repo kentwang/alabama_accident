@@ -87,8 +87,8 @@ fmla.string <- strsplit(fmla.string, " \\+ ")[[1]]
 # glmnetPois.lasso2 <- glmnet(as.matrix(model.frame(fmla, data = a)[,-1]), as.matrix(a[, "X5YrCrashCount"]), family = "poisson")
 
 glmnetPois.cv <- cv.glmnet(model.matrix(fmla, data = a)[,-1], as.matrix(a[, "X5YrCrashCount"]), family = "poisson") # X5YrCrashCount is in the model matrix?
-glmnetPois.cv.offset <- glmnet(model.matrix(fmla.offset, data = a)[,-1], as.matrix(a[, "X5YrCrashCount"]), 
-                               family = "poisson", offset = as.matrix(log(a[, "Traffic"])))
+glmnetPois.cv.offset <- cv.glmnet(model.matrix(fmla.offset, data = a)[,-1], as.matrix(a[, "X5YrCrashCount"]), 
+                               family = "poisson", offset = log(a$Traffic))
 
 std = apply(model.matrix(fmla, data = a)[,-1],2,sd)
 beta <- as.matrix(coef(glmnetPois.cv, s="lambda.1se"))
@@ -96,7 +96,8 @@ beta.names <- rownames(beta)
 beta <- as.numeric(beta)
 names(beta) <- beta.names
 
-beta.offset <- as.matrix(coef(glmnetPois.cv.offset, s="lambda.1se"))
+# Todo: Some issue with selecting best lambda for offset cv.glmnet. Manually select
+# beta.offset <- as.matrix(coef(glmnetPois.cv.offset, s="lambda.1se"))
 beta.offset.names <- rownames(beta.offset)
 beta.offset <- as.numeric(beta.offset)
 names(beta.offset) <- beta.offset.names
@@ -112,6 +113,8 @@ title("glmnet Poisson LASSO without Offset", line = 3)
 vnat <- coef(glmnetPois.lasso)
 vnat <- vnat[-1,ncol(vnat)] # remove the intercept term
 axis(4, at = vnat, line = -0.5, label = rownames(glmnetPois.lasso$beta), las = 1, tick = FALSE, cex.axis = 0.7) # problem with categorial dummies
+
+abline(v = sum(abs(beta)), col = "blue", lwd = 2, lty = "dotted")
 
 #- glmnet poisson offset with LASSO
 glmnetPois.offset.lasso <- glmnet(model.matrix(fmla.offset, data = a)[,-1], as.matrix(a[, "X5YrCrashCount"]), 
