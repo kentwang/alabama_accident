@@ -18,26 +18,25 @@ library(ggplot2)
 load("data/accidents.RData")
 
 #-- Define formulam. Put back Lat and Long
-fmla <- as.formula("X5YrCrashCount ~ AreaType +
-                   IntCat + IntTCType + LegRtType + LegSpeed + LegTCType + LegType + 
-                   LegWidth + Lighting + LTLanes + LTLnLength + LTOffset + LTWidth + MedType + 
-                   MedWidth + MergeLanes + NextPIDist + NumberLegs + 
-                   NumLanes + Offset + OffsetDist + 
-                   OneWay + PaveType + PedCross + RTChannel + 
-                   RTLanes + RTLnLength + RTMoveCtrl + RTWidth + 
-                   Rumble + SightLt + SightRt + SkewAngle + Terrain + 
-                   log(TotalAADT) + log(TotalT5YearInM) + TurnProhib + Lat + Long") # keep log(TotalT5YearInM) here as a predictor for regression model
+fmla <- as.formula("X5YrCrashCount ~ AreaType + IntCat + IntTCType + LegRtType + 
+                    LegSpeed + LegTCType + LegType + LegWidth + Lighting + 
+                    LTLanes + LTLnLength + LTOffset + LTWidth + MedType + 
+                    MedWidth + MergeLanes + NextPIDist + NumberLegs + 
+                    NumLanes + Offset + OffsetDist + OneWay + PaveType + 
+                    PedCross + RTChannel + RTLanes + RTLnLength + RTMoveCtrl + 
+                    RTWidth + Rumble + SightLt + SightRt + SkewAngle + Terrain + 
+                    log(TotalAADT) + log(TotalT5YearInM) + log(Traffic) +
+                    TurnProhib + Lat + Long") 
 
-fmla.offset <- as.formula("X5YrCrashCount ~ AreaType +
-                          IntCat + IntTCType + LegRtType + LegSpeed + LegTCType + LegType + 
-                          LegWidth + Lighting + LTLanes + LTLnLength + LTOffset + LTWidth + MedType + 
-                          MedWidth + MergeLanes + NextPIDist + NumberLegs + 
-                          NumLanes + Offset + OffsetDist + 
-                          OneWay + PaveType + PedCross + RTChannel + 
-                          RTLanes + RTLnLength + RTMoveCtrl + RTWidth + 
-                          Rumble + SightLt + SightRt + SkewAngle + Terrain + 
-                          log(TotalAADT) + TurnProhib + offset(log(TotalT5YearInM)) + Lat + Long")
-
+fmla.offset <- as.formula("X5YrCrashCount ~ AreaType + IntCat + IntTCType + LegRtType + 
+                    LegSpeed + LegTCType + LegType + LegWidth + Lighting + 
+                    LTLanes + LTLnLength + LTOffset + LTWidth + MedType + 
+                    MedWidth + MergeLanes + NextPIDist + NumberLegs + 
+                    NumLanes + Offset + OffsetDist + OneWay + PaveType + 
+                    PedCross + RTChannel + RTLanes + RTLnLength + RTMoveCtrl + 
+                    RTWidth + Rumble + SightLt + SightRt + SkewAngle + Terrain + 
+                    log(TotalAADT) + log(TotalT5YearInM) + offset(log(Traffic)) +
+                    TurnProhib + Lat + Long") 
 #-------------------------------------------------------------------------------
 # Candidate models are built in this section
 #-------------------------------------------------------------------------------
