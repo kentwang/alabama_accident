@@ -1,7 +1,6 @@
 ################################################################################
 # Exploratory Analysis
 # To Fix:
-
 ################################################################################
 
 #------------------------------------------------
@@ -10,10 +9,12 @@
 #-- Required Packages and Functions
 library(dplyr)
 library(spatstat)
-library(ggmap)
+library(ggmap) 
 library(maptools)
 library(scales)
 library(mgcv)
+source("Rcode/functions.R")  # has component.plots() function
+
 
 #-- Load Accident Data 
 load("data/accidents.RData") # loads a
@@ -27,14 +28,18 @@ load("data/accidents.RData") # loads a
 #   baseline - the expected number of accidents using overall state average
 #   long/lat - spatial coordinates
 # - avg.rate is average accident rate (over all collected data)
+# Note: added new variable Traffic, which should replace TotalT5YeearInM
+#       redo analysis below with Traffic replacing
 #------------------------------------------------
 library(dplyr)
 
-avg.rate = sum(a$X5YrCrashCount)/sum(a$TotalT5YearInM)
+#avg.rate = sum(a$X5YrCrashCount)/sum(a$TotalT5YearInM)
+
+avg.rate = sum(a$X5YrCrashCount)/sum(a$Traffic) 
 
 x = a %>% group_by(IntID) %>% summarize(
   accidents=sum(X5YrCrashCount),
-  traffic=sum(TotalT5YearInM),
+  traffic=sum(Traffic), #sum(TotalT5YearInM),
   rate=accidents/traffic,
   baseline=avg.rate*traffic,
   Long=unique(Long),Lat=unique(Lat))
@@ -45,7 +50,7 @@ x = a %>% group_by(IntID) %>% summarize(
 # - note: lots of zeros in accidents, so be careful with taking logs
 #------------------------------------------------
 plot(x$traffic,x$accidents); abline(h=mean(a$X5YrCrashCount))
-plot(x$traffic,log(x$rate+.01)); abline(h=log(avg.rate))
+plot(x$traffic,log(x$rate)); abline(h=log(avg.rate))
 plot(x$traffic,x$rate); abline(h=avg.rate)
 plot(log(x$rate/avg.rate)); abline(h=0)
 plot(x$baseline,log(.1+x$rate/avg.rate)); abline(h=0)
@@ -70,6 +75,31 @@ p2 = qplot(traffic,log(.1+x$rate/avg.rate),data=x) + xlab("Total Traffic (in M)"
 p3 = qplot(traffic,accidents-baseline,data=x) + xlab("Total Traffic (in M)") +
     ylab("(Actual - Expected) Accidents") + geom_hline(yintercept=0)
 
+
+#-- Our calculation from AADT doesn't relate well with accidents. IntAADT does
+#   much better. Probably should use this for offset.
+
+plot(a$TotalT5YearInM,a$X5YrCrashCount)
+abline(lm(a$X5YrCrashCount~a$TotalT5YearInM),col=2)
+
+plot(a$Traffic,a$X5YrCrashCount)
+abline(lm(a$X5YrCrashCount~a$Traffic),col=2)
+
+
+
+
+#-- Traffic rate vs. Accident Rate
+#  Notice: clear distinction between major and minor roads, and accidents increase
+#          as traffic increases (but for each type)
+major = (a$LegType == 2)
+minor = (a$LegType == 1)
+plot(log(a$TotalT5YearInM),a$X5YrCrashCount,col=ifelse(major,"red","blue"))
+points(log(a$TotalT5YearInM),loess(a$X5YrCrashCount~log(a$TotalT5YearInM),)$fitted,pch=19,cex=.5)
+scatter.smooth(log(a$TotalT5YearInM),a$X5YrCrashCount,col=ifelse(major,"red","blue"))
+
+scatter.smooth(log(a$TotalT5YearInM[major]),a$X5YrCrashCount[major],col="red")
+
+scatter.smooth(log(a$TotalT5YearInM[minor]),a$X5YrCrashCount[minor],col="red")
 
 
 
@@ -167,27 +197,25 @@ library(mgcv)
 source("Rcode/functions.R")  # has component.plots() function
 
 
-fmla <- as.formula("X5YrCrashCount ~ AreaType +
-                   IntCat + IntTCType + LegRtType + LegSpeed + LegTCType + LegType + 
-                   LegWidth + Lighting + LTLanes + LTLnLength + LTOffset + LTWidth + MedType + 
-                   MedWidth + MergeLanes + NextPIDist + NumberLegs + 
-                   NumLanes + Offset + OffsetDist + 
-                   OneWay + PaveType + PedCross + RTChannel + 
-                   RTLanes + RTLnLength + RTMoveCtrl + RTWidth + 
-                   Rumble + SightLt + SightRt + SkewAngle + Terrain + 
-                   log(TotalAADT) + log(TotalT5YearInM) + TurnProhib + Lat + Long") # keep log(TotalT5YearInM) here as a predictor for regression model
+fmla <- as.formula("X5YrCrashCount ~ AreaType + IntCat + IntTCType + LegRtType + 
+                    LegSpeed + LegTCType + LegType + LegWidth + Lighting + 
+                    LTLanes + LTLnLength + LTOffset + LTWidth + MedType + 
+                    MedWidth + MergeLanes + NextPIDist + NumberLegs + 
+                    NumLanes + Offset + OffsetDist + OneWay + PaveType + 
+                    PedCross + RTChannel + RTLanes + RTLnLength + RTMoveCtrl + 
+                    RTWidth + Rumble + SightLt + SightRt + SkewAngle + Terrain + 
+                    log(TotalAADT) + log(TotalT5YearInM) + log(Traffic) +
+                    TurnProhib + Lat + Long") 
 
-fmla.offset <- as.formula("X5YrCrashCount ~ AreaType +
-                          IntCat + IntTCType + LegRtType + LegSpeed + LegTCType + LegType + 
-                          LegWidth + Lighting + LTLanes + LTLnLength + LTOffset + LTWidth + MedType + 
-                          MedWidth + MergeLanes + NextPIDist + NumberLegs + 
-                          NumLanes + Offset + OffsetDist + 
-                          OneWay + PaveType + PedCross + RTChannel + 
-                          RTLanes + RTLnLength + RTMoveCtrl + RTWidth + 
-                          Rumble + SightLt + SightRt + SkewAngle + Terrain + 
-                          log(TotalAADT) + TurnProhib + offset(log(TotalT5YearInM)) + Lat + Long")
-
-
+fmla.offset <- as.formula("X5YrCrashCount ~ AreaType + IntCat + IntTCType + LegRtType + 
+                    LegSpeed + LegTCType + LegType + LegWidth + Lighting + 
+                    LTLanes + LTLnLength + LTOffset + LTWidth + MedType + 
+                    MedWidth + MergeLanes + NextPIDist + NumberLegs + 
+                    NumLanes + Offset + OffsetDist + OneWay + PaveType + 
+                    PedCross + RTChannel + RTLanes + RTLnLength + RTMoveCtrl + 
+                    RTWidth + Rumble + SightLt + SightRt + SkewAngle + Terrain + 
+                    log(TotalAADT) + log(TotalT5YearInM) + offset(log(Traffic)) +
+                    TurnProhib + Lat + Long") 
 
 #- Variable Importance and Component Plots
 # powerpoint = 1024 x 768
@@ -229,6 +257,8 @@ png("graph/varImportance-barplot-offset.png",width=1024,height=380,units="px")
           xlab="",ylab="Variable Importance",
           main="Offset: Componentwise Variable Importance (based on AIC)")
 dev.off()
+
+
 
 
 #----------------------------------------------------------
