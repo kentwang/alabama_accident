@@ -87,7 +87,8 @@ fmla.string <- strsplit(fmla.string, " \\+ ")[[1]]
 # glmnetPois.lasso2 <- glmnet(as.matrix(model.frame(fmla, data = a)[,-1]), as.matrix(a[, "X5YrCrashCount"]), family = "poisson")
 
 glmnetPois.cv <- cv.glmnet(model.matrix(fmla, data = a)[,-1], as.matrix(a[, "X5YrCrashCount"]), family = "poisson") # X5YrCrashCount is in the model matrix?
-glmnetPois.cv.offset <- cv.glmnet(model.matrix(fmla.offset, data = a)[,-1], as.matrix(a[, "X5YrCrashCount"]), family = "poisson") #
+glmnetPois.cv.offset <- glmnet(model.matrix(fmla.offset, data = a)[,-1], as.matrix(a[, "X5YrCrashCount"]), 
+                               family = "poisson", offset = as.matrix(log(a[, "Traffic"])))
 
 std = apply(model.matrix(fmla, data = a)[,-1],2,sd)
 beta <- as.matrix(coef(glmnetPois.cv, s="lambda.1se"))
@@ -114,7 +115,7 @@ axis(4, at = vnat, line = -0.5, label = rownames(glmnetPois.lasso$beta), las = 1
 
 #- glmnet poisson offset with LASSO
 glmnetPois.offset.lasso <- glmnet(model.matrix(fmla.offset, data = a)[,-1], as.matrix(a[, "X5YrCrashCount"]), 
-                                  family = "poisson", offset = as.matrix(log(a[, "TotalT5YearInM"])))
+                                  family = "poisson", offset = as.matrix(log(a[, "Traffic"])))
 
 par(oma=c(1,1,1,4))
 plot(glmnetPois.offset.lasso)
