@@ -78,9 +78,6 @@ par(op)
 #--------------------#
 #-- glmnet poisson --#
 #--------------------#
-#- process the x, y for glmnet. y = X5YrCrashCount, x is from the flma.string
-fmla.string <- "AreaType + IntCat + IntTCType + LegRtType + LegSpeed + LegTCType + LegType + LegWidth + Lighting + LTLanes + LTLnLength + LTOffset + LTWidth + MedType + MedWidth + MergeLanes + NextPIDist + NumberLegs + NumLanes + NumSegs + Offset + OffsetDist + OneWay + PaveType + PedCross + RTChannel + RTLanes + RTLnLength + RTMoveCtrl + RTWidth + Rumble + SightLt + SightRt + SkewAngle + Terrain + log(TotalAADT) + TurnProhib + Lat + Long" # put log(TotalT5YearInM) in the model matrix
-fmla.string <- strsplit(fmla.string, " \\+ ")[[1]]
 
 #- glmnet poisson no offset with LASSO
 #- categorical variables need to be treated http://statweb.stanford.edu/~tibs/lasso/fulltext.pdf
@@ -167,6 +164,7 @@ barplot(sort(summary(negBino.offset)$coefficients[summary(negBino.offset)$coeffi
 # 1) sort variable names
 # 2) keep only one for categorical variables
 # 3) Fill in zeros when using importances
+fmla.string <- strsplit(as.character(fmla)[3], " \\+ ")[[1]]
 allVariables <- c(fmla.string, "log(TotalT5YearInM)") # complete set of variables names
 allVariables <- allVariables[order(allVariables)]
 varImpStandard <- function(v) { # scale variable "importance" from 0 to 100
