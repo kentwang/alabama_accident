@@ -97,7 +97,7 @@ beta <- as.numeric(beta)
 names(beta) <- beta.names
 
 # Todo: Some issue with selecting best lambda for offset cv.glmnet. Manually select
-# beta.offset <- as.matrix(coef(glmnetPois.cv.offset, s="lambda.1se"))
+beta.offset <- as.matrix(coef(glmnetPois.cv.offset, s="lambda.1se"))
 beta.offset.names <- rownames(beta.offset)
 beta.offset <- as.numeric(beta.offset)
 names(beta.offset) <- beta.offset.names
@@ -118,7 +118,7 @@ abline(v = sum(abs(beta)), col = "blue", lwd = 2, lty = "dotted")
 
 #- glmnet poisson offset with LASSO
 glmnetPois.offset.lasso <- glmnet(model.matrix(fmla.offset, data = a)[,-1], as.matrix(a[, "X5YrCrashCount"]), 
-                                  family = "poisson", offset = as.matrix(log(a[, "Traffic"])))
+                                  family = "poisson", offset = log(a$Traffic))
 
 par(oma=c(1,1,1,4))
 plot(glmnetPois.offset.lasso)
