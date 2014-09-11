@@ -87,8 +87,7 @@ fmla.string <- strsplit(fmla.string, " \\+ ")[[1]]
 # glmnetPois.lasso2 <- glmnet(as.matrix(model.frame(fmla, data = a)[,-1]), as.matrix(a[, "X5YrCrashCount"]), family = "poisson")
 
 glmnetPois.cv <- cv.glmnet(model.matrix(fmla, data = a)[,-1], as.matrix(a[, "X5YrCrashCount"]), family = "poisson") # X5YrCrashCount is in the model matrix?
-glmnetPois.cv.offset <- cv.glmnet(model.matrix(fmla, data = a)[,-1], as.matrix(a[, "X5YrCrashCount"]), 
-                                  family = "poisson", offset = as.matrix(log(a[, "TotalT5YearInM"]))) # X5YrCrashCount is in the model matrix?
+glmnetPois.cv.offset <- cv.glmnet(model.matrix(fmla.offset, data = a)[,-1], as.matrix(a[, "X5YrCrashCount"]), family = "poisson") #
 
 std = apply(model.matrix(fmla, data = a)[,-1],2,sd)
 beta <- as.matrix(coef(glmnetPois.cv, s="lambda.1se"))
