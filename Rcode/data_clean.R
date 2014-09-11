@@ -46,7 +46,9 @@ TotalAADT = as.numeric(total[ind]) # total traffic at intersection
 a = data.frame(IntID,a,TotalAADT)  # add new variables
 
 #-- One more variable leg 5 year total traffic per million
+#   Note: AADT is not related well to accidents, better measure is IntAADT
 a$TotalT5YearInM <- a$AADT * 5 * 365 / 1000000
+a$Traffic <- a$IntAADT * 5 * 365 / 1000000  # this is much better related to accidents
 
 #-- Merge and save accident data with coordinate data
 a <- merge(a, coordinate, by = "IntID")
