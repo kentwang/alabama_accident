@@ -24,9 +24,11 @@ for(j in ind) class(a[,j]) = "numeric"
 missing.AADT = is.na(a$AADT)   # indicates if AADT is missing (NA)
 a$AADT[missing.AADT] = a$IntAADT[missing.AADT]
 
-
 #-- Correct NumberLegs data
 a$NumberLegs[a$NumberLegs == 44] = 4
+
+#-- Remove data from IntCat==9
+a = subset(a,!(IntCat == 9))  # This should remove all the intersections and legs
 
 #-- Create intersection related variables other intersection 
 #   variables to consider: variation in AADT at intersection, 
