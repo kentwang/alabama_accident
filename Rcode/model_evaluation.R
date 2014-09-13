@@ -37,7 +37,7 @@ source("RCode/functions.R")  # load required functions
 m.tree = predict(rpart(fmla,data=a,method="poisson"))
 
 X = model.matrix(fmla,data=a)[,-1]
-Y = as.matrix(data[,as.character(fmla[[2]])])
+Y = as.matrix(a[,as.character(fmla[[2]])])
 offset = model.offset(model.frame(fmla,data=a))
 fit = glmnet(X,Y,offset=offset,family="poisson",alpha=0.8)
 m.glmnet = predict(fit,type="response",newx=X,offset=offset,s=fit$lambda)
