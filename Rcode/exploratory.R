@@ -1,6 +1,14 @@
 ################################################################################
 # Exploratory Analysis
-# To Fix:
+# To Fix: 
+# - There are some predictors that are irrelevant, e.g.
+  # in glm: problems since NumberLegs is given by IntCat
+  # table(a$NumberLegs,a$IntCat)
+# - In Exploratory Analysis:
+#   - find importance of individual predictors (done in component.plots())
+#   - find predictors with identical info
+#     -- e.g. how well can x1 be predicted from x2, and x2 predicted from x1
+#     -- this is something like mutual info
 ################################################################################
 
 #------------------------------------------------
