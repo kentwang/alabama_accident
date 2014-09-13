@@ -1,3 +1,10 @@
+
+
+
+################################################################################
+#-- Component Plots
+################################################################################
+
 ## Order plots by score
 ## add support for other classes: Date, POSIXct, ...
 
@@ -108,6 +115,102 @@ component.plots <- function(fmla,data,plot=TRUE,fam = poisson(),ylim=c(-2,2),
 
 
 
+################################################################################
+# Cross-Validation functions for intersection accident data
+################################################################################
+
+#== partition data for cross-validation
+cvfolds <- function(n,k=10,seed) { 
+  if(!missing(seed)) set.seed(seed)
+  sample(rep(seq(k),length=n))
+}
+
+
+
+#== Cross-Val for Poisson Regression model
+### Note: This isn't working with cross-validation. Perhaps due to some factors
+#    whose values aren't included in one of the training sets. It seems that 
+#    glm drops unused levels instead of giving a zero coefficient. 
+#    Don't know what to do. Check out bestglm package?
+
+cv.poisReg <- function(fmla,data,fold,show.pb=TRUE){
+  X = model.matrix(fmla,data)
+  Y = as.matrix(data[,as.character(fmla[[2]])])
+  offset = model.offset(model.frame(fmla,data))  
+  
+    fit0 = glm.fit(X,Y,offset=offset,family=poisson())
+    fit = glm(fmla,data=a,family=poisson)
+  
+  
+  null.fmla = update(fmla,~1)  
+  mu = numeric(nrow(data)) 
+  K = sort(unique(fold))
+  if(show.pb) pb = txtProgressBar(style=3,min=min(K),max=max(K))
+  for(k in K) {
+    test = which(fold == k)
+    train = which(fold != k)
+#fit0 = glm.fit(X[train,1],Y[train],offset=offset[train],family=poisson())
+#fit = step(fit0,scope=fmla,direction="forward")
+    
+    
+    fit0 = glm(null.fmla,data=data[train,],family=poisson)
+    fit = step(fit0,scope=fmla,trace=0,direction="forward")
+    mu[test] = predict(fit,newdata=data[test,],type="response")
+    if(show.pb) setTxtProgressBar(pb,k)
+  }
+  if(show.pb) close(pb)  
+return(mu)  
+}
+
+
+
+#== Cross-Val for glmnet model
+cv.glmnetPois <- function(fmla,data,fold,alpha=0.8){
+  X = model.matrix(fmla,data)[,-1]
+  Y = as.matrix(data[,as.character(fmla[[2]])])
+  offset = model.offset(model.frame(fmla,data))
+  fit = cv.glmnet(X,Y,offset=offset,family="poisson",alpha=alpha,
+                  foldid=fold,keep=TRUE)
+  mu = exp(fit$fit.preval)
+  ## This gives same result  
+  #   lam.seq = glmnet(X,Y,offset=offset,family="poisson",alpha=alpha)$lambda
+  #   mu = matrix(NA,nrow(data),length(lam.seq)) 
+  #   K = sort(unique(fold))
+  #   for(k in K) {
+  #     test = which(fold == k)
+  #     train = which(fold != k)  
+  #     fit = glmnet(X[train,],Y[train],offset=offset[train],family="poisson",
+  #                  alpha=alpha,lambda=lam.seq)    
+  #     mu[test,] = predict(fit,newx=X[test,],offset=offset[test],type="response")
+  #   }
+  colnames(mu) = paste0("lambda_",1:ncol(mu))
+  attr(mu,"lambda") = fit$lambda
+  return(mu)  
+}
+
+
+#== Cross-Val for tree models
+cv.treePois <- function(fmla,data,fold){
+  offset = model.offset(model.frame(fmla,data))  
+  mu = numeric(nrow(data))
+  K = sort(unique(fold))
+  for(k in K) {
+    test = which(fold == k)
+    train = which(fold != k)  
+    fit = rpart(fmla,data=data[train,],method="poisson")
+    mu[test] = predict(fit,newdata=data[test,],type="vector")
+  } 
+  if(!is.null(offset)) mu = mu * exp(offset)
+return(mu)
+}
+
+
+
+#== Returns Mean Absolute Error
+mae <- function(mu,y){
+  mu = as.matrix(mu)
+  apply(mu,2,function(x) mean(abs(y-x)))
+}
 
 
 
