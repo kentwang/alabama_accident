@@ -65,7 +65,7 @@ print(round(score,4))
 #   Note: rpart uses cv for pruning (or stopping). It may be more reasonable to
 #    let tree grow to n number of leaves, then determing this value from our cv
 ################################################################################
-fold = cvfolds(nrow(data),k=20,seed=9122014)  # get cv partition info
+fold = cvfolds(nrow(a),k=20,seed=9122014)  # get cv partition info
 
 #mu.cv.step = cv.poisReg(fmla,data=a,fold=fold)
 #mu.cv.step.offset = cv.poisReg(fmla.offset,data=a,fold=fold)
