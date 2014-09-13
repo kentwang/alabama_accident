@@ -12,6 +12,9 @@ vClass[vClass$VarName=="MergeLanes","Class"] = "categorical"
 coordinate <- read.csv("data/coordinate.csv")
 a[(a == "<Null>")] = NA  # convert <Null> to NA
 
+#-- Remove data from IntCat==9
+a = subset(a,!(IntCat == 9))  # This should remove all the intersections and legs
+
 #-- convert categorical data to "factor"
 ind = which(vClass$Class=="categorical")
 for(j in ind) a[,j] = factor(a[,j])
@@ -26,9 +29,6 @@ a$AADT[missing.AADT] = a$IntAADT[missing.AADT]
 
 #-- Correct NumberLegs data
 a$NumberLegs[a$NumberLegs == 44] = 4
-
-#-- Remove data from IntCat==9
-a = subset(a,!(IntCat == 9))  # This should remove all the intersections and legs
 
 #-- Create intersection related variables other intersection 
 #   variables to consider: variation in AADT at intersection, 
@@ -53,6 +53,5 @@ a$Traffic <- a$IntAADT * 5 * 365 / 1000000  # this is much better related to acc
 #-- Merge and save accident data with coordinate data
 a <- merge(a, coordinate, by = "IntID")
 save(a, file = "data/accidents.RData")
-
 
 
