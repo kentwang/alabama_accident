@@ -1,3 +1,9 @@
+#-------------------------------------------------------------------------------
+#- Modified modeling function i.e. mf$drop.unused.levels <- FALSE
+#
+#- TODO: - modify glm.nb?
+#-------------------------------------------------------------------------------
+
 glm.my <- function(formula, family = gaussian, data, weights,
                 subset, na.action, start = NULL,
                 etastart, mustart, offset,
