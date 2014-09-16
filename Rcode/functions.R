@@ -132,7 +132,8 @@ cvfolds <- function(n,k=10,seed) {
 #    whose values aren't included in one of the training sets. It seems that 
 #    glm drops unused levels instead of giving a zero coefficient. 
 #    Don't know what to do. Check out bestglm package?
-
+#
+#- TODO: we can try to fix the levels in the training and testing data
 cv.poisReg <- function(fmla,data,fold,show.pb=TRUE){
   X = model.matrix(fmla,data)
   Y = as.matrix(data[,as.character(fmla[[2]])])
