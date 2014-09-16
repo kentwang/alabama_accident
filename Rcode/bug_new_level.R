@@ -1,3 +1,7 @@
+#-------------------------------------------------------------------------------
+#- Ran through by using glm.my() with some warnings of "rank-deficient"
+#-------------------------------------------------------------------------------
+
 data <- a
 fold <- cvfolds(dim(data)[1])
 show.pb <- TRUE
@@ -16,14 +20,12 @@ for(k in K) {
   test = which(fold == k)
   train = which(fold != k)
   
-  fit0 = glm.my(fmla,data=data[train,],family=poisson)
+  fit0 = glm.my(fmla,data=data[train,],family=poisson) # use glm.my() instead of glm()
   fit = step(fit0, trace = 0)
   mu[test] = predict(fit,newdata=data[test,],type="response")
   if(show.pb) setTxtProgressBar(pb,k)
 }
 
-Xy <- data.frame(as.matrix.data.frame(X), y=Y)
-bglm <- bestglm(Xy[, -1])
 
 #-------------------------------------------------
 #- Diagnostics: Error - Factor has new levels
