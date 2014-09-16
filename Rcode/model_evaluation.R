@@ -59,7 +59,6 @@ score = data.frame(tree=mae(m.tree,Y),glm=mae(m.glm,Y),step=mae(m.step,Y),
 print(round(score,4))
 
 
-
 ################################################################################
 #-- Use cross-validation
 #   Note: rpart uses cv for pruning (or stopping). It may be more reasonable to
@@ -89,4 +88,20 @@ lines(mae(mu.cv.glmnet.offset,Y),col=2)
 abline(h=mae(mu.cv.tree,Y),col=3)
 abline(h=mae(mu.cv.tree.offset,Y),col=4)
 legend("topright",c('glmnet','glmnet-offset','tree','tree-offset'),col=1:4,lwd=1)
+
+
+################################################################################
+#-- Use cross-validation
+#   For glm
+################################################################################
+source('Rcode/glm_my.R')
+mu.cv.poisReg <- suppressWarnings(cv.poisReg(fmla, data = a, fold = fold))
+mu.cv.poisReg.offset <- suppressWarnings(cv.poisReg(fmla.offset, data = a, fold = fold))
+
+mu.cv.negBino <- suppressWarnings(cv.negBino(fmla, data = a, fold = fold))
+mu.cv.negBino.offset <- suppressWarnings(cv.negBino(fmla.offset, data = a, fold = fold))
+
+score = data.frame(poisReg=mae(mu.cv.poisReg,Y),poisReg.offset=mae(mu.cv.poisReg.offset,Y),
+                   negBino=mae(mu.cv.negBino,Y),negBino.offset=min(mae(mu.cv.negBino.offset,Y)))
+print(round(score,4))
 
