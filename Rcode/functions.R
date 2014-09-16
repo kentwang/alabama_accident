@@ -154,13 +154,36 @@ cv.poisReg <- function(fmla,data,fold,show.pb=TRUE){
 #fit = step(fit0,scope=fmla,direction="forward")
     
     
-    fit0 = glm(null.fmla,data=data[train,],family=poisson)
+    fit0 = glm.my(null.fmla,data=data[train,],family=poisson)
     fit = step(fit0,scope=fmla,trace=0,direction="forward")
     mu[test] = predict(fit,newdata=data[test,],type="response")
     if(show.pb) setTxtProgressBar(pb,k)
   }
   if(show.pb) close(pb)  
 return(mu)  
+}
+
+#== Cross validation for negative bomonial
+cv.negBino <- function(fmla,data,fold,show.pb=TRUE){
+  X = model.matrix(fmla,data)
+  Y = as.matrix(data[,as.character(fmla[[2]])])
+  offset = model.offset(model.frame(fmla,data))  
+    
+  null.fmla = update(fmla,~1)  
+  mu = numeric(nrow(data)) 
+  K = sort(unique(fold))
+  if(show.pb) pb = txtProgressBar(style=3,min=min(K),max=max(K))
+  for(k in K) {
+    test = which(fold == k)
+    train = which(fold != k)
+    
+    fit0 = glm.nb.my(null.fmla,data=data[train,])
+    fit = step(fit0,scope=fmla,trace=0,direction="forward")
+    mu[test] = predict(fit,newdata=data[test,],type="response")
+    if(show.pb) setTxtProgressBar(pb,k)
+  }
+  if(show.pb) close(pb)  
+  return(mu)  
 }
 
 
