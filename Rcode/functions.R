@@ -155,7 +155,7 @@ cv.poisReg <- function(fmla,data,fold,show.pb=TRUE){
     
     
     fit0 = glm.my(fmla,data=data[train,],family=poisson)
-    fit = step(fit0,trace=0,direction="both")
+    fit = step(fit0,trace=0)
     mu[test] = predict(fit,newdata=data[test,],type="response")
     if(show.pb) setTxtProgressBar(pb,k)
   }
@@ -178,7 +178,7 @@ cv.negBino <- function(fmla,data,fold,show.pb=TRUE){
     train = which(fold != k)
     
     fit0 = glm.nb.my(fmla,data=data[train,])
-    fit = step(fit0,trace=0,direction="both")
+    fit = step(fit0,trace=0)
     mu[test] = predict(fit,newdata=data[test,],type="response")
     if(show.pb) setTxtProgressBar(pb,k)
   }
