@@ -139,8 +139,8 @@ cv.poisReg <- function(fmla,data,fold,show.pb=TRUE){
   Y = as.matrix(data[,as.character(fmla[[2]])])
   offset = model.offset(model.frame(fmla,data))  
   
-    fit0 = glm.fit(X,Y,offset=offset,family=poisson())
-    fit = glm(fmla,data=a,family=poisson)
+  fit0 = glm.fit(X,Y,offset=offset,family=poisson())
+  fit = glm(fmla,data=a,family=poisson)
   
   
   null.fmla = update(fmla,~1)  
@@ -154,8 +154,8 @@ cv.poisReg <- function(fmla,data,fold,show.pb=TRUE){
 #fit = step(fit0,scope=fmla,direction="forward")
     
     
-    fit0 = glm.my(null.fmla,data=data[train,],family=poisson)
-    fit = step(fit0,scope=fmla,trace=0,direction="forward")
+    fit0 = glm.my(fmla,data=data[train,],family=poisson)
+    fit = step(fit0,trace=0,direction="both")
     mu[test] = predict(fit,newdata=data[test,],type="response")
     if(show.pb) setTxtProgressBar(pb,k)
   }
@@ -177,8 +177,8 @@ cv.negBino <- function(fmla,data,fold,show.pb=TRUE){
     test = which(fold == k)
     train = which(fold != k)
     
-    fit0 = glm.nb.my(null.fmla,data=data[train,])
-    fit = step(fit0,scope=fmla,trace=0,direction="forward")
+    fit0 = glm.nb.my(fmla,data=data[train,])
+    fit = step(fit0,trace=0,direction="both")
     mu[test] = predict(fit,newdata=data[test,],type="response")
     if(show.pb) setTxtProgressBar(pb,k)
   }
@@ -226,7 +226,7 @@ cv.treePois <- function(fmla,data,fold){
   } 
   if(!is.null(offset)) mu = mu * exp(offset)
 return(mu)
-}
+} 
 
 
 
