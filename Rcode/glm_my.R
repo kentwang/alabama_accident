@@ -1,7 +1,7 @@
 #-------------------------------------------------------------------------------
 #- Modified modeling function i.e. mf$drop.unused.levels <- FALSE
 #
-#- TODO: - modify glm.nb?
+#- TODO: - modify glm.nb for over-dispersion parameter
 #-------------------------------------------------------------------------------
 
 glm.my <- function(formula, family = gaussian, data, weights,
