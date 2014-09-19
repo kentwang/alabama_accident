@@ -27,6 +27,7 @@ cvDataSplit <- function(data, k) {
 
 
 source("RCode/functions.R")  # load required functions
+source('Rcode/glm_my.R')
 
 ################################################################################
 #-- Fit models to full data. Didn't put in offset models yet. Basically, this
@@ -49,12 +50,16 @@ m.glm = predict(p1,type="response")
 poisReg <- step(glm(fmla, data = a, family = "poisson"))
 m.step = predict(poisReg,type="response")
 
+gbmPois <- gbm(fmla, data = a, distribution = "poisson", shrinkage = 1.001, n.trees = 1000) # shrinkage needs to be tuned
+best.iter <- gbm.perf(gbmPois, plot.it = FALSE)
+m.gbm <- predict(gbmPois, a, n.trees = best.iter, type = "response")
+
 
 #-- Evaluation (mean absolut error)
 Y = a$X5YrCrashCount  # response
 
 score = data.frame(tree=mae(m.tree,Y),glm=mae(m.glm,Y),step=mae(m.step,Y),
-                    glmnet=min(mae(m.glmnet,Y)))
+                    glmnet=min(mae(m.glmnet,Y)), gbm = mae(m.gbm, Y))
 
 print(round(score,4))
 
@@ -92,16 +97,21 @@ legend("topright",c('glmnet','glmnet-offset','tree','tree-offset'),col=1:4,lwd=1
 
 ################################################################################
 #-- Use cross-validation
-#   For glm
+#   Compare poisReg, negBino, gbmPois
 ################################################################################
-source('Rcode/glm_my.R')
+fold = cvfolds(nrow(a),k=20,seed=9122014)  # get cv partition info
+
 mu.cv.poisReg <- suppressWarnings(cv.poisReg(fmla, data = a, fold = fold))
 mu.cv.poisReg.offset <- suppressWarnings(cv.poisReg(fmla.offset, data = a, fold = fold))
 
 mu.cv.negBino <- suppressWarnings(cv.negBino(fmla, data = a, fold = fold))
 mu.cv.negBino.offset <- suppressWarnings(cv.negBino(fmla.offset, data = a, fold = fold))
 
+mu.cv.gbmPois <- suppressWarnings(cv.gbmPois(fmla, data = a, fold = fold))
+mu.cv.gbmPois.offset <- suppressWarnings(cv.gbmPois(fmla.offset, data = a, fold = fold))
+
 score = data.frame(poisReg=mae(mu.cv.poisReg,Y),poisReg.offset=mae(mu.cv.poisReg.offset,Y),
-                   negBino=mae(mu.cv.negBino,Y),negBino.offset=min(mae(mu.cv.negBino.offset,Y)))
+                   negBino=mae(mu.cv.negBino,Y),negBino.offset=mae(mu.cv.negBino.offset,Y),
+                   gbmPois=min(mae(mu.cv.gbmPois,Y)),gbmPois.offset=min(mae(mu.cv.gbmPois.offset,Y)))
 print(round(score,4))
 
