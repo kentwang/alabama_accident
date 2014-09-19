@@ -111,8 +111,14 @@ mu.cv.poisReg.offset <- suppressWarnings(cv.poisReg(fmla.offset, data = a, fold 
 mu.cv.negBino <- suppressWarnings(cv.negBino(fmla, data = a, fold = fold))
 mu.cv.negBino.offset <- suppressWarnings(cv.negBino(fmla.offset, data = a, fold = fold))
 
+ptm <- proc.time()
 mu.cv.gbmPois <- suppressWarnings(cv.gbmPois(fmla, data = a, fold = fold))
 mu.cv.gbmPois.offset <- suppressWarnings(cv.gbmPois(fmla.offset, data = a, fold = fold))
+proc.time() - ptm 
+
+# > proc.time() - ptm
+# user  system elapsed 
+# 1300.86    0.00 1302.19 
 
 mu.cv.glmnet = cv.glmnetPois(fmla,data=a,fold=fold)
 mu.cv.glmnet.offset = cv.glmnetPois(fmla.offset,data=a,fold=fold)
