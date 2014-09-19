@@ -229,7 +229,7 @@ cv.treePois <- function(fmla,data,fold){
 } 
 
 #-- Cross-Val for boosting
-cv.gbmPois <- function(fmla, data, fold, skg = seq(0, 1, 0.1)) {
+cv.gbmPois <- function(fmla, data, fold, n.trees = 10000, interaction.depth = 3) {
   X = model.matrix(fmla,data)
   Y = as.matrix(data[,as.character(fmla[[2]])])
   offset = model.offset(model.frame(fmla,data))  
@@ -242,7 +242,8 @@ cv.gbmPois <- function(fmla, data, fold, skg = seq(0, 1, 0.1)) {
       test = which(fold == k)
       train = which(fold != k)
       
-      fit0 = gbm(fmla, data=data[train,], distribution = "poisson", shrinkage = skg[i]) #set thrinkage?
+      fit0 = gbm(fmla, data=data[train,], distribution = "poisson", n.trees = n.trees,
+                 interaction.depth = interaction.depth) #set thrinkage?
       best.iter <- suppressWarnings(gbm.perf(fit0, plot.it = FALSE))
       mu[test, i] = predict(fit0, newdata=data[test,], n.trees = best.iter, type = "response")
     }
