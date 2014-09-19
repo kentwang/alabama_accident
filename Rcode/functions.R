@@ -225,9 +225,31 @@ cv.treePois <- function(fmla,data,fold){
     mu[test] = predict(fit,newdata=data[test,],type="vector")
   } 
   if(!is.null(offset)) mu = mu * exp(offset)
-return(mu)
+  return(mu)
 } 
 
+#-- Cross-Val for boosting
+cv.gbmPois <- function(fmla, data, fold, skg = seq(0, 1, 0.1)) {
+  X = model.matrix(fmla,data)
+  Y = as.matrix(data[,as.character(fmla[[2]])])
+  offset = model.offset(model.frame(fmla,data))  
+  
+  mu = mat.or.vec(nrow(data), length(skg)) 
+  K = sort(unique(fold))
+  for(i in 1:length(skg)) {
+    cat("Shrinkage ", i, "/", length(skg), "\n")
+    for(k in K) {
+      test = which(fold == k)
+      train = which(fold != k)
+      
+      fit0 = gbm(fmla, data=data[train,], distribution = "poisson", shrinkage = skg[i]) #set thrinkage?
+      best.iter <- suppressWarnings(gbm.perf(fit0, plot.it = FALSE))
+      mu[test, i] = predict(fit0, newdata=data[test,], n.trees = best.iter, type = "response")
+    }
+    if(!is.null(offset)) mu = mu * exp(offset)
+  }  
+  return(mu)  
+}
 
 
 #== Returns Mean Absolute Error
