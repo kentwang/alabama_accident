@@ -97,7 +97,7 @@ legend("topright",c('glmnet','glmnet-offset','tree','tree-offset'),col=1:4,lwd=1
 
 ################################################################################
 #-- Use cross-validation
-#   Compare poisReg, negBino, gbmPois
+#   Compare poisReg, negBino, gbmPois, glmnet, tree
 ################################################################################
 fold = cvfolds(nrow(a),k=20,seed=9122014)  # get cv partition info
 
@@ -110,8 +110,16 @@ mu.cv.negBino.offset <- suppressWarnings(cv.negBino(fmla.offset, data = a, fold 
 mu.cv.gbmPois <- suppressWarnings(cv.gbmPois(fmla, data = a, fold = fold))
 mu.cv.gbmPois.offset <- suppressWarnings(cv.gbmPois(fmla.offset, data = a, fold = fold))
 
+mu.cv.glmnet = cv.glmnetPois(fmla,data=a,fold=fold)
+mu.cv.glmnet.offset = cv.glmnetPois(fmla.offset,data=a,fold=fold)
+
+mu.cv.tree = cv.treePois(fmla,data=a,fold=fold)
+mu.cv.tree.offset = cv.treePois(fmla.offset,data=a,fold=fold)
+
 score = data.frame(poisReg=mae(mu.cv.poisReg,Y),poisReg.offset=mae(mu.cv.poisReg.offset,Y),
                    negBino=mae(mu.cv.negBino,Y),negBino.offset=mae(mu.cv.negBino.offset,Y),
-                   gbmPois=min(mae(mu.cv.gbmPois,Y)),gbmPois.offset=min(mae(mu.cv.gbmPois.offset,Y)))
+                   gbmPois=min(mae(mu.cv.gbmPois,Y)),gbmPois.offset=min(mae(mu.cv.gbmPois.offset,Y)),
+                   tree=mae(mu.cv.tree,Y),tree.offset=mae(mu.cv.tree.offset,Y),
+                   glmnet=min(mae(mu.cv.glmnet,Y)),glmnet.offset=min(mae(mu.cv.glmnet.offset,Y)))
 print(round(score,4))
 
