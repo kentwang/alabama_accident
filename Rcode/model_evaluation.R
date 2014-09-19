@@ -103,6 +103,8 @@ ptm <- proc.time() # time the comparison procedure
 
 fold = cvfolds(nrow(a),k=20,seed=9122014)  # get cv partition info
 
+Y = a$X5YrCrashCount  # response
+
 mu.cv.poisReg <- suppressWarnings(cv.poisReg(fmla, data = a, fold = fold))
 mu.cv.poisReg.offset <- suppressWarnings(cv.poisReg(fmla.offset, data = a, fold = fold))
 
