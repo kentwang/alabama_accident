@@ -124,3 +124,9 @@ score = data.frame(poisReg=mae(mu.cv.poisReg,Y),poisReg.offset=mae(mu.cv.poisReg
                    glmnet=min(mae(mu.cv.glmnet,Y)),glmnet.offset=min(mae(mu.cv.glmnet.offset,Y)))
 print(round(score,4))
 
+plot(1:length(score), score, ylim = c(1.25, 1.4), "h", ylab = "MAE", xlab = "", 
+     xaxt = "n", lwd = 2, main = "Comparison of model families on MAE")
+points(1:length(score), score, pch = 19)
+axis(1, at = 1:10, labels=FALSE)
+text(x = 1:10, y = par()$usr[3]-0.1*(par()$usr[4]-par()$usr[3]),
+     labels = names(score), srt = 30, adj = 1, xpd =TRUE)
