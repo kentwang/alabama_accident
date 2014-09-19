@@ -98,6 +98,7 @@ legend("topright",c('glmnet','glmnet-offset','tree','tree-offset'),col=1:4,lwd=1
 ################################################################################
 #-- Use cross-validation
 #   Compare poisReg, negBino, gbmPois, glmnet, tree
+#-- TODO: - Record running time for the comparison
 ################################################################################
 fold = cvfolds(nrow(a),k=20,seed=9122014)  # get cv partition info
 
