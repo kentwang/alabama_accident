@@ -229,7 +229,7 @@ cv.treePois <- function(fmla,data,fold){
 } 
 
 #-- Cross-Val for boosting
-cv.gbmPois <- function(fmla, data, fold, n.trees = 10000, interaction.depth = 3) {
+cv.gbmPois <- function(fmla, data, fold, skg = c(0.1, 0.3, 1), n.trees = 10000, interaction.depth = 3) {
   X = model.matrix(fmla,data)
   Y = as.matrix(data[,as.character(fmla[[2]])])
   offset = model.offset(model.frame(fmla,data))  
