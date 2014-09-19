@@ -98,8 +98,9 @@ legend("topright",c('glmnet','glmnet-offset','tree','tree-offset'),col=1:4,lwd=1
 ################################################################################
 #-- Use cross-validation
 #   Compare poisReg, negBino, gbmPois, glmnet, tree
-#-- TODO: - Record running time for the comparison
 ################################################################################
+ptm <- proc.time() # time the comparison procedure
+
 fold = cvfolds(nrow(a),k=20,seed=9122014)  # get cv partition info
 
 mu.cv.poisReg <- suppressWarnings(cv.poisReg(fmla, data = a, fold = fold))
@@ -116,6 +117,8 @@ mu.cv.glmnet.offset = cv.glmnetPois(fmla.offset,data=a,fold=fold)
 
 mu.cv.tree = cv.treePois(fmla,data=a,fold=fold)
 mu.cv.tree.offset = cv.treePois(fmla.offset,data=a,fold=fold)
+
+proc.time() - ptm # calculate the comparison
 
 score = data.frame(poisReg=mae(mu.cv.poisReg,Y),poisReg.offset=mae(mu.cv.poisReg.offset,Y),
                    negBino=mae(mu.cv.negBino,Y),negBino.offset=mae(mu.cv.negBino.offset,Y),
