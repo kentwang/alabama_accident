@@ -5,18 +5,23 @@
 #-- Component Plots
 ################################################################################
 
+#--- Things to Do
 ## Order plots by score
 ## add support for other classes: Date, POSIXct, ...
+## Control by restricting edf, not sp. Also control categorical data.
+## Add support for ordered factors (and convert numeric with few unique to this)
 
 ## still don't like the built in gam.mgcv smooths. They are not good
 #  when x data has gaps
+#   Note: now using penalized b-splines with 50 knots and restricting min.sp=100
+#         This min.sp=100 is rather arbitrary.
 
  
 library(mgcv)
 
 
 component.plots <- function(fmla,data,plot=TRUE,fam = poisson(),ylim=c(-2,2),
-                            max.df=6){
+                            max.df=6,min.sp=100){
   
   data = model.frame(fmla,data)  # make correct transformations from fmla
   offset = as.vector(model.offset(data))
@@ -42,7 +47,7 @@ component.plots <- function(fmla,data,plot=TRUE,fam = poisson(),ylim=c(-2,2),
   for(j in 1:p){
     
     x = data[,vars[j]]
-    if(length(unique(x)) <= 2 & class(x) %in% c("numeric","integer")){
+    if(length(unique(x)) <= 3 & class(x) %in% c("numeric","integer")){
       x = factor(x)
     }
     class.x = class(x)
@@ -78,12 +83,20 @@ component.plots <- function(fmla,data,plot=TRUE,fam = poisson(),ylim=c(-2,2),
     
     if(class.x %in% c("numeric","integer")){
       nx = length(unique(x))
+      
+      #- Bspline with k=50 knots. 3rd degree spline, 2nd degree penalty (limits to liner fit)
+      #  min.sp sets the minimum level of smoothing. Would rather set max df!
+      min.smooth = 100  
+      gg = gam(y~s(x,k=50,bs="ps",m=c(2,2)),family=fam,offset=offset,method="REML",
+               min.sp=min.sp) 
+      
       #kmax = ifelse(nx < 10, nx-1, -1 ) # -1 lets gam choose kmax 
-      kmax = min(nx-1,max.df-1)
-      gg = gam(y~s(x,k=kmax),family=fam,offset=offset,method="REML")      
+      #kmax = min(nx-1,max.df-1)
+      #gg = gam(y~s(x,k=kmax),family=fam,offset=offset,method="REML")      
+    
       #kmax = max.df-1
       #gg = gam(y~s(x,k=kmax,bs="ps",m=c(2,1)),family=fam,offset=offset) 
-
+            
       if(plot){
         #plot(gg,scheme=1,shift=coef(gg)[1],rug=FALSE,xlab="",ylim=ylim,las=1,
         #     shade.col=CI.col,col=line.col,lwd=2)       
