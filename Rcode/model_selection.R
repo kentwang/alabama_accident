@@ -165,7 +165,7 @@ barplot(sort(summary(negBino.offset)$coefficients[summary(negBino.offset)$coeffi
 # 2) keep only one for categorical variables
 # 3) Fill in zeros when using importances
 fmla.string <- strsplit(as.character(fmla)[3], " \\+ ")[[1]]
-allVariables <- c(fmla.string, "log(TotalT5YearInM)") # complete set of variables names
+# allVariables <- c(fmla.string, "log(TotalT5YearInM)") # complete set of variables names
 allVariables <- allVariables[order(allVariables)]
 varImpStandard <- function(v) { # scale variable "importance" from 0 to 100
   v <- abs(v) * 100 / max(abs(v)) # use absolute values when only coeffcients are provided
