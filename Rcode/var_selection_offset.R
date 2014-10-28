@@ -59,21 +59,19 @@ ggplot(importances, aes(factor(var), importance, fill = model)) +
   geom_bar(stat = "identity", position = "dodge") +
   theme(text = element_text(size = 16)) + 
   coord_flip() + 
-  scale_x_discrete(name="Intersection Factors")
+  scale_x_discrete(name="Intersection Factors") +
+  scale_fill_discrete(breaks=model.names)
 
 ## - try use original coefficients instead of t-statistics
 varImp_poisReg_offset <- varImpStandard(summary(poisReg.offset)$coefficients[-1, 3])
 varImp_negBino_offset <- varImpStandard(summary(negBino.offset)$coefficients[-1, 3])
 varImp_glmnetPois_offset <- varImpStandard(beta.glmnet.offset)
-varImp_treePois_offset <- varImpStandard(treePois.offset$variable.importance)
-varImp_gbmPois <- varImpStandard(beta.gbm.offset)
 
 varImp <- as.vector(c(varImp_poisReg_offset, varImp_negBino_offset,
-                      varImp_glmnetPois_offset, varImp_treePois_offset, 
-                      varImp_gbmPois))
+                      varImp_glmnetPois_offset))
 
 model.names <- c("Poisson Regression", "Negative Binomial",
-                 "glmnet Poisson", "Regression Tree", "gbm Boosted Trees")
+                 "glmnet Poisson")
 
 importances <- as.data.frame(cbind(rep(allVariables, length(model.names)),
                                    rep(model.names, each = length(allVariables))))
@@ -84,7 +82,8 @@ ggplot(importances, aes(factor(var), importance, fill = model)) +
   geom_bar(stat = "identity", position = "dodge") +
   theme(text = element_text(size = 16)) + 
   coord_flip() + 
-  scale_x_discrete(name="Intersection Factors")
+  scale_x_discrete(name="Intersection Factors") +
+  ggtitle("Variable importance in original scale")
 
 
 
