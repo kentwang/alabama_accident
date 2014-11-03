@@ -204,6 +204,28 @@ AlabamaMap + geom_polygon(aes(x = long, y = lat), data = data,
 library(mgcv)
 source("Rcode/functions.R")  # has component.plots() function
 
+# 
+# fmla <- as.formula("X5YrCrashCount ~ AreaType + IntCat + IntTCType + LegRtType + 
+#                     LegSpeed + LegTCType + LegType + LegWidth + Lighting + 
+#                     LTLanes + LTLnLength + LTOffset + LTWidth + MedType + 
+#                     MedWidth + MergeLanes + NextPIDist + NumberLegs + 
+#                     NumLanes + Offset + OffsetDist + OneWay + PaveType + 
+#                     PedCross + RTChannel + RTLanes + RTLnLength + RTMoveCtrl + 
+#                     RTWidth + Rumble + SightLt + SightRt + SkewAngle + Terrain + 
+#                     log(TotalAADT) + log(TotalT5YearInM) + log(Traffic) +
+#                     TurnProhib + Lat + Long") 
+# 
+# fmla.offset <- as.formula("X5YrCrashCount ~ AreaType + IntCat + IntTCType + LegRtType + 
+#                     LegSpeed + LegTCType + LegType + LegWidth + Lighting + 
+#                     LTLanes + LTLnLength + LTOffset + LTWidth + MedType + 
+#                     MedWidth + MergeLanes + NextPIDist + NumberLegs + 
+#                     NumLanes + Offset + OffsetDist + OneWay + PaveType + 
+#                     PedCross + RTChannel + RTLanes + RTLnLength + RTMoveCtrl + 
+#                     RTWidth + Rumble + SightLt + SightRt + SkewAngle + Terrain + 
+#                     log(TotalAADT) + log(TotalT5YearInM) + offset(log(Traffic)) +
+#                     TurnProhib + Lat + Long") 
+
+
 
 fmla <- as.formula("X5YrCrashCount ~ AreaType + IntCat + IntTCType + LegRtType + 
                     LegSpeed + LegTCType + LegType + LegWidth + Lighting + 
@@ -212,8 +234,7 @@ fmla <- as.formula("X5YrCrashCount ~ AreaType + IntCat + IntTCType + LegRtType +
                     NumLanes + Offset + OffsetDist + OneWay + PaveType + 
                     PedCross + RTChannel + RTLanes + RTLnLength + RTMoveCtrl + 
                     RTWidth + Rumble + SightLt + SightRt + SkewAngle + Terrain + 
-                    log(TotalAADT) + log(TotalT5YearInM) + log(Traffic) +
-                    TurnProhib + Lat + Long") 
+                    log(Traffic) + TurnProhib + Lat + Long") 
 
 fmla.offset <- as.formula("X5YrCrashCount ~ AreaType + IntCat + IntTCType + LegRtType + 
                     LegSpeed + LegTCType + LegType + LegWidth + Lighting + 
@@ -222,8 +243,8 @@ fmla.offset <- as.formula("X5YrCrashCount ~ AreaType + IntCat + IntTCType + LegR
                     NumLanes + Offset + OffsetDist + OneWay + PaveType + 
                     PedCross + RTChannel + RTLanes + RTLnLength + RTMoveCtrl + 
                     RTWidth + Rumble + SightLt + SightRt + SkewAngle + Terrain + 
-                    log(TotalAADT) + log(TotalT5YearInM) + offset(log(Traffic)) +
-                    TurnProhib + Lat + Long") 
+                    offset(log(Traffic)) + TurnProhib + Lat + Long") 
+
 
 #- Variable Importance and Component Plots
 # powerpoint = 1024 x 768
