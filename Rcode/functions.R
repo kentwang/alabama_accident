@@ -25,6 +25,33 @@ component.plots <- function(fmla,data,plot=TRUE,fam = poisson(),ylim=c(-2,2),
   p = length(vars)
   AIC.null = gam(y~1,family=fam,offset=offset)$aic   # AIC for baseline only model
   
+  # calculate scores first and them order by score decreasingly "vars"
+  AIC = numeric(p)
+  for(j in 1:p){
+    
+    x = data[,vars[j]]
+    if(length(unique(x)) <= 2 & class(x) %in% c("numeric","integer")){
+      x = factor(x)
+    }
+    class.x = class(x)
+    
+    if(class.x %in% c("factor","character","logical")){
+      x = factor(x)
+      #gg = gam(y~x,family=fam,offset=offset)
+      gg = gam(y~s(x,bs="re"),family=fam,offset=offset,method="REML")
+    }
+    
+    if(class.x %in% c("numeric","integer")){
+      nx = length(unique(x))
+      #kmax = ifelse(nx < 10, nx-1, -1 ) # -1 lets gam choose kmax 
+      kmax = min(nx-1,max.df-1)
+      gg = gam(y~s(x,k=kmax),family=fam,offset=offset,method="REML")      
+    }
+    AIC[j] = gg$aic
+  }
+  score = AIC.null - AIC  # variable importance (componentwise)
+  vars = vars[order(score, decreasing = T)]
+  
   op <- par(no.readonly=TRUE)
   on.exit(par(op))
   if(plot){ 
@@ -38,7 +65,6 @@ component.plots <- function(fmla,data,plot=TRUE,fam = poisson(),ylim=c(-2,2),
     line.col = "blue"
   }  
   
-  AIC = numeric(p)
   for(j in 1:p){
     
     x = data[,vars[j]]
@@ -106,9 +132,7 @@ component.plots <- function(fmla,data,plot=TRUE,fam = poisson(),ylim=c(-2,2),
         title(paste0(vars[j]," (",round(AIC.null-gg$aic),")"))
       }
     }
-    AIC[j] = gg$aic
   }
-  score = AIC.null - AIC  # variable importance (componentwise)
   return(data.frame(variable=vars,score=round(score)))
 }
 
