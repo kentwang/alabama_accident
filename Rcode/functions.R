@@ -284,5 +284,33 @@ mae <- function(mu,y){
 }
 
 
+################################################################################
+# Variable importance using AIC/likelihood and leave-one-out impact
+# -Todo: chose an appropriate measure for all model
+################################################################################
+varImp.loo <- function(fmla, data, model) {
+  data.temp = model.frame(fmla,data)  # make correct transformations from fmla
+  offset = as.vector(model.offset(data.temp))
+  vars = attr(terms(data.temp),"term.labels") # predictor variables
+  p = length(vars)
+  
+  score = numeric(p)
+  if (model == "poisson") {
+    AIC.null = glm(fmla, data, family = "poisson")$aic
+    
+    for (j in 1:p) {
+      if (!is.null(offset)) {
+        fmla.temp = as.formula(paste("X5YrCrashCount ~ ", paste(paste(vars[-j], collapse = " + "), " + offset(log(Traffic))")))
+      } else {
+        fmla.temp = as.formula(paste("X5YrCrashCount ~ ", paste(vars[-j], collapse = " + ")))
+      }       
+      
+      score[j] = AIC.null - glm(fmla.temp, data, family = "poisson")$aic
+    }
+  }
+    
+  return(data.frame(variable=vars,score=round(score)))
+}
+
 
 
