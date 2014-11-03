@@ -204,7 +204,7 @@ AlabamaMap + geom_polygon(aes(x = long, y = lat), data = data,
 library(mgcv)
 source("Rcode/functions.R")  # has component.plots() function
 
-# 
+
 # fmla <- as.formula("X5YrCrashCount ~ AreaType + IntCat + IntTCType + LegRtType + 
 #                     LegSpeed + LegTCType + LegType + LegWidth + Lighting + 
 #                     LTLanes + LTLnLength + LTOffset + LTWidth + MedType + 
@@ -225,8 +225,6 @@ source("Rcode/functions.R")  # has component.plots() function
 #                     log(TotalAADT) + log(TotalT5YearInM) + offset(log(Traffic)) +
 #                     TurnProhib + Lat + Long") 
 
-
-
 fmla <- as.formula("X5YrCrashCount ~ AreaType + IntCat + IntTCType + LegRtType + 
                     LegSpeed + LegTCType + LegType + LegWidth + Lighting + 
                     LTLanes + LTLnLength + LTOffset + LTWidth + MedType + 
@@ -244,7 +242,6 @@ fmla.offset <- as.formula("X5YrCrashCount ~ AreaType + IntCat + IntTCType + LegR
                     PedCross + RTChannel + RTLanes + RTLnLength + RTMoveCtrl + 
                     RTWidth + Rumble + SightLt + SightRt + SkewAngle + Terrain + 
                     offset(log(Traffic)) + TurnProhib + Lat + Long") 
-
 
 #- Variable Importance and Component Plots
 # powerpoint = 1024 x 768
