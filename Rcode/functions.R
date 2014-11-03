@@ -288,15 +288,18 @@ mae <- function(mu,y){
 # Variable importance using AIC/likelihood and leave-one-out impact
 # -Todo: chose an appropriate measure for all model
 ################################################################################
-varImp.loo <- function(fmla, data, model) {
+varImp.loo <- function(fmla, data, family, k = 5, seed=11032014) {
   data.temp = model.frame(fmla,data)  # make correct transformations from fmla
   offset = as.vector(model.offset(data.temp))
   vars = attr(terms(data.temp),"term.labels") # predictor variables
   p = length(vars)
   
+  fold = cvfolds(nrow(data), k, seed) 
+  ptm <- proc.time()
+  
   score = numeric(p)
   if (model == "poisson") {
-    AIC.null = glm(fmla, data, family = "poisson")$aic
+    cvError.null = suppressWarnings(cv.poisReg(fmla, data = a, fold = fold))
     
     for (j in 1:p) {
       if (!is.null(offset)) {
@@ -305,11 +308,26 @@ varImp.loo <- function(fmla, data, model) {
         fmla.temp = as.formula(paste("X5YrCrashCount ~ ", paste(vars[-j], collapse = " + ")))
       }       
       
-      score[j] = AIC.null - glm(fmla.temp, data, family = "poisson")$aic
+      score[j] = glm(fmla.temp, data, family = "poisson")$aic - AIC.null
     }
   }
-    
-  return(data.frame(variable=vars,score=round(score)))
+  else if (model == "treePois") {
+      
+  }
+  proc.time() - ptm 
+  
+  
+  dfscore = data.frame(variable=vars,score=round(score))
+  dfscore = dfscore[order(dfscore$score, decreasing = T), ]
+  return(dfscore)
+}
+
+varImpStandard2 <- function(dfscore) {
+  score = dfscore$score
+  score = (score - min(score)) 
+  score = score * 100 / max(score) 
+  dfscore$score = score
+  return(dfscore)
 }
 
 
