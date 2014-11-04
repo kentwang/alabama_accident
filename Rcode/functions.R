@@ -253,26 +253,27 @@ cv.treePois <- function(fmla,data,fold){
 } 
 
 #-- Cross-Val for boosting
-cv.gbmPois <- function(fmla, data, fold, skg = c(0.1, 0.3, 1), n.trees = 10000, interaction.depth = 3) {
+cv.gbmPois <- function(fmla, data, fold, n.trees = 10000, interaction.depth = 3, show.pb=TRUE) {
   X = model.matrix(fmla,data)
   Y = as.matrix(data[,as.character(fmla[[2]])])
   offset = model.offset(model.frame(fmla,data))  
   
-  mu = mat.or.vec(nrow(data), length(skg)) 
+  mu = numeric(nrow(data))
   K = sort(unique(fold))
-  for(i in 1:length(skg)) {
-    cat("Shrinkage ", i, "/", length(skg), "\n")
-    for(k in K) {
-      test = which(fold == k)
-      train = which(fold != k)
-      
-      fit0 = gbm(fmla, data=data[train,], distribution = "poisson", n.trees = n.trees,
-                 interaction.depth = interaction.depth) #set thrinkage?
-      best.iter <- suppressWarnings(gbm.perf(fit0, plot.it = FALSE))
-      mu[test, i] = predict(fit0, newdata=data[test,], n.trees = best.iter, type = "response")
-    }
-    if(!is.null(offset)) mu = mu * exp(offset)
-  }  
+  
+  if(show.pb) pb = txtProgressBar(style=3,min=min(K),max=max(K))
+  for(k in K) {
+    test = which(fold == k)
+    train = which(fold != k)
+    
+    fit0 = gbm(fmla, data=data[train,], distribution = "poisson", n.trees = n.trees,
+               interaction.depth = interaction.depth) #set thrinkage?
+    best.iter <- suppressWarnings(gbm.perf(fit0, plot.it = FALSE))
+    mu[test] = predict(fit0, newdata=data[test,], n.trees = best.iter, type = "response")
+    if(show.pb) setTxtProgressBar(pb,k)
+  }
+  if(show.pb) close(pb)
+  if(!is.null(offset)) mu = mu * exp(offset)
   return(mu)  
 }
 
