@@ -11,7 +11,7 @@ library(rpart)
 library(randomForest)
 library(glmnet)
 library(gbm)
-library(texreg)
+# library(texreg)
 library(ggplot2)
 
 #-- Load data
@@ -25,8 +25,7 @@ fmla <- as.formula("X5YrCrashCount ~ AreaType + IntCat + IntTCType + LegRtType +
                     NumLanes + Offset + OffsetDist + OneWay + PaveType + 
                     PedCross + RTChannel + RTLanes + RTLnLength + RTMoveCtrl + 
                     RTWidth + Rumble + SightLt + SightRt + SkewAngle + Terrain + 
-                    log(TotalAADT) + log(TotalT5YearInM) + log(Traffic) +
-                    TurnProhib + Lat + Long") 
+                    log(Traffic) + TurnProhib + Lat + Long") 
 
 fmla.offset <- as.formula("X5YrCrashCount ~ AreaType + IntCat + IntTCType + LegRtType + 
                     LegSpeed + LegTCType + LegType + LegWidth + Lighting + 
@@ -35,8 +34,9 @@ fmla.offset <- as.formula("X5YrCrashCount ~ AreaType + IntCat + IntTCType + LegR
                     NumLanes + Offset + OffsetDist + OneWay + PaveType + 
                     PedCross + RTChannel + RTLanes + RTLnLength + RTMoveCtrl + 
                     RTWidth + Rumble + SightLt + SightRt + SkewAngle + Terrain + 
-                    log(TotalAADT) + log(TotalT5YearInM) + offset(log(Traffic)) +
-                    TurnProhib + Lat + Long") 
+                    offset(log(Traffic)) + TurnProhib + Lat + Long") 
+
+
 #-------------------------------------------------------------------------------
 # Candidate models are built in this section
 #-------------------------------------------------------------------------------
@@ -165,8 +165,8 @@ barplot(sort(summary(negBino.offset)$coefficients[summary(negBino.offset)$coeffi
 # 2) keep only one for categorical variables
 # 3) Fill in zeros when using importances
 fmla.string <- strsplit(as.character(fmla)[3], " \\+ ")[[1]]
-allVariables <- c(fmla.string, "log(TotalT5YearInM)") # complete set of variables names
-allVariables <- allVariables[order(allVariables)]
+# allVariables <- c(fmla.string, "log(TotalT5YearInM)") # complete set of variables names
+allVariables <- fmla.string[order(fmla.string)]
 varImpStandard <- function(v) { # scale variable "importance" from 0 to 100
   v <- abs(v) * 100 / max(abs(v)) # use absolute values when only coeffcients are provided
   

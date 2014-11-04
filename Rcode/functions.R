@@ -30,6 +30,33 @@ component.plots <- function(fmla,data,plot=TRUE,fam = poisson(),ylim=c(-2,2),
   p = length(vars)
   AIC.null = gam(y~1,family=fam,offset=offset)$aic   # AIC for baseline only model
   
+  # calculate scores first and them order by score decreasingly "vars"
+  AIC = numeric(p)
+  for(j in 1:p){
+    
+    x = data[,vars[j]]
+    if(length(unique(x)) <= 2 & class(x) %in% c("numeric","integer")){
+      x = factor(x)
+    }
+    class.x = class(x)
+    
+    if(class.x %in% c("factor","character","logical")){
+      x = factor(x)
+      #gg = gam(y~x,family=fam,offset=offset)
+      gg = gam(y~s(x,bs="re"),family=fam,offset=offset,method="REML")
+    }
+    
+    if(class.x %in% c("numeric","integer")){
+      nx = length(unique(x))
+      #kmax = ifelse(nx < 10, nx-1, -1 ) # -1 lets gam choose kmax 
+      kmax = min(nx-1,max.df-1)
+      gg = gam(y~s(x,k=kmax),family=fam,offset=offset,method="REML")      
+    }
+    AIC[j] = gg$aic
+  }
+  score = AIC.null - AIC  # variable importance (componentwise)
+  vars = vars[order(score, decreasing = T)]
+  
   op <- par(no.readonly=TRUE)
   on.exit(par(op))
   if(plot){ 
@@ -43,7 +70,6 @@ component.plots <- function(fmla,data,plot=TRUE,fam = poisson(),ylim=c(-2,2),
     line.col = "blue"
   }  
   
-  AIC = numeric(p)
   for(j in 1:p){
     
     x = data[,vars[j]]
@@ -119,9 +145,7 @@ component.plots <- function(fmla,data,plot=TRUE,fam = poisson(),ylim=c(-2,2),
         title(paste0(vars[j]," (",round(AIC.null-gg$aic),")"))
       }
     }
-    AIC[j] = gg$aic
   }
-  score = AIC.null - AIC  # variable importance (componentwise)
   return(data.frame(variable=vars,score=round(score)))
 }
 
@@ -242,26 +266,27 @@ cv.treePois <- function(fmla,data,fold){
 } 
 
 #-- Cross-Val for boosting
-cv.gbmPois <- function(fmla, data, fold, skg = c(0.1, 0.3, 1), n.trees = 10000, interaction.depth = 3) {
+cv.gbmPois <- function(fmla, data, fold, n.trees = 10000, interaction.depth = 3, show.pb=TRUE) {
   X = model.matrix(fmla,data)
   Y = as.matrix(data[,as.character(fmla[[2]])])
   offset = model.offset(model.frame(fmla,data))  
   
-  mu = mat.or.vec(nrow(data), length(skg)) 
+  mu = numeric(nrow(data))
   K = sort(unique(fold))
-  for(i in 1:length(skg)) {
-    cat("Shrinkage ", i, "/", length(skg), "\n")
-    for(k in K) {
-      test = which(fold == k)
-      train = which(fold != k)
-      
-      fit0 = gbm(fmla, data=data[train,], distribution = "poisson", n.trees = n.trees,
-                 interaction.depth = interaction.depth) #set thrinkage?
-      best.iter <- suppressWarnings(gbm.perf(fit0, plot.it = FALSE))
-      mu[test, i] = predict(fit0, newdata=data[test,], n.trees = best.iter, type = "response")
-    }
-    if(!is.null(offset)) mu = mu * exp(offset)
-  }  
+  
+  if(show.pb) pb = txtProgressBar(style=3,min=min(K),max=max(K))
+  for(k in K) {
+    test = which(fold == k)
+    train = which(fold != k)
+    
+    fit0 = gbm(fmla, data=data[train,], distribution = "poisson", n.trees = n.trees,
+               interaction.depth = interaction.depth) #set thrinkage?
+    best.iter <- suppressWarnings(gbm.perf(fit0, plot.it = FALSE))
+    mu[test] = predict(fit0, newdata=data[test,], n.trees = best.iter, type = "response")
+    if(show.pb) setTxtProgressBar(pb,k)
+  }
+  if(show.pb) close(pb)
+  if(!is.null(offset)) mu = mu * exp(offset)
   return(mu)  
 }
 
@@ -272,6 +297,57 @@ mae <- function(mu,y){
   apply(mu,2,function(x) mean(abs(y-x)))
 }
 
+medae <- function(mu,y){
+  mu = as.matrix(mu)
+  apply(mu,2,function(x) median(abs(y-x)))
+}
+
+
+################################################################################
+# Variable importance using AIC/likelihood and leave-one-out impact
+# -Todo: chose an appropriate measure for all model
+################################################################################
+varImp.loo <- function(fmla, data, family, k = 5, seed=11032014) {
+  data.temp = model.frame(fmla,data)  # make correct transformations from fmla
+  offset = as.vector(model.offset(data.temp))
+  vars = attr(terms(data.temp),"term.labels") # predictor variables
+  p = length(vars)
+  
+  fold = cvfolds(nrow(data), k, seed) 
+  ptm <- proc.time()
+  
+  score = numeric(p)
+  if (model == "poisson") {
+    cvError.null = suppressWarnings(cv.poisReg(fmla, data = a, fold = fold))
+    
+    for (j in 1:p) {
+      if (!is.null(offset)) {
+        fmla.temp = as.formula(paste("X5YrCrashCount ~ ", paste(paste(vars[-j], collapse = " + "), " + offset(log(Traffic))")))
+      } else {
+        fmla.temp = as.formula(paste("X5YrCrashCount ~ ", paste(vars[-j], collapse = " + ")))
+      }       
+      
+      score[j] = glm(fmla.temp, data, family = "poisson")$aic - AIC.null
+    }
+  }
+  else if (model == "treePois") {
+      
+  }
+  proc.time() - ptm 
+  
+  
+  dfscore = data.frame(variable=vars,score=round(score))
+  dfscore = dfscore[order(dfscore$score, decreasing = T), ]
+  return(dfscore)
+}
+
+varImpStandard2 <- function(dfscore) {
+  score = dfscore$score
+  score = (score - min(score)) 
+  score = score * 100 / max(score) 
+  dfscore$score = score
+  return(dfscore)
+}
 
 
 
