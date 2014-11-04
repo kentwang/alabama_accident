@@ -283,6 +283,11 @@ mae <- function(mu,y){
   apply(mu,2,function(x) mean(abs(y-x)))
 }
 
+medae <- function(mu,y){
+  mu = as.matrix(mu)
+  apply(mu,2,function(x) median(abs(y-x)))
+}
+
 
 ################################################################################
 # Variable importance using AIC/likelihood and leave-one-out impact
