@@ -41,11 +41,11 @@ boxplot(pred1, pred2)
 apply(pred, 2, median)
 
 #== check multiple boxplot
-score = cbind(poisReg=abs(mu.cv.poisReg - Y), poisReg.offset=abs(mu.cv.poisReg.offset - Y), 
+score = data.frame(poisReg=abs(mu.cv.poisReg - Y), poisReg.offset=abs(mu.cv.poisReg.offset - Y), 
               negBino=abs(mu.cv.negBino - Y), negBino.offset=abs(mu.cv.negBino.offset - Y), 
-              gbmPois=abs(mu.cv.gbmPois - Y)[, 1], gbmPois.offset=abs(mu.cv.gbmPois.offset - Y)[, 1], 
+              gbmPois=abs(mu.cv.gbmPois - Y), gbmPois.offset=abs(mu.cv.gbmPois.offset - Y), 
               tree=abs(mu.cv.tree - Y), tree.offset=abs(mu.cv.tree.offset - Y), 
-              glmnet=abs(mu.cv.glmnet - Y)[, 1], glmnet.offset=abs(mu.cv.glmnet.offset - Y)[, 1])
+              glmnet=abs(mu.cv.glmnet[, 1] - Y), glmnet.offset=abs(mu.cv.glmnet.offset[, 1] - Y))
 # boxplot(score, ylim = c(0, 2))
 summary(score)
 

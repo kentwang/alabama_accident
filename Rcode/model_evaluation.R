@@ -101,7 +101,7 @@ legend("topright",c('glmnet','glmnet-offset','tree','tree-offset'),col=1:4,lwd=1
 ################################################################################
 ptm <- proc.time() # time the comparison procedure
 
-fold = cvfolds(nrow(a),k=20,seed=9122014)  # get cv partition info
+fold = cvfolds(nrow(a),k=5,seed=9122014)  # get cv partition info fold 20 and 5
 
 Y = a$X5YrCrashCount  # response
 
@@ -111,10 +111,8 @@ mu.cv.poisReg.offset <- suppressWarnings(cv.poisReg(fmla.offset, data = a, fold 
 mu.cv.negBino <- suppressWarnings(cv.negBino(fmla, data = a, fold = fold))
 mu.cv.negBino.offset <- suppressWarnings(cv.negBino(fmla.offset, data = a, fold = fold))
 
-ptm <- proc.time()
 mu.cv.gbmPois <- suppressWarnings(cv.gbmPois(fmla, data = a, fold = fold))
 mu.cv.gbmPois.offset <- suppressWarnings(cv.gbmPois(fmla.offset, data = a, fold = fold))
-proc.time() - ptm 
 
 # > proc.time() - ptm
 # user  system elapsed 
@@ -130,12 +128,12 @@ proc.time() - ptm # calculate the comparison
 
 score = data.frame(poisReg=mae(mu.cv.poisReg,Y),poisReg.offset=mae(mu.cv.poisReg.offset,Y),
                    negBino=mae(mu.cv.negBino,Y),negBino.offset=mae(mu.cv.negBino.offset,Y),
-                   gbmPois=min(mae(mu.cv.gbmPois,Y)),gbmPois.offset=min(mae(mu.cv.gbmPois.offset,Y)),
+                   gbmPois=mae(mu.cv.gbmPois,Y),gbmPois.offset=mae(mu.cv.gbmPois.offset,Y),
                    tree=mae(mu.cv.tree,Y),tree.offset=mae(mu.cv.tree.offset,Y),
                    glmnet=min(mae(mu.cv.glmnet,Y)),glmnet.offset=min(mae(mu.cv.glmnet.offset,Y)))
 print(round(score,4))
 
-plot(1:length(score), score, ylim = c(1.25, 1.4), "h", ylab = "MAE", xlab = "", 
+plot(1:length(score), score, ylim = c(1.25, 1.55), "h", ylab = "MAE", xlab = "", 
      xaxt = "n", lwd = 2, main = "Comparison of model families on MAE")
 points(1:length(score), score, pch = 19)
 axis(1, at = 1:10, labels=FALSE)
