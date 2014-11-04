@@ -101,7 +101,7 @@ legend("topright",c('glmnet','glmnet-offset','tree','tree-offset'),col=1:4,lwd=1
 ################################################################################
 ptm <- proc.time() # time the comparison procedure
 
-fold = cvfolds(nrow(a),k=5,seed=9122014)  # get cv partition info fold 20 and 5
+fold = cvfolds(nrow(a),k=20,seed=9122014)  # get cv partition info fold 20 and 5
 
 Y = a$X5YrCrashCount  # response
 
@@ -109,7 +109,8 @@ mu.cv.poisReg <- suppressWarnings(cv.poisReg(fmla, data = a, fold = fold))
 mu.cv.poisReg.offset <- suppressWarnings(cv.poisReg(fmla.offset, data = a, fold = fold))
 
 mu.cv.negBino <- suppressWarnings(cv.negBino(fmla, data = a, fold = fold))
-mu.cv.negBino.offset <- suppressWarnings(cv.negBino(fmla.offset, data = a, fold = fold))
+mu.cv.negBino.offset <- suppressWarnings(cv.negBi
+                                         no(fmla.offset, data = a, fold = fold))
 
 mu.cv.gbmPois <- suppressWarnings(cv.gbmPois(fmla, data = a, fold = fold))
 mu.cv.gbmPois.offset <- suppressWarnings(cv.gbmPois(fmla.offset, data = a, fold = fold))

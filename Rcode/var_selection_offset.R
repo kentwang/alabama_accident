@@ -3,6 +3,7 @@
 # mial, 3) glmnet Poisson , 5) poisson trees,  5) gbm Poisson.
 #
 # Bascially replicate what's been done in model_selection.r
+# (1) This is using the traditional way
 #-------------------------------------------------------------------------------
 
 # Poisson regression
@@ -86,4 +87,8 @@ ggplot(importances, aes(factor(var), importance, fill = model)) +
   ggtitle("Variable importance in original scale")
 
 
-
+################################################################################
+# (2) Variable selection using the unified framework
+# Note: the AIC calculation should be reversed
+################################################################################
+varImp.pois <- varImp.loo(fmla.offset, a, "poisson")
