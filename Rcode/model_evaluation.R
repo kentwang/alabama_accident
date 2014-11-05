@@ -112,8 +112,78 @@ mu.cv.negBino <- suppressWarnings(cv.negBino(fmla, data = a, fold = fold))
 mu.cv.negBino.offset <- suppressWarnings(cv.negBi
                                          no(fmla.offset, data = a, fold = fold))
 
-mu.cv.gbmPois <- suppressWarnings(cv.gbmPois(fmla, data = a, fold = fold))
-mu.cv.gbmPois.offset <- suppressWarnings(cv.gbmPois(fmla.offset, data = a, fold = fold))
+
+
+## Boosted Trees
+#  - number according to interaction depth. 
+#  - Set shrinkage at .005 so converge faster than default of .001
+
+
+
+#mu.cv.gbmPois <- suppressWarnings(cv.gbmPois(fmla, data = a, fold = fold))
+#mu.cv.gbmPois.offset <- suppressWarnings(cv.gbmPois(fmla.offset, data = a, fold = fold))
+
+tree.seq = seq(500,10000,by=100)
+gbm_3 <- cv.gbmPois(fmla, data = a, fold = fold,
+                            tree.seq = tree.seq, interaction.depth=3,
+                            shrinkage = .005)
+
+gbm_3.offset <- cv.gbmPois(fmla.offset, data = a, fold = fold,
+                            tree.seq = tree.seq, interaction.depth=3,
+                            shrinkage = .005)
+
+gbm.old_3 <- cv.gbmPois.old(fmla, data = a, fold = fold,
+                                    max.trees=10000, interaction.depth=3,
+                                    shrinkage = .005)
+
+gbm.old_3.offset <- cv.gbmPois(fmla.offset, data = a, fold = fold,
+                                       max.trees=10000,interaction.depth=3,
+                                       shrinkage = .005)
+
+gbm_2 <- cv.gbmPois(fmla, data = a, fold = fold,
+                            tree.seq = tree.seq, interaction.depth=2,
+                            shrinkage = .005)
+
+gbm_2.offset <- cv.gbmPois(fmla.offset, data = a, fold = fold,
+                            tree.seq = tree.seq, interaction.depth=2,
+                            shrinkage = .005)
+
+gbm_1 <- cv.gbmPois(fmla, data = a, fold = fold,
+                            tree.seq = tree.seq, interaction.depth=1,
+                            shrinkage = .005)
+
+gbm_1.offset <- cv.gbmPois(fmla.offset, data = a, fold = fold,
+                            tree.seq = tree.seq, interaction.depth=1,
+                            shrinkage = .005)
+
+gbm_4 <- cv.gbmPois(fmla, data = a, fold = fold,
+                            tree.seq = tree.seq, interaction.depth=4,
+                            shrinkage = .005)
+
+gbm_4.offset <- cv.gbmPois(fmla.offset, data = a, fold = fold,
+                            tree.seq = tree.seq, interaction.depth=4,
+                            shrinkage = .005)
+
+
+# Plot tree performance
+plot(tree.seq,mae(gbm_3,Y),typ='o',ylim=c(1.2,1.4),col=3,ylab="MAE")
+lines(tree.seq,mae(gbm_3.offset,Y),lty=3,col=3)
+lines(tree.seq,mae(gbm_1,Y),col=1)
+lines(tree.seq,mae(gbm_1.offset,Y),lty=3,col=1)
+lines(tree.seq,mae(gbm_2,Y),col=2)
+lines(tree.seq,mae(gbm_2.offset,Y),lty=3,col=2)
+lines(tree.seq,mae(gbm_4,Y),col=4)
+lines(tree.seq,mae(gbm_4.offset,Y),lty=3,col=4)
+
+abline(h=mae(gbm.old_3,Y),col=5)
+abline(h=mae(gbm.old_3.offset,Y),col=5,lty=3)
+
+
+
+# Note: Repeat using mean squared error, likelihood, etc. 
+
+
+
 
 # > proc.time() - ptm
 # user  system elapsed 
