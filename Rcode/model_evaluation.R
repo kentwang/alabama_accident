@@ -136,7 +136,7 @@ gbm.old_3 <- cv.gbmPois.old(fmla, data = a, fold = fold,
                                     max.trees=10000, interaction.depth=3,
                                     shrinkage = .005)
 
-gbm.old_3.offset <- cv.gbmPois(fmla.offset, data = a, fold = fold,
+gbm.old_3.offset <- cv.gbmPois.old(fmla.offset, data = a, fold = fold,
                                        max.trees=10000,interaction.depth=3,
                                        shrinkage = .005)
 
