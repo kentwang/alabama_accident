@@ -17,6 +17,8 @@
 #         This min.sp=100 is rather arbitrary.
 
  
+library(gbm)
+
 library(mgcv)
 
 
@@ -266,29 +268,50 @@ cv.treePois <- function(fmla,data,fold){
 } 
 
 #-- Cross-Val for boosting
-cv.gbmPois <- function(fmla, data, fold, n.trees = 10000, interaction.depth = 3, show.pb=TRUE) {
-  X = model.matrix(fmla,data)
-  Y = as.matrix(data[,as.character(fmla[[2]])])
-  offset = model.offset(model.frame(fmla,data))  
-  
-  mu = numeric(nrow(data))
+cv.gbmPois <- function(fmla, data, fold, tree.seq=seq(500,10000,by=100),
+                       interaction.depth = 3,..., show.pb=FALSE) {
+  n.trees = max(tree.seq)
+  mu = matrix(NA,nrow(data),length(tree.seq))
   K = sort(unique(fold))
-  
   if(show.pb) pb = txtProgressBar(style=3,min=min(K),max=max(K))
   for(k in K) {
     test = which(fold == k)
     train = which(fold != k)
-    
-    fit0 = gbm(fmla, data=data[train,], distribution = "poisson", n.trees = n.trees,
-               interaction.depth = interaction.depth) #set thrinkage?
-    best.iter <- suppressWarnings(gbm.perf(fit0, plot.it = FALSE))
-    mu[test] = predict(fit0, newdata=data[test,], n.trees = best.iter, type = "response")
+    fit = gbm(fmla, data=data[train,], distribution = "poisson", n.trees = n.trees,
+               interaction.depth = interaction.depth,...) 
+    mu[test,] = suppressWarnings(predict(fit, newdata=data[test,], n.trees = tree.seq, type = "response")) 
     if(show.pb) setTxtProgressBar(pb,k)
   }
   if(show.pb) close(pb)
-  if(!is.null(offset)) mu = mu * exp(offset)
+  offset = model.offset(model.frame(fmla,data))  
+  if(!is.null(offset)) mu = sweep(mu,1,exp(offset),"*")
+  colnames(mu) = paste0("ntree_",tree.seq)
   return(mu)  
 }
+
+#-- Cross-Val for boosting (old version)
+cv.gbmPois.old <- function(fmla, data, fold,max.trees=10000,
+                       interaction.depth = 3,..., show.pb=FALSE) {
+  mu = numeric(nrow(data))
+  K = sort(unique(fold))
+  if(show.pb) pb = txtProgressBar(style=3,min=min(K),max=max(K))
+  for(k in K) {
+    test = which(fold == k)
+    train = which(fold != k)
+    fit = gbm(fmla, data=data[train,], distribution = "poisson", n.trees = max.trees,
+               interaction.depth = interaction.depth,...) 
+    best.iter <- suppressWarnings(gbm.perf(fit, method="OOB",plot.it = FALSE))
+    mu[test] = suppressWarnings(predict(fit, newdata=data[test,], n.trees = best.iter, type = "response"))
+    if(show.pb) setTxtProgressBar(pb,k)
+  }
+  if(show.pb) close(pb)
+  offset = model.offset(model.frame(fmla,data)) 
+  if(!is.null(offset)) mu = mu * exp(offset)
+  attr(mu,"best.iter") = best.iter
+  return(mu)  
+}
+
+
 
 
 #== Returns Mean Absolute Error
@@ -301,6 +324,19 @@ medae <- function(mu,y){
   mu = as.matrix(mu)
   apply(mu,2,function(x) median(abs(y-x)))
 }
+
+#-- Mean Squared Error
+mse <- function(mu,y){
+  mu = as.matrix(mu)
+  apply(mu,2,function(x) mean((y-x)^2))
+}
+
+#-- Mean log likelihood (poisson distribution)
+mlogL <- function(mu,y){
+  mu = as.matrix(mu)
+  apply(mu,2,function(x) mean(dpois(y,x,log=TRUE)))
+}
+
 
 
 ################################################################################

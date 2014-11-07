@@ -101,7 +101,7 @@ legend("topright",c('glmnet','glmnet-offset','tree','tree-offset'),col=1:4,lwd=1
 ################################################################################
 ptm <- proc.time() # time the comparison procedure
 
-fold = cvfolds(nrow(a),k=5,seed=9122014)  # get cv partition info fold 20 and 5
+fold = cvfolds(nrow(a),k=20,seed=9122014)  # get cv partition info fold 20 and 5
 
 Y = a$X5YrCrashCount  # response
 
@@ -109,10 +109,121 @@ mu.cv.poisReg <- suppressWarnings(cv.poisReg(fmla, data = a, fold = fold))
 mu.cv.poisReg.offset <- suppressWarnings(cv.poisReg(fmla.offset, data = a, fold = fold))
 
 mu.cv.negBino <- suppressWarnings(cv.negBino(fmla, data = a, fold = fold))
-mu.cv.negBino.offset <- suppressWarnings(cv.negBino(fmla.offset, data = a, fold = fold))
+mu.cv.negBino.offset <- suppressWarnings(cv.negBi
+                                         no(fmla.offset, data = a, fold = fold))
 
-mu.cv.gbmPois <- suppressWarnings(cv.gbmPois(fmla, data = a, fold = fold))
-mu.cv.gbmPois.offset <- suppressWarnings(cv.gbmPois(fmla.offset, data = a, fold = fold))
+
+
+## Boosted Trees
+#  - number according to interaction depth. 
+#  - Set shrinkage at .005 so converge faster than default of .001
+
+
+
+#mu.cv.gbmPois <- suppressWarnings(cv.gbmPois(fmla, data = a, fold = fold))
+#mu.cv.gbmPois.offset <- suppressWarnings(cv.gbmPois(fmla.offset, data = a, fold = fold))
+
+tree.seq = seq(500,10000,by=100)
+gbm_3 <- cv.gbmPois(fmla, data = a, fold = fold,
+                            tree.seq = tree.seq, interaction.depth=3,
+                            shrinkage = .005)
+
+gbm_3.offset <- cv.gbmPois(fmla.offset, data = a, fold = fold,
+                            tree.seq = tree.seq, interaction.depth=3,
+                            shrinkage = .005)
+
+gbm.old_3 <- cv.gbmPois.old(fmla, data = a, fold = fold,
+                                    max.trees=10000, interaction.depth=3,
+                                    shrinkage = .005)
+
+gbm.old_3.offset <- cv.gbmPois.old(fmla.offset, data = a, fold = fold,
+                                       max.trees=10000,interaction.depth=3,
+                                       shrinkage = .005)
+
+gbm_2 <- cv.gbmPois(fmla, data = a, fold = fold,
+                            tree.seq = tree.seq, interaction.depth=2,
+                            shrinkage = .005)
+
+gbm_2.offset <- cv.gbmPois(fmla.offset, data = a, fold = fold,
+                            tree.seq = tree.seq, interaction.depth=2,
+                            shrinkage = .005)
+
+gbm_1 <- cv.gbmPois(fmla, data = a, fold = fold,
+                            tree.seq = tree.seq, interaction.depth=1,
+                            shrinkage = .005)
+
+gbm_1.offset <- cv.gbmPois(fmla.offset, data = a, fold = fold,
+                            tree.seq = tree.seq, interaction.depth=1,
+                            shrinkage = .005)
+
+gbm_4 <- cv.gbmPois(fmla, data = a, fold = fold,
+                            tree.seq = tree.seq, interaction.depth=4,
+                            shrinkage = .005)
+ 
+gbm_4.offset <- cv.gbmPois(fmla.offset, data = a, fold = fold,
+                            tree.seq = tree.seq, interaction.depth=4,
+                            shrinkage = .005)
+
+
+# Plot tree performance in MAE
+plot(tree.seq,mae(gbm_3,Y),typ='o',ylim=c(1.18,1.4),col=3,ylab="MAE")
+lines(tree.seq,mae(gbm_3.offset,Y),lty=3,col=3)
+lines(tree.seq,mae(gbm_1,Y),col=1)
+lines(tree.seq,mae(gbm_1.offset,Y),lty=3,col=1)
+lines(tree.seq,mae(gbm_2,Y),col=2)
+lines(tree.seq,mae(gbm_2.offset,Y),lty=3,col=2)
+lines(tree.seq,mae(gbm_4,Y),col=4)
+lines(tree.seq,mae(gbm_4.offset,Y),lty=3,col=4)
+
+abline(h=mae(gbm.old_3,Y),col=5)
+abline(h=mae(gbm.old_3.offset,Y),col=5,lty=3)
+title("GBM Comparison Using Mean Absolute Error")
+legend("topleft" ,legend = c("Dept 3", "Dept 1", "Dept 2", "Dept 4",
+                             "Dept 3 offset", "Dept 1 offset", "Dept 2 offset", "Dept 4 offset"),
+       lty = c(1, 1, 1, 1, 3, 3, 3, 3), col = c(3, 1, 2, 4, 3, 1, 2, 4), lwd = 2,
+       ncol = 2, text.font = 3, cex = 0.8)
+
+
+
+# Note: Repeat using mean squared error, likelihood, etc. 
+# plot tree performance in MSE
+plot(tree.seq,mse(gbm_3,Y),type="l",ylim=c(5.8, 7.5), col=3,ylab="MSE")
+lines(tree.seq,mse(gbm_3.offset,Y),lty=3,col=3)
+lines(tree.seq,mse(gbm_1,Y),col=1)
+lines(tree.seq,mse(gbm_1.offset,Y),lty=3,col=1)
+lines(tree.seq,mse(gbm_2,Y),col=2)
+lines(tree.seq,mse(gbm_2.offset,Y),lty=3,col=2)
+lines(tree.seq,mse(gbm_4,Y),col=4)
+lines(tree.seq,mse(gbm_4.offset,Y),lty=3,col=4)
+
+abline(h=mse(gbm.old_3,Y),col=5)
+abline(h=mse(gbm.old_3.offset,Y),col=5,lty=3)
+title("GBM Comparison Using Mean Square Error")
+legend("topleft" ,legend = c("Dept 3", "Dept 1", "Dept 2", "Dept 4",
+                             "Dept 3 offset", "Dept 1 offset", "Dept 2 offset", "Dept 4 offset"),
+       lty = c(1, 1, 1, 1, 3, 3, 3, 3), col = c(3, 1, 2, 4, 3, 1, 2, 4), lwd = 2,
+       ncol = 2, text.font = 3, cex = 0.8)
+
+# plot tree performance in likelihood
+plot(tree.seq,mlogL(gbm_3,Y),type="l", ylim = c(-1.82, -1.52), col=3,ylab="MSE")
+lines(tree.seq,mlogL(gbm_3.offset,Y),lty=3,col=3)
+lines(tree.seq,mlogL(gbm_1,Y),col=1)
+lines(tree.seq,mlogL(gbm_1.offset,Y),lty=3,col=1)
+lines(tree.seq,mlogL(gbm_2,Y),col=2)
+lines(tree.seq,mlogL(gbm_2.offset,Y),lty=3,col=2)
+lines(tree.seq,mlogL(gbm_4,Y),col=4)
+lines(tree.seq,mlogL(gbm_4.offset,Y),lty=3,col=4)
+
+abline(h=mlogL(gbm.old_3,Y),col=5)
+abline(h=mlogL(gbm.old_3.offset,Y),col=5,lty=3)
+title("GBM Comparison Using Mean Loglikelihood")
+legend("topleft" ,legend = c("Dept 3", "Dept 1", "Dept 2", "Dept 4",
+                             "Dept 3 offset", "Dept 1 offset", "Dept 2 offset", "Dept 4 offset"),
+       lty = c(1, 1, 1, 1, 3, 3, 3, 3), col = c(3, 1, 2, 4, 3, 1, 2, 4), lwd = 2,
+       ncol = 2, text.font = 3, cex = 0.8)
+
+
+
 
 # > proc.time() - ptm
 # user  system elapsed 
