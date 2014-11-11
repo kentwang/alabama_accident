@@ -165,8 +165,9 @@ gbm_4.offset <- cv.gbmPois(fmla.offset, data = a, fold = fold,
                             shrinkage = .005)
 
 
+par(mfrow = c(3, 1))
 # Plot tree performance in MAE
-plot(tree.seq,mae(gbm_3,Y),typ='o',ylim=c(1.18,1.4),col=3,ylab="MAE")
+plot(tree.seq,mae(gbm_3,Y),typ='o',ylim=c(1.18,1.5),col=3,ylab="MAE")
 lines(tree.seq,mae(gbm_3.offset,Y),lty=3,col=3)
 lines(tree.seq,mae(gbm_1,Y),col=1)
 lines(tree.seq,mae(gbm_1.offset,Y),lty=3,col=1)
@@ -187,7 +188,7 @@ legend("topleft" ,legend = c("Dept 3", "Dept 1", "Dept 2", "Dept 4",
 
 # Note: Repeat using mean squared error, likelihood, etc. 
 # plot tree performance in MSE
-plot(tree.seq,mse(gbm_3,Y),type="l",ylim=c(5.8, 7.5), col=3,ylab="MSE")
+plot(tree.seq,mse(gbm_3,Y),type="l",ylim=c(5.8, 8.5), col=3,ylab="MSE")
 lines(tree.seq,mse(gbm_3.offset,Y),lty=3,col=3)
 lines(tree.seq,mse(gbm_1,Y),col=1)
 lines(tree.seq,mse(gbm_1.offset,Y),lty=3,col=1)
@@ -205,7 +206,7 @@ legend("topleft" ,legend = c("Dept 3", "Dept 1", "Dept 2", "Dept 4",
        ncol = 2, text.font = 3, cex = 0.8)
 
 # plot tree performance in likelihood
-plot(tree.seq,mlogL(gbm_3,Y),type="l", ylim = c(-1.82, -1.52), col=3,ylab="MSE")
+plot(tree.seq,mlogL(gbm_3,Y),type="l", ylim = c(-1.82, -1.3), col=3,ylab="mlogL")
 lines(tree.seq,mlogL(gbm_3.offset,Y),lty=3,col=3)
 lines(tree.seq,mlogL(gbm_1,Y),col=1)
 lines(tree.seq,mlogL(gbm_1.offset,Y),lty=3,col=1)
@@ -244,8 +245,25 @@ length(cp.seq)
 mu.cv.tree = cv.treePois(fmla, data = a, fold = fold, cp.seq = cp.seq, show.pb=TRUE)
 mu.cv.tree.offset = cv.treePois(fmla.offset, data = a, fold = fold, cp.seq = cp.seq, show.pb=TRUE)
 
-plot(cp.seq, mae(mu.cv.tree, Y), typ='o', col=3, ylim = c(1.28, 1.65), ylab="MAE")
-lines(cp.seq, mae(mu.cv.tree.offset, Y), lty=3, col=3)
+par(mfrow = c(3, 1))
+
+# regression tree performance using MAE
+plot(cp.seq, mae(mu.cv.tree, Y), typ='l', col=3, ylim = c(1.28, 1.5), ylab="MAE")
+lines(cp.seq, mae(mu.cv.tree.offset, Y), lty=2, col=3)
+legend("topleft" ,legend = c("No offset", "Offset"), lty = c(1, 3), col = c(3, 3), lwd = 2, text.font = 3, cex = 0.8)
+title("Performace of regression tree using MAE")
+
+# regression tree performance using MSE
+plot(cp.seq, mse(mu.cv.tree, Y), typ='l', col=4, ylim = c(6.5, 8.5), ylab="MSE")
+lines(cp.seq, mse(mu.cv.tree.offset, Y), lty=2, col=4)
+legend("topleft" ,legend = c("No offset", "Offset"), lty = c(1, 3), col = c(4, 4), lwd = 2, text.font = 3, cex = 0.8)
+title("Performace of regression tree using MSE")
+
+# regression tree performance using mlogL
+plot(cp.seq, mlogL(mu.cv.tree, Y), typ='l', col=6, ylim = c(-1.9, -1.6), ylab="mlogL")
+lines(cp.seq, mlogL(mu.cv.tree.offset, Y), lty=2, col=6)
+legend("topleft" ,legend = c("No offset", "Offset"), lty = c(1, 3), col = c(6, 6), lwd = 2, text.font = 3, cex = 0.8)
+title("Performace of regression tree using mlogL")
 
 
 mu.cv.tree.old = cv.treePois.old(fmla,data=a,fold=fold)
