@@ -253,7 +253,34 @@ cv.glmnetPois <- function(fmla,data,fold,alpha=0.8){
 
 
 #== Cross-Val for tree models
-cv.treePois <- function(fmla,data,fold){
+cv.treePois <- function(fmla, data, fold, cp.seq, show.pb = FALSE) { # other arguments use default of rpart()
+  offset = model.offset(model.frame(fmla,data)) 
+  if(missing(cp.seq)) { # default cp.seq is problematic. Not same for fmla and fmla.offset
+    fit.full = rpart(fmla, data = data, method = "poisson", minsplit = 2,
+                     minbucket = 2, cp = 0, xval = 0) # grow the full tree
+    # cp.seq = seq(0, max(fit.full$cptable[, 1]), by = 0.003)
+    cp.seq = fit.full$cptable[, 1]
+  }
+  mu = matrix(NA,nrow(data),length(cp.seq))
+  K = sort(unique(fold))
+  if(show.pb) pb = txtProgressBar(style=3,min=min(K),max=max(K))
+  
+  for(k in K) {
+    for(i in 1:length(cp.seq)) {
+      test = which(fold == k)
+      train = which(fold != k)
+      fit = rpart(fmla, data = data[train,], method = "poisson", cp = cp.seq[i]) 
+      mu[test, i] =  predict(fit, newdata = data[test,], type = "vector")       
+    }
+    if(show.pb) setTxtProgressBar(pb,k)    
+  }
+  if(show.pb) close(pb)
+  if(!is.null(offset)) mu = sweep(mu,1,exp(offset),"*")
+  return(mu)
+}
+
+
+cv.treePois.old <- function(fmla,data,fold){
   offset = model.offset(model.frame(fmla,data))  
   mu = numeric(nrow(data))
   K = sort(unique(fold))
