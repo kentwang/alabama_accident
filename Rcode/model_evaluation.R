@@ -260,7 +260,7 @@ legend("topleft" ,legend = c("No offset", "Offset"), lty = c(1, 3), col = c(4, 4
 title("Performace of regression tree using MSE")
 
 # regression tree performance using mlogL
-plot(cp.seq, mlogL(mu.cv.tree, Y), typ='l', col=6, ylim = c(-1.9, -1.6), ylab="mlogL")
+plot(cp.seq, mlogL(mu.cv.tree, Y), typ='l', col=6, ylim = c(1.7, 2.0), ylab="mlogL")
 lines(cp.seq, mlogL(mu.cv.tree.offset, Y), lty=2, col=6)
 legend("topleft" ,legend = c("No offset", "Offset"), lty = c(1, 3), col = c(6, 6), lwd = 2, text.font = 3, cex = 0.8)
 title("Performace of regression tree using mlogL")

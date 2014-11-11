@@ -173,7 +173,7 @@ cvfolds <- function(n,k=10,seed) {
 #    Don't know what to do. Check out bestglm package?
 #
 #- TODO: we can try to fix the levels in the training and testing data
-cv.poisReg <- function(fmla,data,fold,show.pb=TRUE){
+cv.poisReg.old <- function(fmla,data,fold,show.pb=TRUE){
   X = model.matrix(fmla,data)
   Y = as.matrix(data[,as.character(fmla[[2]])])
   offset = model.offset(model.frame(fmla,data))  
@@ -201,6 +201,47 @@ cv.poisReg <- function(fmla,data,fold,show.pb=TRUE){
   if(show.pb) close(pb)  
 return(mu)  
 }
+
+
+cv.poisReg <- function(fmla,data,fold,show.pb=TRUE){
+  X = model.matrix(fmla,data)
+  Y = as.matrix(data[,as.character(fmla[[2]])])
+  offset = model.offset(model.frame(fmla,data))  
+  
+  response = fmla[[2]]
+  
+
+  
+  null.fmla = update(fmla,~1)  
+  mu = numeric(nrow(data)) 
+  K = sort(unique(fold))
+  if(show.pb) pb = txtProgressBar(style=3,min=min(K),max=max(K))
+  for(k in K) {
+    test = which(fold == k)
+    train = which(fold != k)
+    
+    ## Not complete
+    fmla.null = as.formula(X5YrCrashCount~1)
+    fit0 = glm(fmla.null,family=poisson,data=data[train,])
+    add1(fit0,scope=fmla)
+    
+    fit1 = step(fit0,scope=fmla,direction="forward")
+    
+    #fit0 = glm.fit(X[train,1],Y[train],offset=offset[train],family=poisson())
+    #fit = step(fit0,scope=fmla,direction="forward")
+        
+    #fit0 = glm.my(fmla,data=data[train,],family=poisson)
+    #fit = step(fit0,trace=0)
+    mu[test] = predict(fit,newdata=data[test,],type="response")
+    if(show.pb) setTxtProgressBar(pb,k)
+  }
+  if(show.pb) close(pb)  
+  return(mu)  
+}
+
+
+
+
 
 #== Cross validation for negative bomonial
 cv.negBino <- function(fmla,data,fold,show.pb=TRUE){
@@ -266,10 +307,11 @@ cv.treePois <- function(fmla, data, fold, cp.seq, show.pb = FALSE) { # other arg
   if(show.pb) pb = txtProgressBar(style=3,min=min(K),max=max(K))
   
   for(k in K) {
+    test = which(fold == k)
+    train = which(fold != k)
+    fit.k = rpart(fmla, data = data[train,], method = "poisson", cp = 0,xval=0, minbucket=3)     
     for(i in 1:length(cp.seq)) {
-      test = which(fold == k)
-      train = which(fold != k)
-      fit = rpart(fmla, data = data[train,], method = "poisson", cp = cp.seq[i]) 
+      fit = prune(fit.k,cp=cp.seq[i])
       mu[test, i] =  predict(fit, newdata = data[test,], type = "vector")       
     }
     if(show.pb) setTxtProgressBar(pb,k)    
@@ -358,10 +400,10 @@ mse <- function(mu,y){
   apply(mu,2,function(x) mean((y-x)^2))
 }
 
-#-- Mean log likelihood (poisson distribution)
+#-- Mean negative log likelihood (poisson distribution)
 mlogL <- function(mu,y){
   mu = as.matrix(mu)
-  apply(mu,2,function(x) mean(dpois(y,x,log=TRUE)))
+  apply(mu,2,function(x) -mean(dpois(y,x,log=TRUE)))
 }
 
 
