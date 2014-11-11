@@ -77,8 +77,8 @@ fold = cvfolds(nrow(a),k=20,seed=9122014)  # get cv partition info
 mu.cv.glmnet = cv.glmnetPois(fmla,data=a,fold=fold)
 mu.cv.glmnet.offset = cv.glmnetPois(fmla.offset,data=a,fold=fold)
 
-mu.cv.tree = cv.treePois(fmla,data=a,fold=fold)
-mu.cv.tree.offset = cv.treePois(fmla.offset,data=a,fold=fold)
+mu.cv.tree = cv.treePois.old(fmla,data=a,fold=fold)
+mu.cv.tree.offset = cv.treePois.old(fmla.offset,data=a,fold=fold)
 
 #-- Evaluation (mean absolut error)
 Y = a$X5YrCrashCount  # response
@@ -232,8 +232,24 @@ legend("topleft" ,legend = c("Dept 3", "Dept 1", "Dept 2", "Dept 4",
 mu.cv.glmnet = cv.glmnetPois(fmla,data=a,fold=fold)
 mu.cv.glmnet.offset = cv.glmnetPois(fmla.offset,data=a,fold=fold)
 
-mu.cv.tree = cv.treePois(fmla,data=a,fold=fold)
-mu.cv.tree.offset = cv.treePois(fmla.offset,data=a,fold=fold)
+
+#### modified cross validation of trees
+set.seed(11102014)
+# cp.seq = sort(rgamma(100, 1, 20), decreasing = T) # gamma distribution seems to be what I want for the seach of cp (right skewed)
+cp.seq = seq(0, 0.05, by = 0.0001) # need tuning the parameter
+# hist(cp.seq, breaks = 20)
+# plot(cp.seq)
+length(cp.seq)
+
+mu.cv.tree = cv.treePois(fmla, data = a, fold = fold, cp.seq = cp.seq, show.pb=TRUE)
+mu.cv.tree.offset = cv.treePois(fmla.offset, data = a, fold = fold, cp.seq = cp.seq, show.pb=TRUE)
+
+plot(cp.seq, mae(mu.cv.tree, Y), typ='o', col=3, ylim = c(1.28, 1.65), ylab="MAE")
+lines(cp.seq, mae(mu.cv.tree.offset, Y), lty=3, col=3)
+
+
+mu.cv.tree.old = cv.treePois.old(fmla,data=a,fold=fold)
+mu.cv.tree.offset.old = cv.treePois.old(fmla.offset,data=a,fold=fold)
 
 proc.time() - ptm # calculate the comparison
 
