@@ -105,8 +105,20 @@ fold = cvfolds(nrow(a),k=20,seed=9122014)  # get cv partition info fold 20 and 5
 
 Y = a$X5YrCrashCount  # response
 
-mu.cv.poisReg <- suppressWarnings(cv.poisReg(fmla, data = a, fold = fold))
-mu.cv.poisReg.offset <- suppressWarnings(cv.poisReg(fmla.offset, data = a, fold = fold))
+
+## modified cross validation for Poisson Regression
+mu.cv.poisReg <- cv.poisReg(fmla, data = a, fold = fold)
+mu.cv.poisReg.offset <- cv.poisReg(fmla, data = a, fold= fold)
+
+# Plot poisReg performance in MAE
+plot(1:ncol(mu.cv.poisReg), mae(mu.cv.poisReg, Y), typ='o', col=3, ylab="MAE")
+lines(1:ncol(mu.cv.poisReg.offset), mae(mu.cv.poisReg.offset, Y),lty=3, col=3)
+
+mu.cv.poisReg.old <- suppressWarnings(cv.poisReg.old(fmla, data = a, fold = fold))
+mu.cv.poisReg.offset.old <- suppressWarnings(cv.poisReg.old(fmla.offset, data = a, fold = fold))
+
+
+
 
 mu.cv.negBino <- suppressWarnings(cv.negBino(fmla, data = a, fold = fold))
 mu.cv.negBino.offset <- suppressWarnings(cv.negBi
