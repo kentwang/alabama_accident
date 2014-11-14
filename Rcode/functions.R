@@ -204,9 +204,11 @@ return(mu)
 
 
 cv.poisReg <- function(fmla,data,fold,show.pb=TRUE){  
+  X = model.matrix(fmla,data)
+  Y = as.matrix(data[,as.character(fmla[[2]])])
+  offset = model.offset(model.frame(fmla,data)) 
+  
   data = model.frame(fmla,data)  # make correct transformations from fmla
-  offset = as.vector(model.offset(data))
-  y = model.response(data)    # response vector
   vars = attr(terms(data),"term.labels") # predictor variables
 
   
@@ -226,13 +228,15 @@ cv.poisReg <- function(fmla,data,fold,show.pb=TRUE){
       fit0 = glm.my(fmla.rolling,family=poisson,data=data[train,])  
       addProg = add1(fit0,scope=fmla)
       addVar = rownames(addProg[order(addProg$AIC), ][1, ])
-      if(addVar == "<none>") break # if adding a variable doesn't help, just stop
+      if(addVar == "<none>") continue # if adding a variable doesn't help, just stop. No continue
       fmla.rolling = as.formula(paste(c(fmla.rolling[[2]], as.character(fmla.rolling[[1]]), 
-                                        fmla.rolling[[3]], "+", addVar), collapse = " "))
-      fit.rolling = glm(fmla.rolling, family = poisson, data = data[train, ])
-      mu[test, i] = predict(fit.rolling,newdata=data[test,],type="response", offset=offset)
-      #print(fmla.rolling)
-      #print(i)
+                                          fmla.rolling[[3]], "+", addVar), collapse = " "))
+      #if(!is.null(offset)) fit.rolling = glm.my(fmla.rolling,data=data[train,],family=poisson, offset = offset[train])
+      #else fit.rolling = glm.my(fmla.rolling,data=data[train,],family=poisson)
+      fit.rolling = glm.my(fmla.rolling,data=data[train,],family=poisson, offset=offset[train])
+      mu[test, i] = predict(fit.rolling,newdata=data[test,],type="response")
+      print(fmla.rolling)
+      print(i)
     }
     
     
