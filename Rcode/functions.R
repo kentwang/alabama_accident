@@ -172,7 +172,7 @@ cvfolds <- function(n,k=10,seed) {
 #    glm drops unused levels instead of giving a zero coefficient. 
 #    Don't know what to do. Check out bestglm package?
 #
-#- TODO: we can try to fix the levels in the training and testing data
+#- TODO: Choose a reasonably short complexity/length to stop
 cv.poisReg.old <- function(fmla,data,fold,show.pb=TRUE){
   X = model.matrix(fmla,data)
   Y = as.matrix(data[,as.character(fmla[[2]])])
@@ -203,17 +203,15 @@ return(mu)
 }
 
 
-cv.poisReg <- function(fmla,data,fold,show.pb=TRUE){
-  X = model.matrix(fmla,data)
-  Y = as.matrix(data[,as.character(fmla[[2]])])
-  offset = model.offset(model.frame(fmla,data))  
-  
-  response = fmla[[2]]
-  
+cv.poisReg <- function(fmla,data,fold,show.pb=TRUE){  
+  data = model.frame(fmla,data)  # make correct transformations from fmla
+  offset = as.vector(model.offset(data))
+  y = model.response(data)    # response vector
+  vars = attr(terms(data),"term.labels") # predictor variables
 
   
-  null.fmla = update(fmla,~1)  
-  mu = numeric(nrow(data)) 
+#   null.fmla = update(fmla,~1)  
+  mu = matrix(NA,nrow(data),length(vars))
   K = sort(unique(fold))
   if(show.pb) pb = txtProgressBar(style=3,min=min(K),max=max(K))
   for(k in K) {
@@ -221,18 +219,32 @@ cv.poisReg <- function(fmla,data,fold,show.pb=TRUE){
     train = which(fold != k)
     
     ## Not complete
-    fmla.null = as.formula(X5YrCrashCount~1)
-    fit0 = glm(fmla.null,family=poisson,data=data[train,])
-    add1(fit0,scope=fmla)
+    fmla.rolling = as.formula(X5YrCrashCount~1) # add one variable to fmla.rolling each time
+    fmla.scope = fmla # delete one variable from fmla.scope each time. NO NEED TO DO THIS?
     
-    fit1 = step(fit0,scope=fmla,direction="forward")
+    for(i in 1:length(vars)) { # loop all the variables for now
+      fit0 = glm(fmla.rolling,family=poisson,data=data[train,])  
+      addProg = add1(fit0,scope=fmla)
+      addVar = rownames(addProg[order(addProg$AIC), ][1, ])
+      if(addVar == "<none>") break # if adding a variable doesn't help, just stop
+      fmla.rolling = as.formula(paste(c(fmla.rolling[[2]], as.character(fmla.rolling[[1]]), 
+                                        fmla.rolling[[3]], "+", addVar), collapse = " "))
+      fit.rolling = glm(fmla.rolling, family = poisson, data = data[train, ])
+      mu[test, i] = predict(fit.rolling,newdata=data[test,],type="response", offset=offset)
+      #print(fmla.rolling)
+      #print(i)
+    }
+    
+    
+    
+    #fit1 = step(fit0,scope=fmla,direction="forward")
     
     #fit0 = glm.fit(X[train,1],Y[train],offset=offset[train],family=poisson())
     #fit = step(fit0,scope=fmla,direction="forward")
         
     #fit0 = glm.my(fmla,data=data[train,],family=poisson)
     #fit = step(fit0,trace=0)
-    mu[test] = predict(fit,newdata=data[test,],type="response")
+    #mu[test] = predict(fit,newdata=data[test,],type="response")
     if(show.pb) setTxtProgressBar(pb,k)
   }
   if(show.pb) close(pb)  
