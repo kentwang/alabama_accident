@@ -107,12 +107,29 @@ Y = a$X5YrCrashCount  # response
 
 
 ## modified cross validation for Poisson Regression
-mu.cv.poisReg <- cv.poisReg(fmla, data = a, fold = fold)
-mu.cv.poisReg.offset <- cv.poisReg(fmla, data = a, fold= fold)
+# Todo: NA should be removed
+max.complex = 10
+mu.cv.poisReg <- cv.poisReg(fmla, data = a, fold = fold, max.complex = max.complex)
+mu.cv.poisReg.offset <- cv.poisReg(fmla.offset, data = a, fold= fold, max.complex = max.complex)
 
-# Plot poisReg performance in MAE
-plot(1:ncol(mu.cv.poisReg), mae(mu.cv.poisReg, Y), typ='o', col=3, ylab="MAE")
-lines(1:ncol(mu.cv.poisReg.offset), mae(mu.cv.poisReg.offset, Y),lty=3, col=3)
+par(mfrow = c(3, 1))
+plot(1:max.complex, mae(mu.cv.poisReg , Y), typ='l', col=3, ylab="MAE", xlab="# of predictors")
+lines(1:max.complex, mae(mu.cv.poisReg.offset, Y), lty=2, col=3)
+legend("topleft" ,legend = c("No offset", "Offset"), lty = c(1, 3), col = c(3, 3), lwd = 2, text.font = 3, cex = 0.8)
+title("Performace of Poisson regression using MAE")
+
+# regression tree performance using MSE
+plot(1:max.complex, mse(mu.cv.poisReg , Y), typ='l', col=4, ylab="MSE", xlab="# of predictors")
+lines(1:max.complex, mse(mu.cv.poisReg.offset, Y), lty=2, col=4)
+legend("topleft" ,legend = c("No offset", "Offset"), lty = c(1, 3), col = c(4, 4), lwd = 2, text.font = 3, cex = 0.8)
+title("Performace of Poisson regression using MAE")
+
+# regression tree performance using mlogL
+plot(1:max.complex, mlogL(mu.cv.poisReg, Y), typ='l', col=6, ylab="mlogL",  xlab="# of predictors")
+lines(1:max.complex, mlogL(mu.cv.poisReg.offset, Y), lty=2, col=6)
+legend("topleft" ,legend = c("No offset", "Offset"), lty = c(1, 3), col = c(6, 6), lwd = 2, text.font = 3, cex = 0.8)
+title("Performace of Poisson regression using MAE")
+
 
 mu.cv.poisReg.old <- suppressWarnings(cv.poisReg.old(fmla, data = a, fold = fold))
 mu.cv.poisReg.offset.old <- suppressWarnings(cv.poisReg.old(fmla.offset, data = a, fold = fold))
