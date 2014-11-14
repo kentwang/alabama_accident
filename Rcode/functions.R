@@ -208,8 +208,8 @@ cv.poisReg <- function(fmla,data,fold,show.pb=TRUE){
   Y = as.matrix(data[,as.character(fmla[[2]])])
   offset = model.offset(model.frame(fmla,data)) 
   
-  data = model.frame(fmla,data)  # make correct transformations from fmla
-  vars = attr(terms(data),"term.labels") # predictor variables
+  tempdata = model.frame(fmla,data)  # make correct transformations from fmla
+  vars = attr(terms(tempdata),"term.labels") # predictor variables
 
   
 #   null.fmla = update(fmla,~1)  
@@ -228,15 +228,23 @@ cv.poisReg <- function(fmla,data,fold,show.pb=TRUE){
       fit0 = glm.my(fmla.rolling,family=poisson,data=data[train,])  
       addProg = add1(fit0,scope=fmla)
       addVar = rownames(addProg[order(addProg$AIC), ][1, ])
-      if(addVar == "<none>") continue # if adding a variable doesn't help, just stop. No continue
-      fmla.rolling = as.formula(paste(c(fmla.rolling[[2]], as.character(fmla.rolling[[1]]), 
-                                          fmla.rolling[[3]], "+", addVar), collapse = " "))
+      if(addVar == "<none>") next # if adding a variable doesn't help, just stop. No continue
+      if (fmla.rolling[[3]] == 1) {
+        fmla.rolling = as.formula(paste(c(fmla.rolling[[2]], as.character(fmla.rolling[[1]]), addVar), collapse = " "))  
+      } else {
+        fmla.rolling = as.formula(paste(c(fmla.rolling[[2]], as.character(fmla.rolling[[1]]), 
+                                          fmla.rolling[[3]], "+", addVar), collapse = " "))  
+      }
+      if(!is.null(offset))
+        fmla.rolling = as.formula(paste(c(fmla.rolling[[2]], as.character(fmla.rolling[[1]]), 
+                                          fmla.rolling[[3]], "+ offset(log(Traffic))"), collapse = " ")) 
+      
       #if(!is.null(offset)) fit.rolling = glm.my(fmla.rolling,data=data[train,],family=poisson, offset = offset[train])
       #else fit.rolling = glm.my(fmla.rolling,data=data[train,],family=poisson)
-      fit.rolling = glm.my(fmla.rolling,data=data[train,],family=poisson, offset=offset[train])
+      fit.rolling = glm(fmla.rolling,data=data[train,],family=poisson) # bug when you mass around with "data"
       mu[test, i] = predict(fit.rolling,newdata=data[test,],type="response")
-      print(fmla.rolling)
-      print(i)
+      #print(fmla.rolling)
+      #print(i)
     }
     
     
