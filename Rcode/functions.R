@@ -223,7 +223,7 @@ cv.poisReg <- function(fmla,data,fold,show.pb=TRUE){
     fmla.scope = fmla # delete one variable from fmla.scope each time. NO NEED TO DO THIS?
     
     for(i in 1:length(vars)) { # loop all the variables for now
-      fit0 = glm(fmla.rolling,family=poisson,data=data[train,])  
+      fit0 = glm.my(fmla.rolling,family=poisson,data=data[train,])  
       addProg = add1(fit0,scope=fmla)
       addVar = rownames(addProg[order(addProg$AIC), ][1, ])
       if(addVar == "<none>") break # if adding a variable doesn't help, just stop
