@@ -203,7 +203,7 @@ return(mu)
 }
 
 
-cv.poisReg <- function(fmla,data,fold,show.pb=TRUE){  
+cv.poisReg <- function(fmla,data,fold,max.complex=5,show.pb=TRUE){  
   X = model.matrix(fmla,data)
   Y = as.matrix(data[,as.character(fmla[[2]])])
   offset = model.offset(model.frame(fmla,data)) 
@@ -213,7 +213,7 @@ cv.poisReg <- function(fmla,data,fold,show.pb=TRUE){
 
   
 #   null.fmla = update(fmla,~1)  
-  mu = matrix(NA,nrow(data),length(vars))
+  mu = matrix(NA,nrow(data),max.complex)
   K = sort(unique(fold))
   if(show.pb) pb = txtProgressBar(style=3,min=min(K),max=max(K))
   for(k in K) {
@@ -224,7 +224,7 @@ cv.poisReg <- function(fmla,data,fold,show.pb=TRUE){
     fmla.rolling = as.formula(X5YrCrashCount~1) # add one variable to fmla.rolling each time
     fmla.scope = fmla # delete one variable from fmla.scope each time. NO NEED TO DO THIS?
     
-    for(i in 1:length(vars)) { # loop all the variables for now
+    for(i in 1:max.complex) { # loop all the variables for now
       fit0 = glm.my(fmla.rolling,family=poisson,data=data[train,])  
       addProg = add1(fit0,scope=fmla)
       addVar = rownames(addProg[order(addProg$AIC), ][1, ])
