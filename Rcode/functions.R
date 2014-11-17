@@ -261,6 +261,29 @@ cv.poisReg <- function(fmla,data,fold,max.complex=5,show.pb=TRUE){
   }
   if(show.pb) close(pb)  
   return(mu)  
+} 
+
+best.poisReg.fit <- function(fmla,data,cp.poisReg) {
+  fmla.rolling = as.formula(X5YrCrashCount~1) # add one variable to fmla.rolling each time
+  fmla.scope = fmla # delete one variable from fmla.scope each time. NO NEED TO DO THIS?
+  
+  for(i in 1:cp.poisReg) { # loop all the variables for now
+    fit0 = glm.my(fmla.rolling,family=poisson,data=data)  
+    addProg = add1(fit0,scope=fmla)
+    addVar = rownames(addProg[order(addProg$AIC), ][1, ])
+    if(addVar == "<none>") next # if adding a variable doesn't help, just stop. No continue
+    if (fmla.rolling[[3]] == 1) {
+      fmla.rolling = as.formula(paste(c(fmla.rolling[[2]], as.character(fmla.rolling[[1]]), addVar), collapse = " "))  
+    } else {
+      fmla.rolling = as.formula(paste(c(fmla.rolling[[2]], as.character(fmla.rolling[[1]]), 
+                                        fmla.rolling[[3]], "+", addVar), collapse = " "))  
+    }
+    if(!is.null(offset))
+      fmla.rolling = as.formula(paste(c(fmla.rolling[[2]], as.character(fmla.rolling[[1]]), 
+                                        fmla.rolling[[3]], "+ offset(log(Traffic))"), collapse = " ")) 
+    fit.rolling = glm(fmla.rolling,data=data,family=poisson) # bug when you mass around with "data"
+  }
+  return(fit.rolling)
 }
 
 
@@ -268,7 +291,77 @@ cv.poisReg <- function(fmla,data,fold,max.complex=5,show.pb=TRUE){
 
 
 #== Cross validation for negative bomonial
-cv.negBino <- function(fmla,data,fold,show.pb=TRUE){
+cv.negBino <- function(fmla,data,fold,max.complex=5,show.pb=TRUE){  
+  X = model.matrix(fmla,data)
+  Y = as.matrix(data[,as.character(fmla[[2]])])
+  offset = model.offset(model.frame(fmla,data)) 
+  
+  tempdata = model.frame(fmla,data)  # make correct transformations from fmla
+  vars = attr(terms(tempdata),"term.labels") # predictor variables
+  
+  
+  #   null.fmla = update(fmla,~1)  
+  mu = matrix(NA,nrow(data),max.complex)
+  K = sort(unique(fold))
+  if(show.pb) pb = txtProgressBar(style=3,min=min(K),max=max(K))
+  for(k in K) {
+    test = which(fold == k)
+    train = which(fold != k)
+    
+    ## Not complete
+    fmla.rolling = as.formula(X5YrCrashCount~1) # add one variable to fmla.rolling each time
+    fmla.scope = fmla # delete one variable from fmla.scope each time. NO NEED TO DO THIS?
+    
+    for(i in 1:max.complex) { # loop all the variables for now
+      fit0 = glm.nb.my(fmla.rolling,data=data[train,])  
+      addProg = add1(fit0,scope=fmla)
+      addVar = rownames(addProg[order(addProg$AIC), ][1, ])
+      if(addVar == "<none>") next # if adding a variable doesn't help, just stop. No continue
+      if (fmla.rolling[[3]] == 1) {
+        fmla.rolling = as.formula(paste(c(fmla.rolling[[2]], as.character(fmla.rolling[[1]]), addVar), collapse = " "))  
+      } else {
+        fmla.rolling = as.formula(paste(c(fmla.rolling[[2]], as.character(fmla.rolling[[1]]), 
+                                          fmla.rolling[[3]], "+", addVar), collapse = " "))  
+      }
+      if(!is.null(offset))
+        fmla.rolling = as.formula(paste(c(fmla.rolling[[2]], as.character(fmla.rolling[[1]]), 
+                                          fmla.rolling[[3]], "+ offset(log(Traffic))"), collapse = " ")) 
+      
+      fit.rolling = glm.nb.my(fmla.rolling,data=data[train,]) # bug when you mass around with "data"
+      mu[test, i] = predict(fit.rolling,newdata=data[test,],type="response")
+    }
+
+    if(show.pb) setTxtProgressBar(pb,k)
+  }
+  if(show.pb) close(pb)  
+  return(mu)  
+}
+
+best.negBino.fit <- function(fmla,data,cp.negBino) {
+  fmla.rolling = as.formula(X5YrCrashCount~1) # add one variable to fmla.rolling each time
+  fmla.scope = fmla # delete one variable from fmla.scope each time. NO NEED TO DO THIS?
+  
+  for(i in 1:cp.negBino) { # loop all the variables for now
+    fit0 = glm.nb.my(fmla.rolling,data=data)  
+    addProg = add1(fit0,scope=fmla)
+    addVar = rownames(addProg[order(addProg$AIC), ][1, ])
+    if(addVar == "<none>") next # if adding a variable doesn't help, just stop. No continue
+    if (fmla.rolling[[3]] == 1) {
+      fmla.rolling = as.formula(paste(c(fmla.rolling[[2]], as.character(fmla.rolling[[1]]), addVar), collapse = " "))  
+    } else {
+      fmla.rolling = as.formula(paste(c(fmla.rolling[[2]], as.character(fmla.rolling[[1]]), 
+                                        fmla.rolling[[3]], "+", addVar), collapse = " "))  
+    }
+    if(!is.null(offset))
+      fmla.rolling = as.formula(paste(c(fmla.rolling[[2]], as.character(fmla.rolling[[1]]), 
+                                        fmla.rolling[[3]], "+ offset(log(Traffic))"), collapse = " ")) 
+    
+    fit.rolling = glm.nb.my(fmla.rolling,data=data) # bug when you mass around with "data"
+  }
+  return(fit.rolling)
+}
+
+cv.negBino.old <- function(fmla,data,fold,show.pb=TRUE){
   X = model.matrix(fmla,data)
   Y = as.matrix(data[,as.character(fmla[[2]])])
   offset = model.offset(model.frame(fmla,data))  
@@ -468,6 +561,39 @@ varImp.loo <- function(fmla, data, family, k = 5, seed=11032014) {
   dfscore = data.frame(variable=vars,score=round(score))
   dfscore = dfscore[order(dfscore$score, decreasing = T), ]
   return(dfscore)
+}
+
+
+##== Traditional variable importance
+varImpStandard <- function(v, allVariables) { # scale variable "importance" from 0 to 100
+  v <- abs(v) * 100 / max(abs(v)) # use absolute values when only coeffcients are provided
+  
+  f.temp <- function(x) { # strip the last digit for categorical variables
+    if (substr(x, nchar(x), nchar(x)) %in% c(2:9)) return(substr(x, 1, nchar(x) - 1))
+    else return(x)
+  }
+  v.names.stripped <- unlist(lapply(names(v), FUN = f.temp))
+  v.agg <- aggregate(v, by = list(v.names.stripped), FUN = max)
+  v <- v.agg$x
+  names(v) <- v.agg$Group.1 # collapse categorical dummy variables
+  
+  #if(!("log(TotalT5YearInM)" %in% names(v))) { # check whether offset is in it
+  #  v <- c(v, 0)
+  #  names(v) <- c(v.agg$Group.1, "log(TotalT5YearInM)1")
+  #}
+  
+  v <- v[order(names(v))]
+  v = v * 100 / sum(v) # standardized to add up to 100
+  
+  if(length(v) < length(allVariables)) {
+    s <- rep(0, length(allVariables))
+    names(s) <- allVariables
+    matchedVariables <- allVariables[which(allVariables %in% names(v))]
+    s[matchedVariables] <- v[matchedVariables]
+    return(s)
+  }
+  
+  return(v)
 }
 
 varImpStandard2 <- function(dfscore) {
