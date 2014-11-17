@@ -96,11 +96,9 @@ legend("topright",c('glmnet','glmnet-offset','tree','tree-offset'),col=1:4,lwd=1
 
 
 ################################################################################
-#-- Use cross-validation
+#-- Use cross-validation (the cross validation framework has been corrected)
 #   Compare poisReg, negBino, gbmPois, glmnet, tree
 ################################################################################
-ptm <- proc.time() # time the comparison procedure
-
 fold = cvfolds(nrow(a),k=20,seed=9122014)  # get cv partition info fold 20 and 5
 
 Y = a$X5YrCrashCount  # response
@@ -136,18 +134,62 @@ mu.cv.poisReg.offset.old <- suppressWarnings(cv.poisReg.old(fmla.offset, data = 
 
 
 
+## modified cross validation for Negative Binomial regression
+max.complex = 10
+mu.cv.negBino <- cv.negBino(fmla, data = a, fold = fold, max.complex = max.complex)
+mu.cv.negBino.offset <- cv.negBino(fmla.offset, data = a, fold= fold, max.complex = max.complex)
 
-mu.cv.negBino <- suppressWarnings(cv.negBino(fmla, data = a, fold = fold))
+par(mfrow = c(3, 1))
+# regression tree performance using MAE
+plot(1:max.complex, mae(mu.cv.negBino , Y), typ='l', col=3, ylab="MAE", xlab="# of predictors")
+lines(1:max.complex, mae(mu.cv.negBino.offset, Y), lty=2, col=3)
+legend("topleft" ,legend = c("No offset", "Offset"), lty = c(1, 3), col = c(3, 3), lwd = 2, text.font = 3, cex = 0.8)
+title("Performace of Negative Binomial regression using MAE")
+
+# regression tree performance using MSE
+plot(1:max.complex, mse(mu.cv.negBino , Y), typ='l', col=4, ylab="MSE", xlab="# of predictors")
+lines(1:max.complex, mse(mu.cv.negBino.offset, Y), lty=2, col=4)
+legend("topleft" ,legend = c("No offset", "Offset"), lty = c(1, 3), col = c(4, 4), lwd = 2, text.font = 3, cex = 0.8)
+title("Performace of Negative Binomial regression using MSE")
+
+# regression tree performance using mlogL
+plot(1:max.complex, mlogL(mu.cv.negBino, Y), typ='l', col=6, ylab="mlogL",  xlab="# of predictors")
+lines(1:max.complex, mlogL(mu.cv.negBino.offset, Y), lty=2, col=6)
+legend("topleft" ,legend = c("No offset", "Offset"), lty = c(1, 3), col = c(6, 6), lwd = 2, text.font = 3, cex = 0.8)
+title("Performace of Negative Binomial regression using mlogL")
+
+
+mu.cv.negBino <- suppressWarnings(cv.negBino.old(fmla, data = a, fold = fold))
 mu.cv.negBino.offset <- suppressWarnings(cv.negBi
-                                         no(fmla.offset, data = a, fold = fold))
+                                         no.old(fmla.offset, data = a, fold = fold))
 
 
+## modified cross validation for glmnet
+mu.cv.glmnet = cv.glmnetPois(fmla,data=a,fold=fold)
+mu.cv.glmnet.offset = cv.glmnetPois(fmla.offset,data=a,fold=fold)
+
+par(mfrow = c(3, 1))
+# regression tree performance using MAE
+plot(attr(mu.cv.glmnet, "lambda"), mae(mu.cv.glmnet , Y), typ='l', xlim=c(0, 1.0), ylim=c(1.29, 1.5), col=3, ylab="MAE", xlab=expression(~lambda))
+lines(attr(mu.cv.glmnet.offset, "lambda"), mae(mu.cv.glmnet.offset, Y), lty=2, col=3)
+legend("topleft" ,legend = c("No offset", "Offset"), lty = c(1, 3), col = c(3, 3), lwd = 2, text.font = 3, cex = 0.8)
+title("Performace of Glmnet Poisson using MAE")
+
+# regression tree performance using MSE
+plot(attr(mu.cv.glmnet, "lambda"), mse(mu.cv.glmnet , Y), typ='l', xlim=c(0, 1.0), ylim =c(6.95, 10), col=4, ylab="MSE", xlab=expression(~lambda))
+lines(attr(mu.cv.glmnet.offset, "lambda"), mse(mu.cv.glmnet.offset, Y), lty=2, col=4)
+legend("topleft" ,legend = c("No offset", "Offset"), lty = c(1, 3), col = c(4, 4), lwd = 2, text.font = 3, cex = 0.8)
+title("Performace of Glmnet Poisson using MSE")
+
+# regression tree performance using mlogL
+plot(attr(mu.cv.glmnet, "lambda"), mlogL(mu.cv.glmnet , Y), typ='l', xlim=c(0, 1.0), ylim =c(1.73, 2.1), col=6, ylab="mlogL",  xlab=expression(~lambda))
+lines(attr(mu.cv.glmnet.offset, "lambda"), mlogL(mu.cv.glmnet.offset, Y), lty=2, col=6)
+legend("topleft" ,legend = c("No offset", "Offset"), lty = c(1, 3), col = c(6, 6), lwd = 2, text.font = 3, cex = 0.8)
+title("Performace of Glmnet Poisson using mlogL")
 
 ## Boosted Trees
 #  - number according to interaction depth. 
 #  - Set shrinkage at .005 so converge faster than default of .001
-
-
 
 #mu.cv.gbmPois <- suppressWarnings(cv.gbmPois(fmla, data = a, fold = fold))
 #mu.cv.gbmPois.offset <- suppressWarnings(cv.gbmPois(fmla.offset, data = a, fold = fold))
@@ -195,7 +237,7 @@ gbm_4.offset <- cv.gbmPois(fmla.offset, data = a, fold = fold,
 
 
 par(mfrow = c(3, 1))
-# Plot tree performance in MAE
+# Plot gbm tree performance in MAE
 plot(tree.seq,mae(gbm_3,Y),typ='o',ylim=c(1.18,1.5),col=3,ylab="MAE")
 lines(tree.seq,mae(gbm_3.offset,Y),lty=3,col=3)
 lines(tree.seq,mae(gbm_1,Y),col=1)
@@ -216,7 +258,7 @@ legend("topleft" ,legend = c("Dept 3", "Dept 1", "Dept 2", "Dept 4",
 
 
 # Note: Repeat using mean squared error, likelihood, etc. 
-# plot tree performance in MSE
+# plot gbm tree performance in MSE
 plot(tree.seq,mse(gbm_3,Y),type="l",ylim=c(5.8, 8.5), col=3,ylab="MSE")
 lines(tree.seq,mse(gbm_3.offset,Y),lty=3,col=3)
 lines(tree.seq,mse(gbm_1,Y),col=1)
@@ -234,7 +276,7 @@ legend("topleft" ,legend = c("Dept 3", "Dept 1", "Dept 2", "Dept 4",
        lty = c(1, 1, 1, 1, 3, 3, 3, 3), col = c(3, 1, 2, 4, 3, 1, 2, 4), lwd = 2,
        ncol = 2, text.font = 3, cex = 0.8)
 
-# plot tree performance in likelihood
+# plot gbm tree performance in likelihood
 plot(tree.seq,mlogL(gbm_3,Y),type="l", ylim = c(-1.82, -1.3), col=3,ylab="mlogL")
 lines(tree.seq,mlogL(gbm_3.offset,Y),lty=3,col=3)
 lines(tree.seq,mlogL(gbm_1,Y),col=1)
@@ -253,18 +295,8 @@ legend("topleft" ,legend = c("Dept 3", "Dept 1", "Dept 2", "Dept 4",
        ncol = 2, text.font = 3, cex = 0.8)
 
 
-
-
-# > proc.time() - ptm
-# user  system elapsed 
-# 1300.86    0.00 1302.19 
-
-mu.cv.glmnet = cv.glmnetPois(fmla,data=a,fold=fold)
-mu.cv.glmnet.offset = cv.glmnetPois(fmla.offset,data=a,fold=fold)
-
-
 #### modified cross validation of trees
-set.seed(11102014)
+# set.seed(11102014)
 # cp.seq = sort(rgamma(100, 1, 20), decreasing = T) # gamma distribution seems to be what I want for the seach of cp (right skewed)
 cp.seq = seq(0, 0.05, by = 0.0001) # need tuning the parameter
 # hist(cp.seq, breaks = 20)
