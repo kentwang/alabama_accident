@@ -106,7 +106,7 @@ Y = a$X5YrCrashCount  # response
 
 ## modified cross validation for Poisson Regression
 # Todo: NA should be removed
-max.complex = 10
+max.complex = 10 # try 15?
 mu.cv.poisReg <- cv.poisReg(fmla, data = a, fold = fold, max.complex = max.complex)
 mu.cv.poisReg.offset <- cv.poisReg(fmla.offset, data = a, fold= fold, max.complex = max.complex)
 
@@ -277,7 +277,7 @@ legend("topleft" ,legend = c("Dept 3", "Dept 1", "Dept 2", "Dept 4",
        ncol = 2, text.font = 3, cex = 0.8)
 
 # plot gbm tree performance in likelihood
-plot(tree.seq,mlogL(gbm_3,Y),type="l", ylim = c(-1.82, -1.3), col=3,ylab="mlogL")
+plot(tree.seq,mlogL(gbm_3,Y),type="l", ylim = c(1.3, 1.82), col=3,ylab="mlogL")
 lines(tree.seq,mlogL(gbm_3.offset,Y),lty=3,col=3)
 lines(tree.seq,mlogL(gbm_1,Y),col=1)
 lines(tree.seq,mlogL(gbm_1.offset,Y),lty=3,col=1)
@@ -330,6 +330,8 @@ title("Performace of regression tree using mlogL")
 mu.cv.tree.old = cv.treePois.old(fmla,data=a,fold=fold)
 mu.cv.tree.offset.old = cv.treePois.old(fmla.offset,data=a,fold=fold)
 
+
+##### following no need to run
 proc.time() - ptm # calculate the comparison
 
 score = data.frame(poisReg=mae(mu.cv.poisReg,Y),poisReg.offset=mae(mu.cv.poisReg.offset,Y),

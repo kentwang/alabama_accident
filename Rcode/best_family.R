@@ -1,3 +1,4 @@
+# This program fits the best model for each family using full data
 ## poisson
 max.complex = 10
 mu.cv.poisReg.offset <- cv.poisReg(fmla.offset, data = a, fold= fold, max.complex = max.complex)
