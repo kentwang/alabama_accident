@@ -18,8 +18,11 @@
 
  
 library(gbm)
-
 library(mgcv)
+
+library(MASS)
+library(rpart)
+library(randomForest)
 
 
 component.plots <- function(fmla,data,plot=TRUE,fam = poisson(),ylim=c(-2,2),
@@ -602,6 +605,10 @@ varImpStandard2 <- function(dfscore) {
   score = score * 100 / max(score) 
   dfscore$score = score
   return(dfscore)
+}
+
+cp.rescale <- function(v, a, b) {# rescale v into (a, b)
+  return((v - min(v)) * (b - a)/(max(v) - min(v)) + a)
 }
 
 
