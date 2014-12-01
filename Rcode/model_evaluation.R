@@ -129,8 +129,8 @@ legend("topleft" ,legend = c("No offset", "Offset"), lty = c(1, 3), col = c(6, 6
 title("Performace of Poisson regression using MAE")
 
 
-mu.cv.poisReg.old <- suppressWarnings(cv.poisReg.old(fmla, data = a, fold = fold))
-mu.cv.poisReg.offset.old <- suppressWarnings(cv.poisReg.old(fmla.offset, data = a, fold = fold))
+# mu.cv.poisReg.old <- suppressWarnings(cv.poisReg.old(fmla, data = a, fold = fold))
+# mu.cv.poisReg.offset.old <- suppressWarnings(cv.poisReg.old(fmla.offset, data = a, fold = fold))
 
 
 
@@ -159,9 +159,9 @@ legend("topleft" ,legend = c("No offset", "Offset"), lty = c(1, 3), col = c(6, 6
 title("Performace of Negative Binomial regression using mlogL")
 
 
-mu.cv.negBino <- suppressWarnings(cv.negBino.old(fmla, data = a, fold = fold))
-mu.cv.negBino.offset <- suppressWarnings(cv.negBi
-                                         no.old(fmla.offset, data = a, fold = fold))
+# mu.cv.negBino <- suppressWarnings(cv.negBino.old(fmla, data = a, fold = fold))
+# mu.cv.negBino.offset <- suppressWarnings(cv.negBi
+#                                          no.old(fmla.offset, data = a, fold = fold))
 
 
 ## modified cross validation for glmnet
@@ -327,23 +327,23 @@ legend("topleft" ,legend = c("No offset", "Offset"), lty = c(1, 3), col = c(6, 6
 title("Performace of regression tree using mlogL")
 
 
-mu.cv.tree.old = cv.treePois.old(fmla,data=a,fold=fold)
-mu.cv.tree.offset.old = cv.treePois.old(fmla.offset,data=a,fold=fold)
+# mu.cv.tree.old = cv.treePois.old(fmla,data=a,fold=fold)
+# mu.cv.tree.offset.old = cv.treePois.old(fmla.offset,data=a,fold=fold)
 
 
 ##### following no need to run
-proc.time() - ptm # calculate the comparison
-
-score = data.frame(poisReg=mae(mu.cv.poisReg,Y),poisReg.offset=mae(mu.cv.poisReg.offset,Y),
-                   negBino=mae(mu.cv.negBino,Y),negBino.offset=mae(mu.cv.negBino.offset,Y),
-                   gbmPois=mae(mu.cv.gbmPois,Y),gbmPois.offset=mae(mu.cv.gbmPois.offset,Y),
-                   tree=mae(mu.cv.tree,Y),tree.offset=mae(mu.cv.tree.offset,Y),
-                   glmnet=min(mae(mu.cv.glmnet,Y)),glmnet.offset=min(mae(mu.cv.glmnet.offset,Y)))
-print(round(score,4))
-
-plot(1:length(score), score, ylim = c(1.25, 1.55), "h", ylab = "MAE", xlab = "", 
-     xaxt = "n", lwd = 2, main = "Comparison of model families on MAE")
-points(1:length(score), score, pch = 19)
-axis(1, at = 1:10, labels=FALSE)
-text(x = 1:10, y = par()$usr[3]-0.1*(par()$usr[4]-par()$usr[3]),
-     labels = names(score), srt = 30, adj = 1, xpd =TRUE)
+# proc.time() - ptm # calculate the comparison
+# 
+# score = data.frame(poisReg=mae(mu.cv.poisReg,Y),poisReg.offset=mae(mu.cv.poisReg.offset,Y),
+#                    negBino=mae(mu.cv.negBino,Y),negBino.offset=mae(mu.cv.negBino.offset,Y),
+#                    gbmPois=mae(mu.cv.gbmPois,Y),gbmPois.offset=mae(mu.cv.gbmPois.offset,Y),
+#                    tree=mae(mu.cv.tree,Y),tree.offset=mae(mu.cv.tree.offset,Y),
+#                    glmnet=min(mae(mu.cv.glmnet,Y)),glmnet.offset=min(mae(mu.cv.glmnet.offset,Y)))
+# print(round(score,4))
+# 
+# plot(1:length(score), score, ylim = c(1.25, 1.55), "h", ylab = "MAE", xlab = "", 
+#      xaxt = "n", lwd = 2, main = "Comparison of model families on MAE")
+# points(1:length(score), score, pch = 19)
+# axis(1, at = 1:10, labels=FALSE)
+# text(x = 1:10, y = par()$usr[3]-0.1*(par()$usr[4]-par()$usr[3]),
+#      labels = names(score), srt = 30, adj = 1, xpd =TRUE)
