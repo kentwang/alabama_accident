@@ -28,10 +28,10 @@ mu.cv.tree.offset = cv.treePois(fmla.offset, data = a, fold = fold, cp.seq = cp.
 plot(cp.seq, mlogL(mu.cv.tree.offset, Y), typ='l', col=3, ylab="mlogL")
 
 
-## complexity parameters
+## optimal complexity parameters
 cp.poisReg = (1:max.complex)[which.min( mlogL(mu.cv.poisReg.offset , Y))]
 cp.negBino = (1:max.complex)[which.min( mlogL(mu.cv.negBino.offset , Y))]
-cp.glmnet = (attr(mu.cv.glmnet, "lambda"))[which.min( mlogL(mu.cv.glmnet.offset , Y))]
+cp.glmnet = (attr(mu.cv.glmnet, "lambda"))[which.min(mlogL(mu.cv.glmnet.offset , Y))]
 cp.gbm = tree.seq[which.min(mlogL(gbm_4.offset , Y))]
 cp.tree = cp.seq[which.min(mlogL(mu.cv.tree.offset , Y))]
 
@@ -57,7 +57,8 @@ fmla.string = fmla.string[fmla.string != "offset(log(Traffic))"]
 allVariables = fmla.string[order(fmla.string)]
 
 # processing of glmnet
-best.glmnet.imp = as.vector(best.glmnet$beta)
+# Todo standardization of coefficient by sd(X)
+best.glmnet.imp = as.vector(best.glmnet$beta)/apply(X, 2, sd) # standardized by the coded model matrix
 names(best.glmnet.imp) = rownames(best.glmnet$beta)
 
 # processing of gbm
@@ -71,8 +72,8 @@ varImp <- as.vector(c(varImpStandard(summary(best.poisReg)$coefficients[-1, 3], 
                     varImpStandard(best.tree$variable.importance, allVariables),
                     varImpStandard(best.gbm.inf, allVariables)))
 
-model.names <- c("Poisson Regression", "Negative Binomial",
-                 "glmnet Poisson", "Regression Tree", "gbm Boosted Trees")
+model.names <- c("Poisson", "NB",
+                 "glmnet", "Trees", "BRT")
 
 importances <- as.data.frame(cbind(rep(allVariables, length(model.names)),
                                    rep(model.names, each = length(allVariables))))
