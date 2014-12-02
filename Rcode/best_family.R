@@ -82,7 +82,7 @@ importances$importance <- varImp
 names(importances) <- c("var", "model", "importance")
 
 ggplot(importances, aes(factor(var), importance, fill = model)) + 
-  geom_bar(stat = "identity", position = "dodge") +
+  geom_bar(stat = "identity", position = position_dodge(width = 0.4), width=.8) +
   theme(text = element_text(size = 16)) + 
   coord_flip() + 
   scale_x_discrete(name="Intersection Factors") +
