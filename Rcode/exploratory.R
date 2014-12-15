@@ -318,7 +318,23 @@ ggplot(x,aes(x=IntCat,y=LegRtType,size=count,fill=rate)) +
 ##       probably can't be explained by non-interaction model
 
 
+# make plot function
 
+plot.interaction <- function(var1,var2){
+  x = a %>% group_by_(var1,var2) %>% summarize(
+  rate=sum(X5YrCrashCount)/sum(Traffic),
+  count=n())
+
+  overall.rate = sum(a$X5YrCrashCount)/sum(a$Traffic)
+
+  ggplot(x,aes_string(x=var1,y=var2,size="count",fill="rate")) +
+    geom_point(shape=21) + scale_size_area(max_size=35) +
+    scale_fill_gradient2(low="blue",high="red",
+                        midpoint=overall.rate,na.value="red",
+                        limits=c(0,2*overall.rate))
+}
+
+plot.interaction("IntCat","LegRtType")
 
 
 
