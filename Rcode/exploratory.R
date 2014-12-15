@@ -284,7 +284,41 @@ png("graph/varImportance-barplot-offset.png",width=1024,height=380,units="px")
           main="Offset: Componentwise Variable Importance (based on AIC)")
 dev.off()
 
-
-
-
 #----------------------------------------------------------
+
+
+#---------------------------------------------
+#-- Interaction Analysis
+#---------------------------------------------
+library(dplyr)
+
+#- Make Data
+x = a %>% group_by(IntCat,LegRtType) %>% summarize(
+  rate=sum(X5YrCrashCount)/sum(Traffic),
+  count=n())
+
+overall.rate = sum(a$X5YrCrashCount)/sum(a$Traffic)
+
+x1 = a %>% group_by(IntCat) %>% summarize(
+  rate=sum(X5YrCrashCount)/sum(Traffic),
+  count=n())
+
+x2 = a %>% group_by(LegRtType) %>% summarize(
+  rate=sum(X5YrCrashCount)/sum(Traffic),
+  count=n())
+
+#- Make Plot
+# Note: change colors, sizes, shapes, etc for publication
+ggplot(x,aes(x=IntCat,y=LegRtType,size=count,fill=rate)) +
+  geom_point(shape=21) + scale_size_area(max_size=35) +
+  scale_fill_gradient2(low="blue",high="red",midpoint=overall.rate,na.value="red",
+                       limits=c(0,2*overall.rate))
+
+## Note: Check out IntCat=2 and LegRtType=3. It has high accident rate that 
+##       probably can't be explained by non-interaction model
+
+
+
+
+
+
