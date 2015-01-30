@@ -254,6 +254,11 @@ png("graph/componentplot-offset.png",width=1024,height=700,units="px")
 dev.off()
 
 
+#- Draw four most and two least influential factors
+VARS = c("IntCat", "LegRtType", "AreaType", "LegWidth", "SkewAngle", "RTLnLength")
+score.offset = component.plots(fmla.offset,data=a,VARS=VARS,xy=c(2,3))
+
+
 varImportance = arrange(score,desc(score))
 varI.offset = arrange(score.offset,desc(score))
 
