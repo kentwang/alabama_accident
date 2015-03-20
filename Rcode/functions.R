@@ -572,7 +572,7 @@ varImpStandard <- function(v, allVariables) { # scale variable "importance" from
   v <- abs(v) * 100 / max(abs(v)) # use absolute values when only coeffcients are provided
   
   f.temp <- function(x) { # strip the last digit for categorical variables
-    if (substr(x, nchar(x), nchar(x)) %in% c(2:9)) return(substr(x, 1, nchar(x) - 1))
+    if (substr(x, nchar(x), nchar(x)) %in% c(1:9)) return(substr(x, 1, nchar(x) - 1)) # strip 1 to 9?
     else return(x)
   }
   v.names.stripped <- unlist(lapply(names(v), FUN = f.temp))
@@ -585,7 +585,7 @@ varImpStandard <- function(v, allVariables) { # scale variable "importance" from
   #  names(v) <- c(v.agg$Group.1, "log(TotalT5YearInM)1")
   #}
   
-  v <- v[order(names(v))]
+  v <- v[order(names(v))] # this is order by name. Can order by default order?
   v = v * 100 / sum(v) # standardized to add up to 100
   
   if(length(v) < length(allVariables)) {
@@ -593,7 +593,9 @@ varImpStandard <- function(v, allVariables) { # scale variable "importance" from
     names(s) <- allVariables
     matchedVariables <- allVariables[which(allVariables %in% names(v))]
     s[matchedVariables] <- v[matchedVariables]
-    return(s)
+    v = s
+  } else if(length(v) > length(allVariables)) { # remove extra variables
+    v = v[names(v) %in% allVariables]
   }
   
   return(v)
