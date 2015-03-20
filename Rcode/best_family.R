@@ -60,6 +60,7 @@ text(tree.test, cex = 1.5)
 fmla.string = strsplit(as.character(fmla.offset)[3], " \\+ ")[[1]]
 fmla.string = fmla.string[fmla.string != "offset(log(Traffic))"]
 allVariables = fmla.string[order(fmla.string)]
+allVariables = allVariables[-c(11, 12)] # remove log(TotalAADT) and log(TotalT5YearInM
 
 # processing of glmnet
 # Todo standardization of coefficient by sd(X)
@@ -70,21 +71,35 @@ names(best.glmnet.imp) = rownames(best.glmnet$beta)
 best.gbm.inf = best.gbm$rel.inf
 names(best.gbm.inf) = best.gbm$var
 
+# reorder the importance using the order of the component graph
+ordered_component = c("IntCat", "LegRtType", "AreaType", "LegWidth", "OneWay", "Lat",
+                      "Terrain", "Long", "NextPIDist", "Lighting", "LegTCType", "LegSpeed",
+                      "MedWidth", "LegType", "OffsetDist", "RTMoveCtrl", "Offset",
+                      "LTWidth", "IntTCType", "LTOffset", "NumLanes", "SightRt",
+                      "LTLanes", "LTLnLength", "PedCross", "RTWidth", "SightLt",
+                      "PaveType", "TurnProhib", "MedType", "RTLanes", "RTChannel",
+                      "MergeLanes", "NumberLegs", "Rumble", "SkewAngle", "RTLnLength")
+
+comp_order = match(ordered_component, allVariables) # indices from allvariabels to ordered_component
+
+
 ## combind importances
-varImp <- as.vector(c(varImpStandard(summary(best.poisReg)$coefficients[-1, 3], allVariables),
-                      varImpStandard(summary(best.negBino)$coefficients[-1, 3], allVariables),
-                    varImpStandard(best.glmnet.imp ,allVariables),
-                    varImpStandard(best.tree$variable.importance, allVariables),
-                    varImpStandard(best.gbm.inf, allVariables)))
+varImp <- as.vector(c(varImpStandard(summary(best.poisReg)$coefficients[-1, 3], allVariables)[comp_order],
+                      varImpStandard(summary(best.negBino)$coefficients[-1, 3], allVariables)[comp_order],
+                    varImpStandard(best.glmnet.imp ,allVariables)[comp_order],
+                    varImpStandard(best.tree$variable.importance, allVariables)[comp_order],
+                    varImpStandard(best.gbm.inf, allVariables)[comp_order]))
 
 model.names <- c("Poisson", "NB",
                  "glmnet", "Trees", "BRT")
 
-importances <- as.data.frame(cbind(rep(allVariables, length(model.names)),
+importances <- as.data.frame(cbind(rep(ordered_component, length(model.names)),
                                    rep(model.names, each = length(allVariables))))
 
 importances$importance <- varImp
 names(importances) <- c("var", "model", "importance")
+
+
 
 ggplot(importances, aes(factor(var), importance, fill = model)) + 
   geom_bar(stat = "identity", position = position_dodge(width = 0.4), width=.8) +
@@ -93,5 +108,19 @@ ggplot(importances, aes(factor(var), importance, fill = model)) +
   scale_x_discrete(name="Intersection Factors") +
   scale_fill_discrete(breaks=model.names)
 
+# use cleveland dot plot
+# dotchart(VADeaths, main = "Death Rates in Virginia - 1940")
 
+# cleveland dot chart group by model
+importances_cdp = t(matrix(varImp, ncol = 37, byrow = TRUE))
+colnames(importances_cdp) = model.names
+rownames(importances_cdp) = ordered_component
 
+dotchart(importances_cdp, cex = 0.5)
+
+# cleveland dot chart group by factors
+importances_cdp = matrix(varImp, ncol = 37, byrow = TRUE)
+rownames(importances_cdp) = model.names
+colnames(importances_cdp) = ordered_component
+
+dotchart(importances_cdp, cex = 0.5)
