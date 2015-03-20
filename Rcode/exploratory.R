@@ -254,6 +254,11 @@ png("graph/componentplot-offset.png",width=1024,height=700,units="px")
 dev.off()
 
 
+#- Draw four most and two least influential factors
+VARS = c("IntCat", "LegRtType", "AreaType", "LegWidth", "SkewAngle", "RTLnLength")
+score.offset = component.plots(fmla.offset,data=a,VARS=VARS,xy=c(2,3))
+
+
 varImportance = arrange(score,desc(score))
 varI.offset = arrange(score.offset,desc(score))
 
@@ -284,7 +289,57 @@ png("graph/varImportance-barplot-offset.png",width=1024,height=380,units="px")
           main="Offset: Componentwise Variable Importance (based on AIC)")
 dev.off()
 
-
-
-
 #----------------------------------------------------------
+
+
+#---------------------------------------------
+#-- Interaction Analysis
+#---------------------------------------------
+library(dplyr)
+
+#- Make Data
+x = a %>% group_by(IntCat,LegRtType) %>% summarize(
+  rate=sum(X5YrCrashCount)/sum(Traffic),
+  count=n())
+
+overall.rate = sum(a$X5YrCrashCount)/sum(a$Traffic)
+
+x1 = a %>% group_by(IntCat) %>% summarize(
+  rate=sum(X5YrCrashCount)/sum(Traffic),
+  count=n())
+
+x2 = a %>% group_by(LegRtType) %>% summarize(
+  rate=sum(X5YrCrashCount)/sum(Traffic),
+  count=n())
+
+#- Make Plot
+# Note: change colors, sizes, shapes, etc for publication
+ggplot(x,aes(x=IntCat,y=LegRtType,size=count,fill=rate)) +
+  geom_point(shape=21) + scale_size_area(max_size=35) +
+  scale_fill_gradient2(low="blue",high="red",midpoint=overall.rate,na.value="red",
+                       limits=c(0,2*overall.rate))
+
+## Note: Check out IntCat=2 and LegRtType=3. It has high accident rate that 
+##       probably can't be explained by non-interaction model
+
+
+# make plot function
+
+plot.interaction <- function(var1,var2){
+  x = a %>% group_by_(var1,var2) %>% summarize(
+  rate=sum(X5YrCrashCount)/sum(Traffic),
+  count=n())
+
+  overall.rate = sum(a$X5YrCrashCount)/sum(a$Traffic)
+
+  ggplot(x,aes_string(x=var1,y=var2,size="count",fill="rate")) +
+    geom_point(shape=21) + scale_size_area(max_size=35) +
+    scale_fill_gradient2(low="blue",high="red",
+                        midpoint=overall.rate,na.value="red",
+                        limits=c(0,2*overall.rate))
+}
+
+plot.interaction("IntCat","LegRtType")
+
+
+
