@@ -51,6 +51,11 @@ best.gbm = summary(gbm(fmla.offset, data=a, distribution = "poisson", n.trees = 
 tree.0 = rpart(fmla.offset, data = a, method = "poisson", cp = 0,xval=0, minbucket=3)
 best.tree = prune(tree.0,cp=cp.tree)
 
+# This is a showcase of regress trees
+tree.test = rpart(fmla.offset, data = a, method = "poisson", cp = 0.02,xval=0, minbucket=3)
+plot(tree.test, uniform=TRUE, main="Regression Tree for Accident Count")
+text(tree.test, cex = 1.5)
+
 ## importance comparison
 fmla.string = strsplit(as.character(fmla.offset)[3], " \\+ ")[[1]]
 fmla.string = fmla.string[fmla.string != "offset(log(Traffic))"]
