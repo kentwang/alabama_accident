@@ -162,15 +162,16 @@ interaction.index = which(vars %in% BRT.vars)
 BRT.vars = vars[interaction.index]
 # heatmap(interaction.mag[BRT.vars, BRT.vars], Colv = NA, Rowv = NA, cexRow = 1, cexCol = 1)
 
-my_palette <- colorRampPalette(c("yellow", "red"))(n = 299)
+my_palette <- colorRampPalette(c("white", "blue"))(n = 299)
 
 par(cex.main=0.5)
 
-heatmap.2(interaction.mag[BRT.vars, BRT.vars], dendrogram = "none",
-          key = T, keysize = 1.2, density.info="none", trace="none",
+# save as portrait 12 by 6
+heatmap.2(interaction.mag[BRT.vars, BRT.vars], dendrogram = "none", Colv = FALSE,
+          Rowv = FALSE, key = T, keysize = 1, density.info="none", trace="none",
           key.xlab = "Scale of H-Statistic", key.title = NA,
-          cexRow = 1.2, cexCol = 1.2, margins = c(7, 9), col = my_palette,
-          srtCol=45, main = "Two-way factor interactions")
+          cexRow = 1.4, cexCol = 1.4, margins = c(7, 9), col = my_palette,
+          srtCol=30, main = "Two-way factor interactions")
 # >>>>>>> 981d79ab312916467e596739eb02f819efef94c8
 
 
