@@ -125,6 +125,20 @@ colnames(importances_cdp) = ordered_component
 
 dotchart(importances_cdp, cex = 0.5)
 
+# Cleveland Dot Plot using ggplot
+dot_theme = theme_bw() +
+  theme(panel.grid.major.x=element_blank(),
+        panel.grid.minor.x=element_blank(),
+        panel.grid.major.y=element_line(color="grey60",
+                                        linetype="dashed"))
+
+
+
+ggplot(importances, aes(y=reorder(var, importance), x=importance)) + 
+  geom_point(aes(shape = model, col = model), size = 3) + 
+  dot_theme +
+  scale_y_discrete("intersection factors")
+
 # <<<<<<< HEAD
 # =======
 ### Checking interactions using interaction.gbm
