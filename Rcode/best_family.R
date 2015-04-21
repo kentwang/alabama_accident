@@ -133,11 +133,13 @@ dot_theme = theme_bw() +
                                         linetype="dashed"))
 
 
+importances_trunc = importances[!importances$var %in% c("MedWidth", "Lighting", "LegSpeed", "SkewAngle", "LegType", "NumLanes", "OffsetDist", "SightLt", "SightRt", "RTLnLength", "RTWidth", "LTOffset", "RTChannel","RTLanes", "Rumble", "PaveType", "MergeLanes"), ]
 
-ggplot(importances, aes(y=reorder(var, importance), x=importance)) + 
+ggplot(importances_trunc, aes(y=reorder(var, importance, max), x=importance)) + 
   geom_point(aes(shape = model, col = model), size = 3) + 
   dot_theme +
-  scale_y_discrete("intersection factors")
+  theme(legend.position = c(0.85, .77), legend.background = element_rect(colour = "black")) +
+  scale_y_discrete("")
 
 # <<<<<<< HEAD
 # =======

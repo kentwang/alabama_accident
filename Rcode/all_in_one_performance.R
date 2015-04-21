@@ -50,7 +50,8 @@ lines(cp.gbm,mlogL(gbm_4.offset,Y),col=4,lty=2,lwd=2)
 legend("topleft" ,legend = c("Poisson", "NB", "glmnet", "Trees", "BRT"), 
        col = c(6, 2, 3, 'orange', 4), pch=c(15,16,NA_integer_,NA_integer_,NA_integer_),
        lty=c(1,1,1,4,2),lwd = 2, text.font = 3, ncol = 5, pt.cex=c(1.2,1.2,1,1,1), cex = 1.2)
-title("(c) Prediction error measured by -mlogL", cex.main = 1.2)
+#title("(c) Prediction error measured by -mlogL", cex.main = 1.2)
+title("Prediction error measured by -mlogL", cex.main = 1.2)
 
 ## output both transformed and original optimal complexities
 # original scale

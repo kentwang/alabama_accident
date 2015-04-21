@@ -255,8 +255,9 @@ dev.off()
 
 
 #- Draw four most and two least influential factors
-VARS = c("IntCat", "LegRtType", "AreaType", "LegWidth", "SkewAngle", "RTLnLength")
-score.offset = component.plots(fmla.offset,data=a,VARS=VARS,xy=c(2,3))
+# VARS = c("IntCat", "LegRtType", "AreaType", "LegWidth", "SkewAngle", "RTLnLength")
+VARS = c("IntCat", "LegRtType", "SkewAngle", "RTLnLength")
+score.offset = component.plots(fmla.offset,data=a,VARS=VARS,xy=c(2,2))
 
 
 varImportance = arrange(score,desc(score))

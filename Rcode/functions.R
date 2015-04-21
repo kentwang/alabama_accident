@@ -79,7 +79,7 @@ component.plots <- function(fmla,data,plot=TRUE,fam = poisson(),ylim=c(-2,2),
       if(psqrt %% 1 == 0) xy = c(psqrt,psqrt)
       else xy = c(ceiling(psqrt),floor(psqrt))
     }    
-    par(mfrow=c(xy[1],xy[2]),mar=c(4,2,1.5,1))
+    par(mfrow=c(xy[1],xy[2]),mar=c(4,4,1.5,1))
     ylab = "" #"log(mu/offset)-Intercept" = smooth(x)
     color = col2rgb("grey80")/255
     CI.col = rgb(color[1],color[2],color[3],alpha=.6)
@@ -120,9 +120,12 @@ component.plots <- function(fmla,data,plot=TRUE,fam = poisson(),ylim=c(-2,2),
         #pp = predict(gg,data.frame(x=levels(x)),type='response') #,se.fit=TRUE)
         #lines(1:nlevels(x),pp,col=line.col,lwd=2)  
         #title(paste0(vars[j]," (",round(AIC.null-gg$aic),")"))
-        title(paste0(vars[j]," (",round(score[j]),")"))
-        if(length(VARS) > 1)
-          mtext(side = 1, panel.label[j], line = 2.5, cex = 0.8)
+        #title(paste0(vars[j]," (",round(score[j]),")"))
+        if(length(VARS) > 1) {
+          mtext(side = 1, paste(panel.label[j], paste0(vars[j]," [",round(AIC.null-gg$aic),"]")), line = 2.5, cex = 1.2)
+          mtext(side = 2, "Relative strength", line = 2, cex = 1.2)
+        }
+          
       }
     }
     
@@ -162,10 +165,11 @@ component.plots <- function(fmla,data,plot=TRUE,fam = poisson(),ylim=c(-2,2),
         # plot(gg,scheme=1,shift=coef(gg)[1],trans=fam$linkinv,ylim=log(range(y))) 
         # points(jitter(x),jitter(y))
         #title(paste0(vars[j]," (",round(AIC.null-gg$aic),")"))
-        title(paste0(vars[j]," (",round(score[j]),")"))
-        if(length(VARS) > 1)
-          mtext(side = 1, panel.label[j], line = 2.5, cex = 0.8)
-          
+        #title(paste0(vars[j]," (",round(score[j]),")"))
+        if(length(VARS) > 1) {
+          mtext(side = 1, paste(panel.label[j], paste0(vars[j]," [",round(score[j]),"]")), line = 2.5, cex = 1.2)
+          mtext(side = 2, "Relative strength", line = 2, cex = 1.2)
+        }          
       }
     }
   }
