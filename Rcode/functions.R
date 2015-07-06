@@ -1,4 +1,8 @@
-
+library(gbm)
+library(mgcv)
+library(MASS)
+library(rpart)
+library(randomForest)
 
 
 ################################################################################
@@ -6,25 +10,136 @@
 ################################################################################
 
 #--- Things to Do
-## Order plots by score
 ## add support for other classes: Date, POSIXct, ...
 ## Control by restricting edf, not sp. Also control categorical data.
 ## Add support for ordered factors (and convert numeric with few unique to this)
 
 ## still don't like the built in gam.mgcv smooths. They are not good
 #  when x data has gaps
-#   Note: now using penalized b-splines with 50 knots and restricting min.sp=100
-#         This min.sp=100 is rather arbitrary.
+#   Note: tried using penalized b-splines with 50 knots and restricting min.sp=500
+#         This min.sp=500 is rather arbitrary.
+#   Want some way to specify maximum edf.
 
- 
-library(gbm)
+
+
 library(mgcv)
 
-library(MASS)
-library(rpart)
-library(randomForest)
+#-------------------------------------------------------
+#-- function to plot all component plots
+#-------------------------------------------------------
+cp <- function(fmla,data,fam = poisson(),ylim=c(-2,2),max.df=6,plot=TRUE){ #,min.sp=100)
+  data = model.frame(fmla,data)  # make correct transformations from fmla
+  offset = as.vector(model.offset(data))
+  y = model.response(data)    # response vector
+  vars = attr(terms(data),"term.labels") # predictor variables
+  p = length(vars)
+  if(plot){
+    op <- par(no.readonly=TRUE)
+    on.exit(par(op))
+    psqrt = sqrt(p)
+    if(psqrt %% 1 == 0) xy = c(psqrt,psqrt)
+    else xy = c(ceiling(psqrt),floor(psqrt))
+    par(mfrow=c(xy[1],xy[2]),mar=c(2,2,1.5,1))
+  }
+  score = edf = numeric(p)
+  for(j in 1:p){
+    x = data[,vars[j]]
+    fit = component.fit(x,y,offset,fam=fam,max.df=max.df,ylim=ylim,plot=plot)
+    score[j] = fit$score
+    edf[j] = fit$edf
+    if(plot) title(paste0(vars[j]," (",round(score[j]),")"))
+  }
+return(data.frame(vars,score,edf,var.type=sapply(data[,vars],class),
+                  stringsAsFactors=FALSE))  
+}
 
 
+#-------------------------------------------------------
+#-- function to plot single smoothed fit
+#-------------------------------------------------------
+component.fit <- function(x,y,offset=NULL,fam=poisson(),max.df=6, #min.sp=500,
+                          plot=TRUE, ylim=c(-2,2),xlab='',ylab='relative effect'){
+## min.sp=500 sets edf<8 for all variables
+## max.df=7 forces all numeric vars to have edf<6
+# the points are log(y) - offset - intercept, which is similar to 
+#   log(mu) = offset + intercept + smooth(x)
+  
+  
+  if(plot){
+    pt.color = "grey40"  #rgb(0,0,0,alpha=.8)
+    color = col2rgb("grey80")/255
+    CI.col = rgb(color[1],color[2],color[3],alpha=.6)
+    line.col = "blue"
+  }
+  
+  AIC.null = gam(y~1,family=fam,offset=offset)$aic   # AIC for baseline only model
+  
+  if(length(unique(x)) <= 3 & class(x) %in% c("numeric","integer")) {
+    x = factor(x)
+  }
+  class.x = class(x)
+
+  if(class.x %in% c("factor","character","logical")) {
+    x = factor(x)
+    gg = gam(y ~ s(x,bs = "re"),family = fam,offset = offset,method = "REML")
+    
+    if (plot) {
+      plot(c(.5,nlevels(x) + .5),ylim,typ = 'n',xaxt = 'n',las = 1,
+           xlab=xlab,ylab=ylab)
+      axis(1,at = 1:nlevels(x))
+      yy = fam$linkfun(y) - coef(gg)[1]
+      if (!is.null(offset)) yy = yy - offset # note: log link
+      points(jitter(as.numeric(x)),yy,pch = 19,cex = .4,col = pt.color)
+      pp = predict(gg,data.frame(x = levels(x)),type = 'link',se.fit = TRUE)
+      pp$fit = pp$fit - coef(gg)[1]  # remove intercept
+      lower = pp$fit - 2 * pp$se.fit
+      upper = pp$fit + 2 * pp$se.fit
+      for (i in 1:nlevels(x)) {
+        rect(i - .25,lower[i],i + .25,upper[i],col = CI.col)
+        lines(i + c(-.25,.25),rep(pp$fit[i],2),col = line.col,lwd = 2)
+      }
+      abline(h = 0,lty = 3) #abline(h=log(mean(y)),lty=3)
+      rug(jitter(as.numeric(x[yy < ylim[1]])),col = pt.color)
+      rug(jitter(as.numeric(x[yy > ylim[2]])),side = 3,col = pt.color)
+      box()
+    }
+  }
+
+  if(class.x %in% c("numeric","integer")){
+  nx = length(unique(x))
+
+  #- Bspline with k=50 knots. 3rd degree spline, 2nd degree penalty (limits to liner fit)
+  #  min.sp sets the minimum level of smoothing. Would rather set max df!
+  #gg = gam(y~s(x,k=50,bs="ps",m=c(2,2)),family=fam,offset=offset,method="REML",
+  #       min.sp=min.sp) 
+  kmax = min(nx-1,max.df-1)
+  gg = gam(y~s(x,k=kmax),family=fam,offset=offset,method="REML")  
+  
+  if(plot){
+    yy = fam$linkfun(y) - coef(gg)[1]
+    if(!is.null(offset)) yy = yy - offset # note: log link
+    plot(x,yy,pch=19,cex=.4,ylim=ylim,las=1,typ='n',xlab=xlab,ylab=ylab)
+    xseq = seq(min(x),max(x),length=100)
+    pp = predict(gg,newdata=data.frame(x=xseq),type='link',se.fit=TRUE)
+    pp$fit = pp$fit - coef(gg)[1]  # remove intercept
+    lower = pp$fit - 2*pp$se.fit
+    upper = pp$fit + 2*pp$se.fit
+    polygon(c(xseq,rev(xseq)),c(lower,rev(upper)),col=CI.col,border=NA)
+    points(x,yy,pch=19,cex=.4,col=pt.color)
+    lines(xseq,pp$fit,col=line.col,lwd=2)    
+    rug(jitter(x[yy<ylim[1]]),col = pt.color)         
+    rug(jitter(x[yy>ylim[2]]),side=3,col = pt.color)  # show event that exceed bounds
+    abline(h=0,lty=3) #abline(h=log(mean(y)),lty=3)   
+    box()
+    }
+  }  
+  score = AIC.null - gg$aic  # variable importance (componentwise)  
+  edf = sum(gg$edf)
+return(data.frame(score,edf))  
+}
+
+
+#-- This is old version:
 component.plots <- function(fmla,data,plot=TRUE,fam = poisson(),ylim=c(-2,2),
                             max.df=6,min.sp=100, VARS="NONE",xy=0){
   
