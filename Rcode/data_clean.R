@@ -52,6 +52,8 @@ a$Traffic <- a$IntAADT * 5 * 365 / 1000000  # this is much better related to acc
 
 #-- Merge and save accident data with coordinate data
 a <- merge(a, coordinate, by = "IntID")
+
+write.csv(a,"data/cleaned.csv", row.names=FALSE)
 save(a, file = "data/accidents.RData")
 
 
