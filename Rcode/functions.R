@@ -725,16 +725,25 @@ varImpStandard <- function(v, allVariables) { # scale variable "importance" from
   v <- v[order(names(v))] # this is order by name. Can order by default order?
   v = v * 100 / sum(v) # standardized to add up to 100
   
-  if(length(v) < length(allVariables)) {
-    s <- rep(0, length(allVariables))
-    names(s) <- allVariables
-    matchedVariables <- allVariables[which(allVariables %in% names(v))]
-    s[matchedVariables] <- v[matchedVariables]
-    v = s
-  } else if(length(v) > length(allVariables)) { # remove extra variables
-    v = v[names(v) %in% allVariables]
-  }
-  
+#   if(length(v) < length(allVariables)) {
+#     s <- rep(0, length(allVariables))
+#     names(s) <- allVariables
+#     matchedVariables <- allVariables[which(allVariables %in% names(v))]
+#     s[matchedVariables] <- v[matchedVariables]
+#     v = s
+#   } else if(length(v) > length(allVariables)) { # remove extra variables
+#     v = v[names(v) %in% allVariables]
+#   }
+####################
+#- ensure same order for all variables
+s <- rep(0, length(allVariables))
+names(s) <- allVariables
+ind = match(names(v),names(s))
+ok = !is.na(ind)
+s[ind[ok]] = v[ok]
+v=s
+###################
+    
   return(v)
 }
 
