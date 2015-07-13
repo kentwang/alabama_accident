@@ -15,6 +15,13 @@ a[(a == "<Null>")] = NA  # convert <Null> to NA
 #-- Remove data from IntCat==9
 a = subset(a,!(IntCat == 9))  # This should remove all the intersections and legs
 
+#-- Correct 414350_3
+ind = which(a$LegID == "414350_3")
+a$NumLanes[ind] = 1     # Number of Lanes = 1
+a$RTLanes[ind] = 1      # Number of Right Turn Lane = 1, 
+a$RTWidth[ind] = 14     # Right Turn Lane Width = 14 feet, 
+a$TurnProhib[ind] = '3' # Turn Prohibitions = No Left Turn. 
+
 #-- convert categorical data to "factor"
 ind = which(vClass$Class=="categorical")
 for(j in ind) a[,j] = factor(a[,j])
@@ -55,5 +62,3 @@ a <- merge(a, coordinate, by = "IntID")
 
 write.csv(a,"data/cleaned.csv", row.names=FALSE)
 save(a, file = "data/accidents.RData")
-
-
