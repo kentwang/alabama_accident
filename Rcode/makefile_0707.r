@@ -16,7 +16,8 @@ source('Rcode/glm_my.R')
 
 
 #-- Plotting Properties
-plotDir = 'graph'
+plotDir = 'graph_nolatlong'
+# plotDir = 'graph'
 #plotDir = 'C:/GoogleDrive/PROJECTS/Accident/paper/paper_latex/graph'
 
 pdf.options(family='Bookman',pointsize=10)
@@ -61,6 +62,15 @@ a %>% filter(IntID %in% c('414350','125862'))
 
 
 #-- Create formula
+# fmla.offset <- as.formula("X5YrCrashCount ~ AreaType + IntCat + IntTCType + LegRtType + 
+#                     LegSpeed + LegTCType + LegType + LegWidth + Lighting + 
+#                     LTLanes + LTLnLength + LTOffset + LTWidth + MedType + 
+#                     MedWidth + MergeLanes + NextPIDist + NumberLegs + 
+#                     NumLanes + Offset + OffsetDist + OneWay + PaveType + 
+#                     PedCross + RTChannel + RTLanes + RTLnLength + RTMoveCtrl + 
+#                     RTWidth + Rumble + SightLt + SightRt + SkewAngle + Terrain + 
+#                     offset(log(Traffic)) + TurnProhib + Lat + Long") 
+
 fmla.offset <- as.formula("X5YrCrashCount ~ AreaType + IntCat + IntTCType + LegRtType + 
                     LegSpeed + LegTCType + LegType + LegWidth + Lighting + 
                     LTLanes + LTLnLength + LTOffset + LTWidth + MedType + 
@@ -68,7 +78,7 @@ fmla.offset <- as.formula("X5YrCrashCount ~ AreaType + IntCat + IntTCType + LegR
                     NumLanes + Offset + OffsetDist + OneWay + PaveType + 
                     PedCross + RTChannel + RTLanes + RTLnLength + RTMoveCtrl + 
                     RTWidth + Rumble + SightLt + SightRt + SkewAngle + Terrain + 
-                    offset(log(Traffic)) + TurnProhib + Lat + Long") 
+                    offset(log(Traffic)) + TurnProhib") # formula without lat/long
 
 
 
@@ -206,7 +216,7 @@ plot.info = data.frame(
 
 
 
-#pdf(file=file.path(plotDir,"Fig2.pdf"),width=8,height=3)
+pdf(file=file.path(plotDir,"Fig2.pdf"),width=8,height=3)
   par(mfrow=c(1,1),mar=c(4.1,4,1,1),las=1)
   plot(c(1,max.complex),c(1.57,2.2),typ='n',
        ylab="prediction error",xlab="model complexity",xaxt='n')
@@ -231,7 +241,7 @@ plot.info = data.frame(
   legend("topleft" ,legend=model, col=col,pch=pch,lty=lty,pt.cex=pt.cex,
          lwd = 2, ncol = 1, cex=1,bty='n') #text.font = 3
   )
-#dev.off()
+dev.off()
 
 
 
@@ -252,7 +262,7 @@ score.glmnet = data_frame(complexity=attr(mu.cv.glmnet.offset, "lambda"),
                           c2=-log(complexity/max(complexity)),
                           score=na.omit(mlogL(mu.cv.glmnet.offset,Y)))
 ## Note: another step with complexity.
-score.tree = data_frame(complexity=cp.seq,c2=cp.seq/200,score=mlogL(mu.cv.tree.offset, Y))
+# score.tree = data_frame(complexity=cp.seq,c2=cp.seq/200,score=mlogL(mu.cv.tree.offset, Y))
 score.gbm = data_frame(complexity=tree.seq,c2=tree.seq/1000,score=na.omit(mlogL(gbm_4.offset, Y)))
 
 
