@@ -98,9 +98,13 @@ score = edf = nlevs = numeric(p)
 for(j in 1:p){
   x = data[,vars[j]]
   fit = component.fit(x,y,offset,fam=poisson(),max.df=6,plot=FALSE)
-  score[j] = fit$score
-  edf[j] = fit$edf
-  nlevs[j] = nlevels(x)
+  score[j] = fit$score           
+  edf[j] = fit$edf               # effective degrees of freedom 
+#  nlevs[j] = nlevels(x)          
+  nlevs[j] = ifelse(is.factor(x), # number of unique (or possible) values
+                    nlevels(x),
+                    length(unique(x)))
+  
 }
 score = data.frame(vars,score,edf,var.type=sapply(data[,vars],class),nlevs,
                   stringsAsFactors=FALSE)  
@@ -256,15 +260,16 @@ dev.off()
 #        col = c(6, 2, 3, 'orange', 4), pch=c(15,16,NA_integer_,NA_integer_,NA_integer_),
 #        lty=c(1,1,1,4,2),lwd = 2, text.font = 3, ncol = 5, pt.cex=c(1.2,1.2,1,1,1), cex = 1.2)
 
-score.poisReg = data.frame(complexity=1:max.complex,c2=1:max.complex,score=mlogL(mu.cv.poisReg.offset,Y))
-score.negBino = data.frame(complexity=1:max.complex,c2=1:max.complex,score=mlogL(mu.cv.negBino.offset,Y))
-score.glmnet = data_frame(complexity=attr(mu.cv.glmnet.offset, "lambda"),
-                          c2=-log(complexity/max(complexity)),
-                          score=na.omit(mlogL(mu.cv.glmnet.offset,Y)))
-## Note: another step with complexity.
-# score.tree = data_frame(complexity=cp.seq,c2=cp.seq/200,score=mlogL(mu.cv.tree.offset, Y))
-score.gbm = data_frame(complexity=tree.seq,c2=tree.seq/1000,score=na.omit(mlogL(gbm_4.offset, Y)))
-
+#-- mdp 8/31/2015 don't think these are needed
+# score.poisReg = data.frame(complexity=1:max.complex,c2=1:max.complex,score=mlogL(mu.cv.poisReg.offset,Y))
+# score.negBino = data.frame(complexity=1:max.complex,c2=1:max.complex,score=mlogL(mu.cv.negBino.offset,Y))
+# score.glmnet = data_frame(complexity=attr(mu.cv.glmnet.offset, "lambda"),
+#                           c2=-log(complexity/max(complexity)),
+#                           score=na.omit(mlogL(mu.cv.glmnet.offset,Y)))
+# ## Note: another step with complexity.
+# # score.tree = data_frame(complexity=cp.seq,c2=cp.seq/200,score=mlogL(mu.cv.tree.offset, Y))
+# score.gbm = data_frame(complexity=tree.seq,c2=tree.seq/1000,score=na.omit(mlogL(gbm_4.offset, Y)))
+# 
 
 
 
@@ -505,7 +510,7 @@ pdf(file=file.path(plotDir,"Fig4.pdf"),width=5,height=5)
   
   #- Add variable importance score to diagonal
   vi = round(varImp_trunc$BRT[match(imp.vars,varImp_trunc$var)])
-  text(1:23,23:1,labels=vi,col="brown",cex=.7)  
+  text(1:length(vi),length(vi):1,labels=vi,col="brown",cex=.7)  
 
 dev.off()
   
