@@ -121,16 +121,20 @@ length(unique(a$IntID))  # number of intersections
 
 
 #--------------------------------------------
-# Table 1
+# Table 1 (old) and new separate tables
 #--------------------------------------------
-transform(score[ordered_component,],score=round(score),edf=round(edf,1))   
-  
+transform(score[ordered_component,],score=round(score),edf=round(edf,1)) # old Table 1  
 
-
-
-
-  
-
+for(i in 1:length(ordered_component)) {
+  var = ordered_component[i]
+  varCol = data[, var]
+  if(!is.factor(varCol)) {
+    cat(var, "&", min(varCol), "&", max(varCol), "&", round(mean(varCol), 2), "&", 
+        round(sd(varCol), 2), "&", "-", "\\\\\n")
+  } else {
+    cat(var, "&", "-", "&", "-", "&", "-", "&", "-", "&", nlevels(varCol), "\\\\\n")
+  }
+}
 
 
 
@@ -149,7 +153,8 @@ vars = attr(terms(data),"term.labels")
 
 
 
-#pdf(file=file.path(plotDir,"Fig1.pdf"),width=8,height=6)
+pdf(file=file.path(plotDir,"Fig1.pdf"),width=8,height=6)
+# jpeg(file=file.path(plotDir,"Fig1.jpeg"),width=800,height=600,quality=150)
   par(mfrow=c(2,2),mar=c(4,2,1.5,1))
   for(i in 1:length(VARS)){
     var = VARS[i]
@@ -158,7 +163,7 @@ vars = attr(terms(data),"term.labels")
     mtext(side = 1, paste0("(",letters[i], ") ",var," (",round(fit$score),")"), 
           line = 2.5, cex = 1.2)
   }
-#dev.off()
+dev.off()
 
 
 
@@ -452,7 +457,7 @@ ggplot(VI, aes(y=var, x=importance)) +
   #theme(legend.position = c(1.01, -.01), legend.justification=c(1,0), 
 
 
-# ggsave(filename=file.path(plotDir,"Fig3.pdf"),width=7.5,height=7.5)
+ggsave(filename=file.path(plotDir,"Fig3.pdf"),width=7.5,height=7.5)
 
 
 arrange(varImp_trunc,desc(BRT))
