@@ -12,6 +12,11 @@ vClass[vClass$VarName=="MergeLanes","Class"] = "categorical"
 coordinate <- read.csv("data/coordinate.csv")
 a[(a == "<Null>")] = NA  # convert <Null> to NA
 
+#-- Remove second level of LegRtType (Interstate) and reduce the level values
+a = subset(a, !(LegRtType == 2))
+levelInd = which(a$LegRtType > 2)
+a$LegRtType[levelInd] = a$LegRtType[levelInd] - 1
+
 #-- Remove data from IntCat==9
 a = subset(a,!(IntCat == 9))  # This should remove all the intersections and legs
 
