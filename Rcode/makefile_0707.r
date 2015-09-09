@@ -131,7 +131,13 @@ for(i in 1:length(ordered_component)) {
   if(!is.factor(varCol)) {
     cat(var, "&", min(varCol), "&", max(varCol), "&", round(mean(varCol), 2), "&", 
         round(sd(varCol), 2), "&", "-", "\\\\\n")
-  } else {
+  }
+}
+
+for(i in 1:length(ordered_component)) {
+  var = ordered_component[i]
+  varCol = data[, var]
+  if(is.factor(varCol)) {
     cat(var, "&", "-", "&", "-", "&", "-", "&", "-", "&", nlevels(varCol), "\\\\\n")
   }
 }
@@ -168,14 +174,14 @@ dev.off()
 
 
 
-# #-- plot all component plots (ordered from largest to lowest score)
-# par(mfrow=c(7,6),mar=c(2,2,1.5,1))
-# for(j in 1:p){
-#   var = ordered_component[j]
-#   x = data[,var]
-#   fit = component.fit(x,y,offset,fam=poisson(),max.df=6,plot=TRUE)
-#   title(paste0(var," (",round(fit$score),")"))
-# }
+#-- plot all component plots (ordered from largest to lowest score)
+par(mfrow=c(7,6),mar=c(2,2,1.5,1))
+for(j in 1:p){
+  var = ordered_component[j]
+  x = data[,var]
+  fit = component.fit(x,y,offset,fam=poisson(),max.df=6,plot=TRUE)
+  title(paste0(var," (",round(fit$score),")"))
+}
 
 
               
