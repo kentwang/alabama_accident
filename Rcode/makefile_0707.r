@@ -175,6 +175,7 @@ dev.off()
 
 
 #-- plot all component plots (ordered from largest to lowest score)
+pdf(file=file.path(plotDir,"Fig1.pdf"),width=8,height=6)
 par(mfrow=c(7,6),mar=c(2,2,1.5,1))
 for(j in 1:p){
   var = ordered_component[j]
