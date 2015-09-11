@@ -138,7 +138,7 @@ for(i in 1:length(ordered_component)) {
   var = ordered_component[i]
   varCol = data[, var]
   if(is.factor(varCol)) {
-    cat(var, "&", "-", "&", "-", "&", "-", "&", "-", "&", nlevels(varCol), "\\\\\n")
+    cat(var, "\n", "&", score[var, 'score'], "&", nlevels(varCol), "\\\\\n")
   }
 }
 
@@ -175,7 +175,7 @@ dev.off()
 
 
 #-- plot all component plots (ordered from largest to lowest score)
-pdf(file=file.path(plotDir,"Fig1.pdf"),width=8,height=6)
+pdf(file=file.path(plotDir,"Complete_Component.pdf"),width=8,height=6)
 par(mfrow=c(7,6),mar=c(2,2,1.5,1))
 for(j in 1:p){
   var = ordered_component[j]
@@ -183,7 +183,7 @@ for(j in 1:p){
   fit = component.fit(x,y,offset,fam=poisson(),max.df=6,plot=TRUE)
   title(paste0(var," (",round(fit$score),")"))
 }
-
+dev.off()
 
               
 #--------------------------------------------
