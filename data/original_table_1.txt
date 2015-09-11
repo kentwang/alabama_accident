@@ -1,0 +1,42 @@
+Factor Name & Definition & Road Level &  Factor Type & Strength\\
+\hline
+\textit{IntCat} & Intersection Category & Inter & Categorical & 109 & 12 & 178 & 44.11 & 32.94 \\
+\textit{IntCat} & Intersection Category & Inter & Categorical & 109\\
+\textit{LegRtType} & Leg Route Type & Leg & Categorical & 107\\
+\textit{AreaType} & Area Type & Inter & Categorical & 73\\
+\textit{LegWidth} & Leg Width & Leg & Numerical & 66\\
+\textit{OneWay} & One Way & Leg & Categorical & 66\\
+\textit{Lat} & Latitude & Inter & Numerical & 54\\
+\textit{NumLanes} & Number of Lanes & Leg & Numerical & 51\\
+\textit{Terrain} & Area Terrain & Inter & Categorical & 46\\
+\textit{Long} & Longitude & Inter & Numerical & 44\\
+\textit{NextPIDist} & Distance to Next Public Intersection & Inter & Numerical & 39\\
+\textit{Lighting} & Presence of Lighting & Inter & Categorical & 35\\
+\textit{LegTCType} & Leg Traffic Control Type & Leg & Categorical & 32\\
+\textit{LegSpeed} & Leg Speed & Leg & Numerical & 31\\
+\textit{MedWidth} & Median Width & Leg & Numerical & 30\\
+\textit{LegType} & Leg Type & Leg & Categorical & 25\\
+\textit{OffsetDist} & Offset Distance & Inter & Numerical & 17\\
+\textit{TurnProhib} & Turn Prohibitions & Leg & Categorical & 14\\
+\textit{RTMoveCtrl} & Right Turn Movement Control & Leg & Categorical & 12\\
+\textit{Offset} & Offset Intersection & Inter & Categorical & 12\\
+\textit{LTWidth} & Left Turn Lane Width & Leg & Numerical & 11\\
+\textit{IntTCType} & Intersection Traffic Control Type & Inter & Categorical & 11\\
+\textit{LTOffset} & Left Turn Lane Offset Distance & Leg & Numerical & 10\\
+\textit{SightRt} & Right Turn Sight Distance & Leg & Categorical & 8\\
+\textit{LTLanes} & Number of Left Turn Lanes & Leg & Numerical & 8 \\
+\textit{LTLnLength} & Left Turn Lane Length & Leg & Numerical & 7\\
+\textit{RTWidth} & Right Turn Lane Width & Leg & Numerical & 6\\
+\textit{PedCross} & Pedestrian Crossing Control Type & Leg & Categorical & 5\\
+\textit{SightLt} & Level Turn Sight Distance & Leg & Categorical & 4\\
+\textit{PaveType} & Pavement Type & Leg & Categorical & 3\\
+\textit{RTLanes} & Number of Right Turn Lanes & Leg & Numerical & 2\\
+\textit{MedType} & Median Type & Leg & Categorical & 2\\
+\textit{RTChannel} & Right Turn Channelization Type & Leg & Categorical & 1\\
+\textit{MergeLanes} & Number of Merge Lanes & Leg & Numerical & 1\\
+\textit{NumLegs} & Number of Legs & Inter & Numerical & 0\\
+\textit{Rumble} & Transverse Rumble Strip Presence & Leg & Categorical & 0\\
+\textit{SkewAngle} & Skew Angle & Inter & Numerical & -1\\
+\textit{RTLnLength} & Right Turn Lane Length & Leg & Numerical & -2\\
+$v$ & Traffic over 5 Years (5 x 365 x AADT) & Inter & Numerical & $<$offset$>$\\
+\textit{5YrCrashCount} & Number of Crashes over 5 Years & Leg & Numerical & $<$response$>$\\
