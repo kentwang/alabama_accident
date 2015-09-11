@@ -148,7 +148,7 @@ for(i in 1:length(ordered_component)) {
 # Figure 1 Exploratory Analysis
 #--------------------------------------------
 #-- Draw four most and two least influential factors
-VARS = c("IntCat", "LegRtType", "SkewAngle", "RTLnLength")
+VARS = c("IntCat", "OneWay", "SkewAngle", "RTLnLength")
 #score.offset = component.plots(fmla.offset,data=a,VARS=VARS,xy=c(2,2))
 
 
@@ -205,6 +205,7 @@ set.seed(20150702)
 gbm_4.offset <- cv.gbmPois(fmla.offset, data = a, fold = fold,
                            tree.seq = tree.seq, interaction.depth=4,
                            shrinkage = .005)
+gbm_4.offset <- gbm_6.offset_01 # use this assignment without fitting again
 
 # complexity tuning parameters
 complex.poisReg = 1:max.complex
