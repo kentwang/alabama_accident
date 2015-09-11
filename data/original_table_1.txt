@@ -1,6 +1,3 @@
-Factor Name & Definition & Road Level &  Factor Type & Strength\\
-\hline
-\textit{IntCat} & Intersection Category & Inter & Categorical & 109 & 12 & 178 & 44.11 & 32.94 \\
 \textit{IntCat} & Intersection Category & Inter & Categorical & 109\\
 \textit{LegRtType} & Leg Route Type & Leg & Categorical & 107\\
 \textit{AreaType} & Area Type & Inter & Categorical & 73\\

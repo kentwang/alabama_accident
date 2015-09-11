@@ -125,20 +125,31 @@ length(unique(a$IntID))  # number of intersections
 #--------------------------------------------
 transform(score[ordered_component,],score=round(score),edf=round(edf,1)) # old Table 1  
 
+original_table = read.table("data/original_table_1_nobackslash.txt", sep='&')
+row.names(original_table) = original_table$V1
+
+cat('Factor Name & Definition & Level & Strength & Min & Max & Mean & SD', "\n")
 for(i in 1:length(ordered_component)) {
   var = ordered_component[i]
   varCol = data[, var]
   if(!is.factor(varCol)) {
-    cat(var, "&", min(varCol), "&", max(varCol), "&", round(mean(varCol), 2), "&", 
-        round(sd(varCol), 2), "&", "-", "\\\\\n")
+    cat('\\textit{', trimws(as.character(original_table[var, 'V1'])), '}', '&', 
+    trimws(as.character(original_table[var, 'V2'])), '&',
+    trimws(as.character(original_table[var, 'V3'])), '&',
+    score[var, 'score'],  "&", min(varCol), "&", max(varCol), "&", 
+    round(mean(varCol), 2), "&", round(sd(varCol), 2), "\\\\\n", sep='')
   }
 }
 
+cat('Factor Name & Definition & Level & Strength & nLevels', "\n")
 for(i in 1:length(ordered_component)) {
   var = ordered_component[i]
   varCol = data[, var]
   if(is.factor(varCol)) {
-    cat(var, "\n", "&", score[var, 'score'], "&", nlevels(varCol), "\\\\\n")
+    cat('\\textit{', trimws(as.character(original_table[var, 'V1'])), '}', '&', 
+    trimws(as.character(original_table[var, 'V2'])), '&',
+    trimws(as.character(original_table[var, 'V3'])), '&', 
+    score[var, 'score'], "&", nlevels(varCol), "\\\\\n", sep='')
   }
 }
 

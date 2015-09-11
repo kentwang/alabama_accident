@@ -1,6 +1,3 @@
-Factor Name & Definition & Road Level &  Factor Type & Strength
-hline
-IntCat & Intersection Category & Inter & Categorical & 109 & 12 & 178 & 44.11 & 32.94 
 IntCat & Intersection Category & Inter & Categorical & 109
 LegRtType & Leg Route Type & Leg & Categorical & 107
 AreaType & Area Type & Inter & Categorical & 73
@@ -34,7 +31,7 @@ RTLanes & Number of Right Turn Lanes & Leg & Numerical & 2
 MedType & Median Type & Leg & Categorical & 2
 RTChannel & Right Turn Channelization Type & Leg & Categorical & 1
 MergeLanes & Number of Merge Lanes & Leg & Numerical & 1
-NumLegs & Number of Legs & Inter & Numerical & 0
+NumberLegs & Number of Legs & Inter & Numerical & 0
 Rumble & Transverse Rumble Strip Presence & Leg & Categorical & 0
 SkewAngle & Skew Angle & Inter & Numerical & -1
 RTLnLength & Right Turn Lane Length & Leg & Numerical & -2
