@@ -94,13 +94,28 @@ legend("topleft" ,
 			"Dept 6, shrinkage 0.01", "Dept 6, shrinkage 0.005", "Dept 6, shrinkage 0.001"),
 	col = 1:12, lwd = 2, text.font = 3, cex = 0.8)
 
+#######################################
+# try comparing depth and fix shrinkage
+#######################################
+set.seed(20150702)
 
+gbm_6.offset_005 <- cv.gbmPois(fmla.offset, data = a, fold = fold,
+                              tree.seq = tree.seq, interaction.depth=6,
+                              shrinkage = .005)
 
+gbm_7.offset_005 <- cv.gbmPois(fmla.offset, data = a, fold = fold,
+                               tree.seq = tree.seq, interaction.depth=7,
+                               shrinkage = .005)
 
+gbm_8.offset_005 <- cv.gbmPois(fmla.offset, data = a, fold = fold,
+                               tree.seq = tree.seq, interaction.depth=8,
+                               shrinkage = .005)
 
+plot(tree.seq,mlogL(gbm_6.offset_005 ,Y),type="l", ylim = c(1.5, 2.0), col=1,ylab="mlogL")
+lines(tree.seq,mlogL(gbm_7.offset_005 ,Y), col=2)
+lines(tree.seq,mlogL(gbm_8.offset_005 ,Y), col=3)
 
-
-
-
-
+title("GBM Comparison Using Mean Loglikelihood")
+legend("topleft", legend = c("Dept 6", "Depth 7", "Depth 8"), 
+       col = 1:3, lwd = 2, text.font = 3, cex = 0.8)
 

@@ -204,7 +204,7 @@ fold = cvfolds(nrow(a),k=20,seed=9122014)  # get cv partition info fold 20 and 5
 Y = a$X5YrCrashCount  # response
 
 max.complex = 10
-tree.seq = seq(500,10000,by=100)
+tree.seq = seq(300,3000,by=100)
 cp.seq = seq(0, 0.05, by = 0.0001)
 
 # fit models with cross-validation
@@ -213,10 +213,10 @@ mu.cv.negBino.offset <- cv.negBino(fmla.offset, data = a, fold= fold, max.comple
 mu.cv.glmnet.offset = cv.glmnetPois(fmla.offset,data=a,fold=fold)
 #mu.cv.tree.offset = cv.treePois(fmla.offset, data = a, fold = fold, cp.seq = cp.seq, show.pb=TRUE)
 set.seed(20150702)
-gbm_6.offset_01  <- cv.gbmPois(fmla.offset, data = a, fold = fold,
-                           tree.seq = tree.seq, interaction.depth=6,
-                           shrinkage = .01)
-gbm_4.offset <- gbm_6.offset_01 # use this assignment without changing notation
+gbm_7.offset_01  <- cv.gbmPois(fmla.offset, data = a, fold = fold,
+                           tree.seq = tree.seq, interaction.depth=7,
+                           shrinkage = .005)
+gbm_4.offset <- gbm_7.offset_01 # use this assignment without changing notation
 
 # complexity tuning parameters
 complex.poisReg = 1:max.complex
@@ -225,7 +225,7 @@ complex.glmnet = -1.2*log(attr(mu.cv.glmnet.offset, "lambda"))
 #complex.glmnet = -log(complex.glmnet/max(complex.glmnet))
 #complex.glmnet = complex.glmnet + (10-max(complex.glmnet))
 #complex.glmnet = 10*complex.glmnet/max(complex.glmnet)
-complex.gbm = tree.seq/1000
+complex.gbm = tree.seq/300
 complex.tree = cp.seq*200
 
 # Figure 2
