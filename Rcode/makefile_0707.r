@@ -461,9 +461,10 @@ library(tidyr)
 VI = tidyr::gather(varImp_trunc,model,importance,-var)  # convert to long format
 
 
-#- order variables by ordered_componenet
+#- order variables by ordered_componenet and replace 0 with NA
 VI$var= factor(VI$var,levels=rev(ordered_component))
 VI$model = factor(VI$model,levels=plot.info$model)
+VI[VI==0] = NA
 
 ggplot(VI, aes(y=var, x=importance)) + 
   geom_point(aes(shape = model, col = model,size=model)) + 
@@ -472,7 +473,8 @@ ggplot(VI, aes(y=var, x=importance)) +
   scale_fill_manual(values=plot.info$col) + 
   scale_shape_manual(values=plot.info$pch) + 
   scale_size_manual(values=3*plot.info$pt.cex) +
-  theme(legend.key=element_blank()) 
+  theme(legend.key=element_blank())
+  # geom_vline(xintercept = 0)
   #theme(legend.position = c(1.01, -.01), legend.justification=c(1,0), 
 
 
