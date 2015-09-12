@@ -310,7 +310,7 @@ cp.gbm = tree.seq[which.min(mlogL(gbm_4.offset , Y))]
 
 data.frame(
  model = c("Poisson", "NB", "glmnet", "BRT"),
- transformed = c(cp.poisReg,cp.negBino,-1.2*log(cp.glmnet),cp.gbm/1000),
+ transformed = c(cp.poisReg,cp.negBino,-1.2*log(cp.glmnet),cp.gbm/300),
  original = c(cp.poisReg,cp.negBino,cp.glmnet,cp.gbm),
  prediction.error = round( c(min( mlogL(mu.cv.poisReg.offset , Y)),
                       min( mlogL(mu.cv.negBino.offset , Y),na.rm=TRUE),
