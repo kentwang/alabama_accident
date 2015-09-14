@@ -118,6 +118,8 @@ ordered_component = score$vars[order(-score$score)]  # decreasing order of score
 #--------------------------------------------
 nrow(a)                  # number of legs
 length(unique(a$IntID))  # number of intersections
+length(attr(terms(fmla.offset),"term.labels"))  # number of predictors
+length(attr(terms(fmla.offset),"offset"))       # offset indicator
 
 
 #--------------------------------------------
@@ -141,7 +143,7 @@ for(i in 1:length(ordered_component)) {
   }
 }
 
-cat('Factor Name & Definition & Level & Strength & nLevels', "\n")
+cat('Factor Name & Definition & Level & Strength & \\# categories', "\n")
 for(i in 1:length(ordered_component)) {
   var = ordered_component[i]
   varCol = data[, var]
@@ -213,9 +215,11 @@ mu.cv.negBino.offset <- cv.negBino(fmla.offset, data = a, fold= fold, max.comple
 mu.cv.glmnet.offset = cv.glmnetPois(fmla.offset,data=a,fold=fold)
 #mu.cv.tree.offset = cv.treePois(fmla.offset, data = a, fold = fold, cp.seq = cp.seq, show.pb=TRUE)
 set.seed(20150702)
+idepth = 7           # ensure same settings for best.gbm (line 341)
+shrink = .005
 gbm_7.offset_01  <- cv.gbmPois(fmla.offset, data = a, fold = fold,
-                           tree.seq = tree.seq, interaction.depth=7,
-                           shrinkage = .005)
+                           tree.seq = tree.seq, interaction.depth=idepth,
+                           shrinkage = shrink)
 gbm_4.offset <- gbm_7.offset_01 # use this assignment without changing notation
 
 # complexity tuning parameters
@@ -335,7 +339,9 @@ best.glmnet = glmnet(X,Y,offset=offset,family="poisson",alpha=0.8, lambda = cp.g
 # best.gbm = summary(gbm(fmla.offset, data=a, distribution = "poisson", n.trees = cp.gbm,
 #                        interaction.depth = 4), plotit=FALSE)
 best.gbm = gbm(fmla.offset, data=a, distribution = "poisson", n.trees = cp.gbm,
-                        interaction.depth = 6, shrinkage=.01)
+                        interaction.depth = idepth, shrinkage=shrink)
+
+
 
 #tree.0 = rpart(fmla.offset, data = a, method = "poisson", cp = 0,xval=0, minbucket=3)
 #best.tree = prune(tree.0,cp=cp.tree)
@@ -577,12 +583,24 @@ sort(apply(i2,2,function(x) sum(x[x>.10])),decreasing=TRUE)
 
 
 
+#--------------------------------------------
+# Figure 5. SkewAngle Interactions
+#--------------------------------------------
 
+  data = model.frame(fmla.offset,a)  # make correct transformations from fmla
+  offset = as.vector(model.offset(data))
+  y = model.response(data)    # response vector
+  vars = attr(terms(data),"term.labels") # predictor variables
+  p = length(vars) 
+  
+library(mgcv)
+  ff = gam(y~te(SkewAngle,LegWidth),family="poisson",offset=offset,data=a)
+  plot(ff,scheme=0,se=FALSE,main='')
+  plot(ff,scheme=2,se=FALSE,main='')  
+  plot(ff,scheme=1,main="crash rate")
 
-
-
-
-
+  
+  
 
 
 
