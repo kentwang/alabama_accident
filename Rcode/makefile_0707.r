@@ -600,7 +600,42 @@ library(mgcv)
   plot(ff,scheme=1,main="crash rate")
 
   
+pdf(file=file.path(plotDir,"Fig5.pdf"),width=5,height=5)  
+  par(mar=c(0,0,0,0),xpd=NA)
+  plot(ff,scheme=1,main="crash rate")
+dev.off() 
   
+#--------------------------------------------
+# Figure 5. PedCross and SightRt
+#  Note: manually added table in paper
+#--------------------------------------------
+  x = a %>% group_by(SightRt,PedCross) %>% summarize(
+  rate=sum(X5YrCrashCount)/sum(Traffic),
+  count=n())
+
+  overall.rate = sum(a$X5YrCrashCount)/sum(a$Traffic)
+  
+  
+rate = x %>% dplyr::select(-count) %>% spread(PedCross,rate)
+count = x %>% dplyr::select(-rate) %>% spread(PedCross,count)
+
+library(xtable)
+xtab = xtable(rate)
+print(xtab,include.rownames=FALSE)
+
+
+library(xtable)
+xtab = xtable(count)
+print(xtab,include.rownames=FALSE)
+
+
+a %>% group_by(SightRt) %>% summarize(
+  rate=sum(X5YrCrashCount)/sum(Traffic),
+  count=n()) %>% mutate(rate=round(rate,2))
+
+a %>% group_by(PedCross) %>% summarize(
+  rate=sum(X5YrCrashCount)/sum(Traffic),
+  count=n()) %>% mutate(rate=round(rate,2))
 
 
 
